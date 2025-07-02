@@ -10,7 +10,6 @@ metadata:
 spec:
   type: NodePort
   # create a headless service
-  clusterIP: None
   publishNotReadyAddresses: true
   selector:
     {{- include "fbcore.selectorLabels" . | nindent 4 }}

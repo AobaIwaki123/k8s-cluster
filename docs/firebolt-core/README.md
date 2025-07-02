@@ -19,6 +19,7 @@ int
 42
 ```
 
+curl -s "http://192.168.11.212:3473" --data-binary "with tmp as (select 42 as number) select *from tmp";
 ## Ref
 
 - [Introducing Firebolt Core - Self-Hosted Firebolt, For Free, Forever - June 24, 2025](https://www.firebolt.io/blog/introducing-firebolt-core)

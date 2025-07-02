@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/AobaIwaki123/k8s-cluter.git
     targetRevision: add-firebolt-core
-    path: add-firebolt-core
+    path: docs/firebolt-core
     helm:
       valueFiles:
         - values.yaml
