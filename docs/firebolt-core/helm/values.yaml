@@ -5,7 +5,7 @@ image:
   tag:
 
 # -- number of nodes to deploy
-nodesCount: 3
+nodesCount: 1
 
 # -- readiness check on each pod
 readiness: true
