@@ -35,7 +35,7 @@ deployment:
   storageSpec:
     accessModes:
       - ReadWriteOnce
-    storageClassName: gp3
+    storageClassName: ceph-rbd
     resources:
       requests:
         storage: 1Gi
