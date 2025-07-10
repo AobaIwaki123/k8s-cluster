@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: firebolt-core
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/AobaIwaki123/k8s-cluter.git
+    targetRevision: add-firebolt-core
+    path: docs/firebolt-core/helm
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: namespace
+          value: firebolt-core
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: firebolt-core
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      retry:
+        limit: 5
+        backoff:
+          duration: 5s
+          factor: 2
+          maxDuration: 3m

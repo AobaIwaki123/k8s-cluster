@@ -8,9 +8,8 @@ metadata:
     {{- include "fbcore.labels" . | nindent 4 }}
     firebolt/nodes-count: {{ .Values.nodesCount | quote }}
 spec:
-  type: ClusterIP
+  type: NodePort
   # create a headless service
-  clusterIP: None
   publishNotReadyAddresses: true
   selector:
     {{- include "fbcore.selectorLabels" . | nindent 4 }}
