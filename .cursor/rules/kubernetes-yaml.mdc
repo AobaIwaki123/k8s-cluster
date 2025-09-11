@@ -1,0 +1,457 @@
+---
+globs: "**/*.yml,**/*.yaml"
+description: Kubernetes YAML manifests formatting and best practices
+---
+
+# Kubernetes YAML マニフェスト規則
+
+このルールは YAML ファイル (`*.yml`, `*.yaml`) に適用されます。
+
+## YAML フォーマット規則
+
+### 基本的なフォーマット
+```yaml
+# ファイルの先頭にコメントで説明を追加
+# {コンポーネント名}の{目的}
+
+# 複数リソースがある場合はセパレーターを使用
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: example-config
+  namespace: example
+  labels:
+    app.kubernetes.io/name: example
+    app.kubernetes.io/instance: example-prod
+    app.kubernetes.io/version: "1.0"
+data:
+  config.yaml: |
+    # 埋め込みYAMLは適切にインデント
+    server:
+      port: 8080
+---
+# 次のリソース
+apiVersion: apps/v1
+kind: Deployment
+# ...
+```
+
+### インデントとスペース
+- **インデント**: 2スペースを一貫して使用
+- **コロンの後**: 必ず1スペース空ける
+- **リスト項目**: ハイフンの後に1スペース
+- **改行**: 論理的なセクション間に空行を挿入
+
+### 文字列のクォート
+```yaml
+# 曖昧な可能性がある値は常にクォート
+name: "example-app"
+version: "1.0"
+port: "8080"  # 数値でもストリングとして扱う場合
+
+# 純粋な数値や boolean は裸で記述
+replicas: 3
+enabled: true
+cpu: 100m  # Kubernetes リソース量
+```
+
+## Kubernetes リソース共通規則
+
+### メタデータ標準
+```yaml
+metadata:
+  name: {component-name}
+  namespace: {component-namespace}
+  labels:
+    # Kubernetes 推奨ラベル
+    app.kubernetes.io/name: {app-name}
+    app.kubernetes.io/instance: {instance-name}
+    app.kubernetes.io/version: {app-version}
+    app.kubernetes.io/component: {component}
+    app.kubernetes.io/part-of: {app-system}
+    app.kubernetes.io/managed-by: {tool}
+    
+    # プロジェクト固有ラベル
+    project: k8s-cluster
+  annotations:
+    # 必要に応じてアノテーションを追加
+    description: "{リソースの説明}"
+```
+
+### 命名規則
+- **リソース名**: ケバブケース (`my-app`, `config-map`)
+- **ラベル値**: ケバブケース
+- **アノテーション**: ドメイン形式またはケバブケース
+- **名前空間**: ケバブケース
+
+## リソース別規則
+
+### ConfigMap
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {app-name}-config
+  namespace: {namespace}
+  labels:
+    app.kubernetes.io/name: {app-name}
+data:
+  # シンプルなキー・バリュー
+  database.host: "postgres.example.com"
+  database.port: "5432"
+  
+  # 複雑な設定ファイル
+  app.properties: |
+    server.port=8080
+    spring.datasource.url=jdbc:postgresql://postgres:5432/mydb
+    
+  # YAML 形式の設定
+  config.yaml: |
+    server:
+      port: 8080
+      host: 0.0.0.0
+    database:
+      host: postgres
+      port: 5432
+```
+
+### Secret
+```yaml
+# 注意: 実際の本番環境では機密データはバージョン管理しない
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {app-name}-secret
+  namespace: {namespace}
+  labels:
+    app.kubernetes.io/name: {app-name}
+type: Opaque
+data:
+  # Base64エンコードされた値
+  username: YWRtaW4=  # admin
+  password: MWYyZDFlMmU2N2Rm  # 1f2d1e2e67df
+```
+
+### Service
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {app-name}-service
+  namespace: {namespace}
+  labels:
+    app.kubernetes.io/name: {app-name}
+spec:
+  type: ClusterIP  # ClusterIP | NodePort | LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {app-name}
+    app.kubernetes.io/instance: {instance-name}
+```
+
+### Deployment
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {app-name}
+  namespace: {namespace}
+  labels:
+    app.kubernetes.io/name: {app-name}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {app-name}
+      app.kubernetes.io/instance: {instance-name}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {app-name}
+        app.kubernetes.io/instance: {instance-name}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+      containers:
+        - name: {container-name}
+          image: "{image-repository}:{tag}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: ENV_VAR
+              value: "value"
+            - name: SECRET_VAR
+              valueFrom:
+                secretKeyRef:
+                  name: {app-name}-secret
+                  key: password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+```
+
+### StatefulSet
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {app-name}
+  namespace: {namespace}
+spec:
+  serviceName: {app-name}-headless
+  replicas: 3
+  podManagementPolicy: Parallel  # または OrderedReady
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {app-name}
+  template:
+    # Pod テンプレート（Deployment と同様）
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: ceph-rbd  # プロジェクト標準
+        resources:
+          requests:
+            storage: 1Gi
+```
+
+### Ingress (Cloudflare Tunnel)
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {app-name}-ingress
+  namespace: {namespace}
+  annotations:
+    # Cloudflare Tunnel 用のアノテーション
+    kubernetes.io/ingress.class: "cloudflare-tunnel"
+    external-dns.alpha.kubernetes.io/hostname: "{app-name}.example.com"
+spec:
+  rules:
+    - host: "{app-name}.example.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {app-name}-service
+                port:
+                  number: 80
+```
+
+## セキュリティのベストプラクティス
+
+### Pod Security Standards
+```yaml
+# Pod レベルのセキュリティ設定
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: app
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+```
+
+### リソース制限
+```yaml
+# 必須: すべてのコンテナにリソース制限を設定
+resources:
+  requests:
+    cpu: 100m      # 最小 CPU
+    memory: 128Mi  # 最小メモリ
+  limits:
+    cpu: 500m      # 最大 CPU  
+    memory: 512Mi  # 最大メモリ
+```
+
+### 機密情報の管理
+```yaml
+# 環境変数での機密情報参照
+env:
+  - name: DATABASE_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: database-secret
+        key: password
+        
+# ボリュームマウントでの機密情報
+volumeMounts:
+  - name: secret-volume
+    mountPath: /etc/secrets
+    readOnly: true
+volumes:
+  - name: secret-volume
+    secret:
+      secretName: app-secret
+```
+
+## プロジェクト固有の規則
+
+### Namespace 規則
+- 各コンポーネントは専用の namespace を使用
+- namespace 名はコンポーネント名と一致
+- 例: `argocd`, `harbor`, `cert-manager`, `rook-ceph`
+
+### ストレージクラス
+```yaml
+# プロジェクト標準のストレージクラスを使用
+spec:
+  storageClassName: ceph-rbd  # Rook Ceph RBD
+  # または
+  storageClassName: ceph-fs   # Rook CephFS (ReadWriteMany が必要な場合)
+```
+
+### イメージプル設定
+```yaml
+# プライベートレジストリ (Harbor) を使用する場合
+spec:
+  imagePullSecrets:
+    - name: harbor-secret
+  containers:
+    - name: app
+      image: harbor.example.com/project/app:v1.0.0
+```
+
+## 検証とテスト
+
+### デプロイ前の検証
+```bash
+# YAML 構文チェック
+yamllint {file}.yaml
+
+# Kubernetes 構文チェック
+kubectl apply --dry-run=client -f {file}.yaml
+
+# プロジェクト固有の検証
+kubectl apply --dry-run=server -f {file}.yaml
+```
+
+### セキュリティスキャン
+```bash
+# Kubesec でセキュリティ分析
+kubesec scan {file}.yaml
+
+# OPA Gatekeeper ポリシーチェック（設定されている場合）
+kubectl apply --dry-run=server -f {file}.yaml
+```
+
+## よくある間違いと修正
+
+### インデントエラー
+```yaml
+# 間違い
+apiVersion: v1
+kind: ConfigMap
+metadata:
+name: bad-config  # インデントが足りない
+
+# 正しい
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: good-config  # 正しいインデント
+```
+
+### ラベルセレクターの不一致
+```yaml
+# Deployment のセレクターと Pod のラベルは一致させる
+selector:
+  matchLabels:
+    app.kubernetes.io/name: myapp
+    app.kubernetes.io/instance: prod
+template:
+  metadata:
+    labels:
+      app.kubernetes.io/name: myapp
+      app.kubernetes.io/instance: prod  # セレクターと一致
+```
+
+### リソース制限の欠如
+```yaml
+# 必ず requests と limits を設定
+containers:
+  - name: app
+    image: nginx
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+```
+
+## コメント規則
+
+### ファイルヘッダー
+```yaml
+# ArgoCD 設定のカスタマイズ用 ConfigMap
+# 外部からのAPI呼び出しによるアプリケーション同期を可能にするための設定を含む
+apiVersion: v1
+kind: ConfigMap
+```
+
+### インライン説明
+```yaml
+data:
+  # アカウント設定: admin ユーザーでのログインと API トークンの使用を許可
+  accounts.admin: login,apiKey
+  
+  # 同期タイムアウト設定
+  timeout.reconciliation: 180s  # 通常の同期タイムアウト (3分)
+```
+
+### 複雑な設定の説明
+```yaml
+# Firebolt Core StatefulSet
+# 永続化されたストレージを使用する Firebolt データベースエンジンの定義
+---
+apiVersion: apps/v1
+kind: StatefulSet
+```
+
+参考ファイル:
+- [argocd-cm.yml](mdc:docs/1-argocd/manifests/argocd-cm.yml) - ConfigMap の例
+- [clusterissuer-letsencrypt.yaml](mdc:docs/4-cert-manager/manifests/clusterissuer-letsencrypt.yaml) - カスタムリソースの例
+- [test-pvc.yaml](mdc:docs/3-rook-ceph-pvc/tests/test-pvc.yaml) - PVC の例
+- [ingress.yml](mdc:docs/1-argocd/manifests/ingress.yml) - Ingress の例

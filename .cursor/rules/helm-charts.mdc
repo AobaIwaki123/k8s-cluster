@@ -1,0 +1,326 @@
+---
+globs: "**/helm/**"
+description: Helm chart development and template rules
+---
+
+# Helm チャート開発規則
+
+このルールは Helm チャートファイル (`docs/*/helm/`) に適用されます。
+
+## チャート構造
+
+### 標準ディレクトリ構造
+```
+helm/
+├── Chart.yaml          # チャートメタデータ (必須)
+├── values.yaml         # デフォルト設定値 (必須)
+├── README.md           # チャートドキュメント
+├── .helmignore         # パッケージから除外するファイル
+├── templates/          # Kubernetes マニフェストテンプレート
+│   ├── _helpers.tpl    # 共通テンプレート関数
+│   ├── deployment.yaml # または statefulset.yaml
+│   ├── service.yaml
+│   ├── configmap.yaml
+│   ├── secret.yaml
+│   └── NOTES.txt       # インストール後の情報
+└── charts/             # 依存チャート (サブチャート)
+```
+
+## Chart.yaml 設定
+
+### 必須フィールド
+```yaml
+apiVersion: v2
+name: {chart-name}
+description: {短い説明}
+type: application  # または library
+
+# バージョン情報
+version: 0.1.0           # チャートバージョン (SemVer)
+appVersion: preview-rc   # アプリケーションバージョン
+
+# メタデータ
+icon: https://example.com/icon.svg
+home: "https://github.com/your-org/project"
+sources: 
+  - "https://github.com/your-org/project"
+
+# 依存関係 (必要に応じて)
+dependencies:
+  - name: postgresql
+    version: 12.1.9
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+```
+
+### メタデータのベストプラクティス
+- `description`: 日本語で簡潔に記述
+- `version`: セマンティックバージョニングを使用
+- `appVersion`: デプロイするアプリケーションの実際のバージョン
+- `dependencies`: 常に具体的なバージョンを指定
+
+## values.yaml 設計
+
+### 構造化された設定
+```yaml
+# =============================================================================
+# {コンポーネント名} Helm Chart Values
+# {説明}
+# =============================================================================
+
+# Docker イメージ設定
+image:
+  repository: ghcr.io/example/app
+  tag: ""  # 空文字の場合は Chart.yaml の appVersion を使用
+  pullPolicy: IfNotPresent
+
+# =============================================================================
+# デプロイメント設定
+# =============================================================================
+
+# レプリカ数
+replicaCount: 1
+
+# リソース設定
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "1000m"
+    memory: "512Mi"
+
+# =============================================================================
+# ストレージ設定 (StatefulSet の場合)
+# =============================================================================
+
+persistence:
+  enabled: true
+  storageClass: "ceph-rbd"  # プロジェクト標準
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+# =============================================================================
+# ネットワーク設定
+# =============================================================================
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: false
+  className: "cloudflare-tunnel"  # プロジェクト標準
+  annotations: {}
+  hosts:
+    - host: app.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+
+# =============================================================================
+# セキュリティ設定
+# =============================================================================
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  readOnlyRootFilesystem: true
+
+# 追加ラベル
+extraLabels: {}
+
+# 環境変数
+env: {}
+```
+
+### values.yaml のベストプラクティス
+- **コメントセクション**: `# =============================================================================` で区切り
+- **日本語コメント**: 設定の説明は日本語で記述
+- **デフォルト値**: 安全で合理的なデフォルトを設定
+- **階層構造**: 論理的にグループ化
+- **プロジェクト標準**: `storageClass: "ceph-rbd"`, `ingress.className: "cloudflare-tunnel"`
+
+## テンプレート開発
+
+### _helpers.tpl パターン
+```yaml
+{{/*
+チャート名を展開
+*/}}
+{{- define "myapp.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+完全修飾アプリ名を作成
+*/}}
+{{- define "myapp.fullname" -}}
+{{- if .Values.fullnameOverride -}}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+共通ラベル
+*/}}
+{{- define "myapp.labels" -}}
+{{ include "myapp.selectorLabels" . }}
+helm.sh/chart: {{ include "myapp.chart" . }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- if .Values.extraLabels }}
+{{- toYaml .Values.extraLabels | nindent 0 }}
+{{- end }}
+{{- end }}
+
+{{/*
+セレクターラベル
+*/}}
+{{- define "myapp.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "myapp.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+```
+
+### StatefulSet テンプレートの例
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ include "myapp.fullname" . }}
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "myapp.fullname" . }}-svc
+  replicas: {{ .Values.replicaCount }}
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      {{- include "myapp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "myapp.selectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          {{- end }}
+  {{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - {{ .Values.persistence.accessMode }}
+        storageClassName: {{ .Values.persistence.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size }}
+  {{- end }}
+```
+
+## 検証とテスト
+
+### 開発時の検証
+```bash
+# チャートの構文チェック
+helm lint ./docs/{component}/helm/
+
+# テンプレートの展開テスト
+helm template {release-name} ./docs/{component}/helm/
+
+# 特定の values ファイルでのテスト
+helm template {release-name} ./docs/{component}/helm/ -f custom-values.yaml
+
+# 依存関係の更新
+helm dependency update ./docs/{component}/helm/
+```
+
+### デプロイテスト
+```bash
+# ドライラン実行
+helm install {release-name} ./docs/{component}/helm/ --dry-run --debug
+
+# 実際のインストール
+helm install {release-name} ./docs/{component}/helm/ -n {namespace} --create-namespace
+
+# アップグレードテスト
+helm upgrade {release-name} ./docs/{component}/helm/ -n {namespace}
+```
+
+## セキュリティ考慮事項
+
+### テンプレートでの機密情報処理
+```yaml
+# Secret テンプレートの例
+{{- if .Values.secrets }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "myapp.fullname" . }}-secret
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+type: Opaque
+data:
+  {{- range $key, $value := .Values.secrets }}
+  {{ $key }}: {{ $value | b64enc | quote }}
+  {{- end }}
+{{- end }}
+```
+
+### values.yaml での機密情報管理
+```yaml
+# 機密情報は values.yaml に含めない
+# 代わりに外部の Secret リソースを参照
+secrets:
+  # これらの値は外部で管理
+  # existingSecret: "external-secret-name"
+```
+
+## プロジェクト固有の規則
+
+### k0s 環境への対応
+- **kubelet パス**: `/var/lib/k0s/kubelet` を使用
+- **ストレージクラス**: デフォルトで `ceph-rbd` を使用
+- **Ingress**: Cloudflare Tunnel を標準とする
+
+### 日本語ドキュメンテーション
+- values.yaml のコメントは日本語
+- README.md は日本語で作成
+- テンプレート内のコメントは英語
+
+### バージョン管理
+- Chart バージョンは SemVer に従う
+- 破壊的変更は major バージョンアップ
+- 機能追加は minor バージョンアップ
+- バグ修正は patch バージョンアップ
+
+参考ファイル:
+- [firebolt-core Chart.yaml](mdc:docs/firebolt-core/helm/Chart.yaml) - 標準的なメタデータの例
+- [firebolt-core values.yaml](mdc:docs/firebolt-core/helm/values.yaml) - 構造化された設定の例
+- [firebolt-core _helpers.tpl](mdc:docs/firebolt-core/helm/templates/_helpers.tpl) - 共通テンプレート関数の例
+- [firebolt-core statefulset.yaml](mdc:docs/firebolt-core/helm/templates/statefulset.yaml) - StatefulSet テンプレートの例

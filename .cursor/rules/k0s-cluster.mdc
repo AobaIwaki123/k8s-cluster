@@ -1,0 +1,290 @@
+---
+globs: "k0s/**"
+description: k0s cluster management and configuration rules
+---
+
+# k0s クラスター管理規則
+
+このルールは k0s クラスター関連ファイル (`k0s/`) に適用されます。
+
+## 核心ファイル
+
+### [k0sctl.yml](mdc:k0s/k0sctl.yml)
+k0s クラスターの構成定義ファイル。このファイルの変更には特に注意が必要です。
+
+### [Makefile](mdc:k0s/Makefile)  
+クラスター管理の簡略化されたコマンドインターフェース。
+
+### [README.md](mdc:k0s/README.md)
+k0s 固有の操作とトラブルシューティングガイド。
+
+## k0sctl.yml 設定パターン
+
+### 基本構造
+```yaml
+apiVersion: k0sctl.k0sproject.io/v1beta1
+kind: Cluster
+metadata:
+  name: k8s-cluster
+
+spec:
+  hosts:
+    # コントローラーノード
+    - ssh:
+        address: 192.168.11.221
+        user: aoba
+        keyPath: ~/.ssh/id_rsa
+      role: controller
+      privateInterface: enp1s0  # プライベートネットワークインターフェース
+      
+    # ワーカーノード
+    - ssh:
+        address: 192.168.11.214
+        user: aoba  
+        keyPath: ~/.ssh/id_rsa
+      role: worker
+      privateInterface: enp1s0
+
+  k0s:
+    version: v1.29.1+k0s.0
+    dynamicConfig: false
+    config:
+      spec:
+        # Rook Ceph 用の設定
+        workerProfiles:
+          - name: default
+            values:
+              kubeletConfiguration:
+                volumePluginDir: /var/lib/k0s/kubelet/plugins
+```
+
+### 重要な設定項目
+
+#### SSH 接続設定
+- **address**: ノードの IP アドレス
+- **user**: SSH ユーザー (通常は `aoba`)
+- **keyPath**: SSH 秘密鍵のパス (`~/.ssh/id_rsa`)
+- **port**: SSH ポート (デフォルト: 22)
+
+#### ネットワーク設定
+- **privateInterface**: ノード間通信に使用するインターフェース
+- **podCIDR**: Pod ネットワークの CIDR (デフォルト: 10.244.0.0/16)
+- **serviceCIDR**: Service ネットワークの CIDR (デフォルト: 10.96.0.0/12)
+
+#### k0s 固有設定
+- **version**: k0s のバージョン (常に具体的なバージョンを指定)
+- **dynamicConfig**: 動的設定の有効/無効
+- **volumePluginDir**: Rook Ceph などのボリュームプラグイン用
+
+## Makefile コマンド
+
+### 基本操作
+```makefile
+# クラスター構築
+make apply
+
+# kubeconfig の取得・設定
+make config
+
+# クラスターの状態確認
+make status
+
+# クラスターの削除
+make reset
+
+# ヘルプの表示
+make help
+```
+
+### コマンドの詳細
+
+#### `make apply`
+- k0sctl を使用してクラスターを構築
+- 既存クラスターがある場合は更新を実行
+- 失敗した場合は、ログを確認して問題を特定
+
+#### `make config`
+- k0sctl kubeconfig を使用して kubeconfig を取得
+- `~/.kube/config` に自動的に設定
+- 既存の kubeconfig は上書きされる
+
+#### `make status`
+- `kubectl get nodes -o wide` を実行
+- クラスターの健全性とノードの状態を確認
+
+#### `make reset`
+- クラスター全体を削除
+- **注意**: データの永続化されていないリソースは失われる
+- Rook Ceph データは別途クリーンアップが必要
+
+## クラスター操作のベストプラクティス
+
+### 変更前の準備
+```bash
+# 現在の設定をバックアップ
+cp k0sctl.yml k0sctl.yml.backup.$(date +%Y%m%d_%H%M%S)
+
+# 現在のクラスター状態を確認
+make status
+kubectl get nodes -o wide
+kubectl get pods --all-namespaces
+```
+
+### 設定変更の手順
+1. **開発環境でテスト**: 可能な場合は別環境で変更をテスト
+2. **段階的適用**: 大きな変更は段階的に実施
+3. **ログ監視**: 適用中はログを監視
+4. **ロールバック準備**: 問題発生時のロールバック手順を準備
+
+### ノードの追加・削除
+
+#### ワーカーノードの追加
+```yaml
+# k0sctl.yml に新しいノードを追加
+hosts:
+  - ssh:
+      address: 192.168.11.235  # 新しいノードの IP
+      user: aoba
+      keyPath: ~/.ssh/id_rsa
+    role: worker
+    privateInterface: enp1s0
+```
+
+#### ノード削除の手順
+1. ノードからワークロードを退避: `kubectl drain <node-name>`
+2. k0sctl.yml からノード定義を削除
+3. クラスターを再適用: `make apply`
+4. ノードリソースを削除: `kubectl delete node <node-name>`
+
+## トラブルシューティング
+
+### 一般的な問題
+
+#### SSH 接続エラー
+```bash
+# SSH 接続テスト
+ssh aoba@192.168.11.221
+
+# SSH 鍵の確認
+ssh-add -l
+
+# SSH エージェントの起動
+eval $(ssh-agent)
+ssh-add ~/.ssh/id_rsa
+```
+
+#### クラスター構築の失敗
+```bash
+# 詳細ログの確認
+k0sctl apply --config k0sctl.yml --debug
+
+# 個別ノードの状態確認
+ssh aoba@192.168.11.221 'sudo k0s status'
+
+# k0s ログの確認
+ssh aoba@192.168.11.221 'sudo journalctl -u k0scontroller'
+```
+
+#### kubeconfig の問題
+```bash
+# kubeconfig の再取得
+k0sctl kubeconfig > ~/.kube/config
+
+# kubectl の接続テスト
+kubectl cluster-info
+
+# 権限の確認
+kubectl auth can-i '*' '*' --all-namespaces
+```
+
+### ネットワーク関連の問題
+
+#### Pod ネットワーク接続の確認
+```bash
+# CNI プラグインの状態確認
+kubectl get pods -n kube-system | grep kube-router
+
+# ノード間の接続テスト
+kubectl run test-pod --image=busybox --rm -it -- ping <other-node-ip>
+```
+
+#### Service 解決の確認
+```bash
+# DNS 解決テスト
+kubectl run test-dns --image=busybox --rm -it -- nslookup kubernetes.default
+```
+
+## セキュリティ考慮事項
+
+### SSH 鍵管理
+- SSH 鍵は適切に保護し、定期的にローテーション
+- 可能な場合は SSH 証明書認証を使用
+- 必要最小限の権限でのアクセス
+
+### ネットワークセキュリティ
+- ファイアウォール設定の確認
+- 不要なポートの閉鎖
+- ネットワークポリシーの実装
+
+### k0s セキュリティ
+- k0s の定期的なバージョンアップ
+- セキュリティパッチの適用
+- 監査ログの有効化
+
+## 監視とメンテナンス
+
+### 定期チェック項目
+```bash
+# ノードの健全性
+kubectl get nodes
+
+# システムポッドの状態
+kubectl get pods -n kube-system
+
+# リソース使用量
+kubectl top nodes
+kubectl top pods --all-namespaces
+
+# クラスターイベント
+kubectl get events --sort-by='.lastTimestamp'
+```
+
+### アップグレード手順
+1. **バックアップ作成**: etcd とクラスター設定
+2. **メンテナンスウィンドウ設定**: アプリケーションの停止
+3. **段階的アップグレード**: 一度に一つのノード
+4. **検証**: 各ステップでの動作確認
+5. **ロールバック準備**: 問題発生時の対応
+
+### ログ管理
+```bash
+# k0s コントローラーログ
+sudo journalctl -u k0scontroller -f
+
+# k0s ワーカーログ  
+sudo journalctl -u k0sworker -f
+
+# kubelet ログ
+sudo journalctl -u k0sworker -f | grep kubelet
+```
+
+## 災害復旧
+
+### etcd バックアップ
+```bash
+# etcd スナップショット作成
+sudo k0s etcd snapshot --data-dir /var/lib/k0s save snapshot.db
+
+# スナップショットからの復元
+sudo k0s etcd snapshot --data-dir /var/lib/k0s restore snapshot.db
+```
+
+### クラスター再構築
+1. 設定ファイルのバックアップから復元
+2. `make reset` でクリーンアップ
+3. `make apply` で再構築
+4. アプリケーションの再デプロイ (ArgoCD 経由)
+
+参考ドキュメント:
+- [k0s 公式ドキュメント](https://docs.k0sproject.io/)
+- [k0sctl 公式ドキュメント](https://github.com/k0sproject/k0sctl)
