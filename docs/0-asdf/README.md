@@ -31,5 +31,5 @@ asdfプラグインの使用の責任はユーザーにあり、サービス開�
 ```sh
 $ asdf plugin add {PLUGIN_NAME} {PLUGIN_GITHUB_URL}
 $ asdf install {PLUGIN_NAME} latest # 一部のプラグインでlatestが使用できない場合は具体的なバージョン番号を指定してください
-$ asdf global {PLUGIN_NAME} {PLUGIN_VERSION}
+$ asdf set -u {PLUGIN_NAME} {PLUGIN_VERSION}
 ```
