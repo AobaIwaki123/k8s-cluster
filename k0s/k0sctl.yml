@@ -29,3 +29,9 @@ spec:
       port: 22
       keyPath: null
     role: worker
+  - ssh:
+      address: 192.168.11.234 # k8s-worker-4
+      user: aoba
+      port: 22
+      keyPath: null
+    role: worker
