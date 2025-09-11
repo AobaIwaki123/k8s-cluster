@@ -16,6 +16,7 @@ $ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/
 
 ```sh
 $ kubectl apply -n argocd -f manifests/argocd-cmd-params-cm.yml
+$ kubectl rollout restart deployment argocd-server -n argocd # argocd-serverを再起動
 ```
 
 ## argocdのServiceをNodePortに変更
