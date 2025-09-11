@@ -1,0 +1,164 @@
+---
+globs: "**/argocd/*.yml,**/argocd/*.yaml"
+description: ArgoCD Application definition rules and patterns
+---
+
+# ArgoCD Application 設定規則
+
+このルールは ArgoCD Application の設定ファイル (`docs/*/argocd/*.yml`) に適用されます。
+
+## 必須要素
+
+### 基本構造
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {component-name}
+  namespace: argocd
+  annotations:
+    # 依存関係がある場合は sync-wave を設定
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    # リソースの適切なクリーンアップのため必須
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  
+  source:
+    # Git リポジトリまたは Helm リポジトリ
+    repoURL: https://github.com/AobaIwaki123/k8s-cluster.git
+    targetRevision: main  # 常に明確なバージョンを指定
+    
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: {component-namespace}
+  
+  syncPolicy:
+    # 必要に応じて自動同期を設定
+    automated:
+      prune: true     # 不要なリソースの自動削除
+      selfHeal: true  # ドリフトの自動修正
+    syncOptions:
+      - CreateNamespace=true  # Namespace の自動作成
+```
+
+### sync-wave アノテーション
+依存関係に基づいて適切な順序を設定:
+
+- `-1`: 基盤コンポーネント (Operators, CRDs)
+  - 例: `rook-ceph`, `minio-operator`
+- `0`: 標準アプリケーション (デフォルト)
+  - 例: `harbor`, `cert-manager`, `minio-tenant`
+- `1+`: 依存関係のあるアプリケーション
+  - 例: 証明書に依存するアプリ
+
+## コンポーネント別設定例
+
+### Helm Chart からデプロイ (外部リポジトリ)
+```yaml
+source:
+  repoURL: https://charts.rook.io/release
+  chart: rook-ceph
+  targetRevision: v1.16.5  # 必ず具体的なバージョンを指定
+  
+  helm:
+    parameters:
+      - name: csi.kubeletDirPath
+        value: /var/lib/k0s/kubelet  # k0s 固有の設定
+```
+
+### Git リポジトリの Helm Chart
+```yaml
+source:
+  repoURL: https://github.com/AobaIwaki123/k8s-cluster.git
+  targetRevision: main
+  path: docs/firebolt-core/helm
+  
+  helm:
+    valueFiles:
+      - values.yaml
+    parameters:
+      - name: namespace
+        value: firebolt-core
+```
+
+### 設定値の埋め込み
+```yaml
+source:
+  helm:
+    valuesObject:
+      cloudflare:
+        # 注意: 機密情報は別途 Secret として管理
+        apiToken: YOUR_CLOUDFLARE_API_TOKEN
+        accountId: YOUR_CLOUDFLARE_ACCOUNT_ID
+```
+
+## セキュリティ考慮事項
+
+### 機密情報の管理
+- API トークンやパスワードは ArgoCD Application ファイルに直接記述しない
+- 機密情報は Kubernetes Secret として作成し、参照する
+- `valuesObject` に機密情報を含める場合は、外部シークレット管理システムを使用
+
+### Namespace 分離
+- 各コンポーネントは専用の Namespace にデプロイ
+- `destination.namespace` は常に明確に指定
+- `CreateNamespace=true` を使用して Namespace を自動作成
+
+## 検証とテスト
+
+### デプロイ前の確認
+```bash
+# ArgoCD CLI を使用した検証
+argocd app create --file docs/{component}/argocd/{component}.yaml --dry-run
+
+# YAML 構文チェック
+yamllint docs/{component}/argocd/{component}.yaml
+
+# ArgoCD アプリケーションの構文検証
+kubectl apply --dry-run=client -f docs/{component}/argocd/{component}.yaml
+```
+
+### デプロイ後の確認
+```bash
+# アプリケーションの状態確認
+argocd app get {app-name}
+
+# 同期状態の確認
+argocd app sync {app-name} --dry-run
+
+# リソースの健全性確認
+kubectl get all -n {namespace}
+```
+
+## 命名規則
+
+- **Application 名**: コンポーネント名と一致 (`harbor`, `cert-manager`)
+- **ファイル名**: Application 名と一致 (`harbor.yaml`, `cert-manager.yaml`)
+- **Namespace**: 通常はコンポーネント名と一致、必要に応じて接頭辞を追加
+
+## トラブルシューティング
+
+### 同期失敗の一般的な原因
+1. **CRD の不存在**: Operator が先にインストールされているか確認
+2. **Namespace の権限**: RBAC 設定を確認
+3. **リソースの競合**: 既存のリソースとの名前衝突を確認
+4. **Helm 値の問題**: `helm template` でローカルテスト
+
+### デバッグコマンド
+```bash
+# ArgoCD アプリケーションログの確認
+argocd app logs {app-name}
+
+# イベントの確認
+kubectl get events -n argocd --sort-by='.lastTimestamp'
+
+# 特定のリソースの詳細確認
+kubectl describe {resource-type} {resource-name} -n {namespace}
+```
+
+参考ファイル:
+- [harbor.yaml](mdc:docs/5-harbor/argocd/harbor.yaml) - 複雑な Helm 設定の例
+- [rook-ceph.yaml](mdc:docs/3-rook-ceph-pvc/argocd/rook-ceph.yaml) - k0s 固有パラメータの例
+- [cloudflare-tunnel-ingress-controller.yml](mdc:docs/2-cloudflare-ingress-controller/argocd/cloudflare-tunnel-ingress-controller.yml) - valuesObject の例

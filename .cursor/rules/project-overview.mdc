@@ -1,10 +1,19 @@
-# k8s Cluster Project - Cursor Rules
+---
+alwaysApply: true
+---
 
-## Project Context
-This is a Kubernetes cluster setup project using k0s, ArgoCD, and various cloud-native tools. The project focuses on Infrastructure as Code (IaC) with GitOps principles.
+# k8s Cluster Project - プロジェクト概要
 
-## Technology Stack
-- **Kubernetes Distribution**: k0s (lightweight Kubernetes)
+## プロジェクトコンテキスト
+これは k0s、ArgoCD、および各種クラウドネイティブツールを使用した Kubernetes クラスターセットアップ項目です。Infrastructure as Code (IaC) と GitOps 原則に重点を置いています。
+
+メインの設定ファイル:
+- [k0sctl.yml](mdc:k0s/k0sctl.yml) - k0sクラスター設定
+- [Makefile](mdc:k0s/Makefile) - クラスター管理コマンド
+- [README.md](mdc:README.md) - プロジェクト全体の説明
+
+## テクノロジースタック
+- **Kubernetes Distribution**: k0s (軽量 Kubernetes)
 - **Cluster Management**: k0sctl
 - **GitOps**: ArgoCD
 - **Package Manager**: Helm
@@ -14,188 +23,57 @@ This is a Kubernetes cluster setup project using k0s, ArgoCD, and various cloud-
 - **Container Registry**: Harbor
 - **Languages**: YAML, Go templates (Helm), Makefile, Markdown
 
-## File Organization Guidelines
-
-### Directory Structure
+## プロジェクト構造
 ```
-docs/
-├── {component-name}/
-│   ├── argocd/          # ArgoCD Application definitions
-│   ├── manifests/       # Raw Kubernetes manifests  
-│   ├── helm/           # Helm charts (when applicable)
-│   └── README.md       # Component-specific documentation
-k0s/                    # k0s cluster configuration
-imgs/                   # Documentation images
-```
+docs/                   # 各コンポーネントのドキュメントとマニフェスト
+├── 0-asdf/            # asdf ツール管理
+├── 1-argocd/          # ArgoCD 設定
+├── 2-cloudflare-ingress-controller/  # Cloudflare Ingress
+├── 3-rook-ceph-pvc/   # Rook Ceph ストレージ
+├── 4-cert-manager/    # 証明書管理
+├── 5-harbor/          # コンテナレジストリ
+├── firebolt-core/     # Firebolt データベース
+├── istio/             # サービスメッシュ (オプション)
+├── minio/             # オブジェクトストレージ (オプション)  
+└── nginx/             # Nginx Ingress (オプション)
 
-### File Naming Conventions
-- **Kubernetes manifests**: Use kebab-case with descriptive names
-  - `argocd-cm.yml`, `clusterissuer-letsencrypt.yaml`
-- **ArgoCD Applications**: Use component name
-  - `harbor.yaml`, `cert-manager.yaml`
-- **Helm charts**: Follow Helm conventions
-  - `Chart.yaml`, `values.yaml`, `_helpers.tpl`
+k0s/                   # k0s クラスター設定
+├── k0sctl.yml         # クラスター構成定義
+├── Makefile           # 管理コマンド
+└── README.md          # k0s 固有の説明
 
-## Kubernetes & YAML Best Practices
-
-### YAML Formatting
-- Use 2-space indentation consistently
-- Always quote string values that could be ambiguous
-- Use `---` separator between multiple resources in a single file
-- Add meaningful comments for complex configurations
-
-### Kubernetes Resources
-- Always include proper labels following Kubernetes recommended labels:
-  ```yaml
-  labels:
-    app.kubernetes.io/name: myapp
-    app.kubernetes.io/instance: myapp-prod
-    app.kubernetes.io/version: "1.0"
-    app.kubernetes.io/component: database
-    app.kubernetes.io/part-of: myapp
-    app.kubernetes.io/managed-by: Helm
-  ```
-- Use namespaces consistently and create them declaratively
-- Include resource requests and limits for all containers
-- Use ConfigMaps and Secrets appropriately (never hardcode sensitive data)
-
-### ArgoCD Applications
-- Use sync waves with `argocd.argoproj.io/sync-wave` annotation for dependency management
-- Always include finalizers for proper cleanup:
-  ```yaml
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-  ```
-- Use `CreateNamespace=true` sync option when needed
-- Specify exact chart versions in `targetRevision`
-
-### Helm Charts
-- Follow standard Helm chart structure and naming conventions
-- Use semantic versioning for chart versions
-- Include comprehensive `values.yaml` with comments
-- Use standard helper templates in `_helpers.tpl`
-- Validate templates with `helm lint` and `helm template`
-
-## Security Guidelines
-
-### Secrets Management
-- Never commit secrets to version control
-- Use Kubernetes Secrets or external secret management
-- Reference secrets by name in manifests, not inline values
-- Use least-privilege principles for ServiceAccounts
-
-### Network Policies
-- Implement network policies where appropriate
-- Default to deny-all and explicitly allow required traffic
-- Document network flow requirements
-
-### RBAC
-- Use Role-Based Access Control (RBAC) appropriately
-- Create minimal-privilege ServiceAccounts
-- Document permission requirements
-
-## Documentation Standards
-
-### README Files
-- Each component must have a README.md in Japanese
-- Include setup steps, configuration options, and troubleshooting
-- Maintain consistent formatting and structure
-- Include version information and dependencies
-
-### Code Comments
-- Comment complex Helm template logic
-- Explain non-obvious Kubernetes configurations
-- Document ArgoCD sync waves and dependencies
-- Use Japanese for documentation, English for code comments
-
-## Development Workflow
-
-### File Creation/Modification
-- Follow the established directory structure
-- Test manifests with `kubectl dry-run` before committing
-- Validate Helm charts locally before deployment
-- Update relevant documentation when making changes
-
-### Git Practices
-- Use descriptive commit messages
-- Reference issue numbers when applicable
-- Keep commits focused and atomic
-- Update documentation in the same commit as code changes
-
-### Testing
-- Use `kubectl --dry-run=client -o yaml` to validate manifests
-- Test Helm charts with `helm template` before deployment
-- Validate ArgoCD applications before applying
-- Include test resources in appropriate `tests/` directories
-
-## Troubleshooting Guidelines
-
-### Common Issues
-- Check namespace existence before deploying resources
-- Verify RBAC permissions for service accounts
-- Confirm PVC storage class availability
-- Validate ingress controller and DNS configuration
-
-### Debugging Tools
-- Use `kubectl describe` for resource status
-- Check ArgoCD application health and sync status
-- Review pod logs with `kubectl logs`
-- Use `k9s` for cluster exploration
-
-## Component-Specific Rules
-
-### k0s Cluster
-- Update `k0sctl.yml` carefully - changes require cluster restart
-- Test configuration changes in development environment first
-- Document IP address changes and SSH key management
-
-### ArgoCD
-- Use App of Apps pattern for complex deployments
-- Implement proper sync policies and health checks
-- Monitor application drift and sync status
-
-### Helm Charts
-- Pin dependency versions in `Chart.yaml`
-- Use `helm dependency update` after changing dependencies
-- Test with different values files for various environments
-
-### Cloudflare Integration
-- Protect API credentials and tunnel tokens
-- Document domain and DNS record requirements
-- Test SSL certificate generation and renewal
-
-## IDE Configuration
-
-### File Associations
-- Associate `.yml` and `.yaml` files with YAML language server
-- Enable Helm template syntax highlighting for `.tpl` files
-- Configure Kubernetes schema validation
-
-### Extensions Recommended
-- YAML Language Support
-- Kubernetes Tools
-- Helm Intellisense
-- ArgoCD Extension (if available)
-
-## Error Handling
-
-### Common Fixes
-- For YAML parsing errors: Check indentation and syntax
-- For Kubernetes API errors: Verify resource API versions
-- For Helm errors: Check template syntax and values
-- For ArgoCD sync issues: Review application configuration and permissions
-
-### Validation Commands
-```bash
-# YAML syntax
-yamllint file.yaml
-
-# Kubernetes manifest
-kubectl --dry-run=client -f manifest.yaml
-
-# Helm chart
-helm lint ./chart-directory
-helm template ./chart-directory
+.cursor/rules/         # Cursor エディタルール
 ```
 
-Remember: This project emphasizes Infrastructure as Code principles. All changes should be version controlled, tested, and documented appropriately.
+### ディレクトリ構造規則
+各 `docs/{component-name}/` には以下の構造を使用:
+- `argocd/` - ArgoCD Application 定義
+- `manifests/` - 生の Kubernetes マニフェスト
+- `helm/` - Helm チャート (該当する場合)
+- `README.md` - コンポーネント固有のドキュメント (日本語)
+
+## 重要な設計原則
+
+### ファイル命名規則
+- **Kubernetes manifests**: ケバブケースで説明的な名前を使用
+  例: `argocd-cm.yml`, `clusterissuer-letsencrypt.yaml`
+- **ArgoCD Applications**: コンポーネント名を使用
+  例: `harbor.yaml`, `cert-manager.yaml`
+- **Helm charts**: Helm 規約に従う
+  例: `Chart.yaml`, `values.yaml`, `_helpers.tpl`
+
+### デプロイメント順序
+1. k0s クラスター構築 ([k0s/](mdc:k0s/))
+2. ArgoCD セットアップ ([docs/1-argocd/](mdc:docs/1-argocd/))
+3. Cloudflare Ingress Controller ([docs/2-cloudflare-ingress-controller/](mdc:docs/2-cloudflare-ingress-controller/))
+4. Storage (Rook Ceph) ([docs/3-rook-ceph-pvc/](mdc:docs/3-rook-ceph-pvc/))
+5. Certificate Manager ([docs/4-cert-manager/](mdc:docs/4-cert-manager/))
+6. Harbor Registry ([docs/5-harbor/](mdc:docs/5-harbor/))
+7. その他のアプリケーション
+
+### 開発ワークフロー
+- Infrastructure as Code 原則に従う
+- すべての変更をバージョン管理し、テストし、適切にドキュメント化する
+- 日本語でドキュメントを作成、コードコメントは英語
+- `kubectl dry-run` でマニフェストをテストしてからコミット
+- Helm チャートは `helm lint` と `helm template` で検証
