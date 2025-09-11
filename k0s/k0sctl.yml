@@ -1,37 +1,81 @@
+# k0sctl Configuration for Kubernetes Cluster
+# This configuration defines a k0s cluster with 1 controller and 4 worker nodes
 apiVersion: k0sctl.k0sproject.io/v1beta1
 kind: Cluster
+
 metadata:
   name: k0s-cluster
   user: admin
+
 spec:
   hosts:
-  - ssh:
-      address: 192.168.11.221 # k8s-ctl
-      user: aoba
-      port: 22
-      keyPath: null
-    role: controller
-  - ssh:
-      address: 192.168.11.214 # k8s-worker-1
-      user: aoba
-      port: 22
-      keyPath: null
-    role: worker
-  - ssh:
-      address: 192.168.11.220 # k8s-worker-2
-      user: aoba
-      port: 22
-      keyPath: null
-    role: worker
-  - ssh:
-      address: 192.168.11.231 # k8s-worker-3
-      user: aoba
-      port: 22
-      keyPath: null
-    role: worker
-  - ssh:
-      address: 192.168.11.234 # k8s-worker-4
-      user: aoba
-      port: 22
-      keyPath: null
-    role: worker
+    # ======================
+    # Controller Node (1台)
+    # ======================
+    - ssh:
+        address: 192.168.11.221  # k8s-ctl (controller node)
+        user: aoba
+        port: 22
+        keyPath: null  # SSH agent or default key will be used
+      role: controller
+      
+    # ====================
+    # Worker Nodes (4台)
+    # ====================
+    - ssh:
+        address: 192.168.11.214  # k8s-worker-1
+        user: aoba
+        port: 22
+        keyPath: null
+      role: worker
+      
+    - ssh:
+        address: 192.168.11.220  # k8s-worker-2
+        user: aoba
+        port: 22
+        keyPath: null
+      role: worker
+      
+    - ssh:
+        address: 192.168.11.231  # k8s-worker-3
+        user: aoba
+        port: 22
+        keyPath: null
+      role: worker
+      
+    - ssh:
+        address: 192.168.11.234  # k8s-worker-4
+        user: aoba
+        port: 22
+        keyPath: null
+      role: worker
+
+  # ====================
+  # k0s Configuration
+  # ====================
+  k0s:
+    version: null  # Use the latest stable version
+    config:
+      # API server configuration
+      apiServer:
+        extraArgs:
+          # Enable audit logging
+          audit-log-maxage: 30
+          audit-log-maxbackup: 3
+          audit-log-maxsize: 100
+      
+      # Network configuration
+      network:
+        provider: calico  # CNI plugin
+        calico:
+          mode: vxlan  # or ipip
+          vxlanPort: 4789
+          mtu: 1450
+
+      # Storage configuration  
+      storage:
+        type: etcd  # embedded etcd
+        
+      # Enable pod security standards
+      podSecurityPolicy:
+        defaultPolicy: restricted
