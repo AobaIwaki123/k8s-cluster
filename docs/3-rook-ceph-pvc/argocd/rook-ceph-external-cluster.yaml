@@ -1,31 +1,47 @@
+# Rook Ceph 外部クラスター接続の ArgoCD Application 設定
+# Proxmox で管理されている既存の Ceph クラスターに接続するための設定
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: rook-ceph-external-cluster
   namespace: argocd
   finalizers:
+    # リソースのクリーンアップを確実に行うためのファイナライザー
     - resources-finalizer.argocd.argoproj.io
 spec:
+  # ArgoCD プロジェクト設定
   project: default
+  
+  # Helm チャートのソース設定
   source:
-    repoURL: https://charts.rook.io/release
+    repoURL: https://charts.rook.io/release  # Rook 公式 Helm リポジトリ
     chart: rook-ceph-cluster
-    targetRevision: v1.13.6
+    targetRevision: v1.13.6  # 使用する Rook Ceph クラスターチャートのバージョン
+    
     helm:
       valuesObject:
+        # Ceph クラスター設定
         cephClusterSpec:
           external:
-            enable: true
+            enable: true  # 外部 Ceph クラスターへの接続を有効化
+          
+          # クラッシュレポート収集を無効化（外部クラスターでは不要）
           crashCollector:
             disable: true
+          
+          # ヘルスチェック設定
           healthCheck:
             daemonHealth:
               mon:
-                disabled: false
-                interval: 45s
-        cephBlockPools: {}
-        cephFileSystems: {}
-        cephObjectStores: {}
+                disabled: false  # MON デーモンのヘルスチェックを有効
+                interval: 45s    # チェック間隔
+        
+        # 以下のリソースは外部クラスター接続時は使用しない
+        cephBlockPools: {}    # ブロックプール設定（空）
+        cephFileSystems: {}   # ファイルシステム設定（空）
+        cephObjectStores: {}  # オブジェクトストア設定（空）
+
+  # デプロイ先の設定
   destination:
-    server: "https://kubernetes.default.svc"
+    server: "https://kubernetes.default.svc"  # ローカル Kubernetes クラスター
     namespace: rook-ceph-external 

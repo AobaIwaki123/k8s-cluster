@@ -1,35 +1,55 @@
+# Harbor コンテナレジストリの ArgoCD Application 設定
+# Docker イメージの保存・管理を行うプライベートコンテナレジストリ
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: harbor
   namespace: argocd
   annotations:
+    # cert-manager が先にデプロイされている必要があるため sync wave を調整
     argocd.argoproj.io/sync-wave: "-1"
   finalizers:
+    # リソースのクリーンアップを確実に行うためのファイナライザー
     - resources-finalizer.argocd.argoproj.io
 spec:
+  # ArgoCD プロジェクト設定
   project: default
+  
+  # Helm チャートのソース設定
   source:
-    repoURL: https://helm.goharbor.io
+    repoURL: https://helm.goharbor.io  # Harbor 公式 Helm リポジトリ
     chart: harbor
-    targetRevision: 1.16.1
+    targetRevision: 1.16.1  # 使用する Harbor のバージョン
+    
     helm:
       values: |
+        # Harbor の外部公開設定
         expose:
-          type: ingress
+          type: ingress  # Ingress を使用して外部公開
+          
+          # TLS/SSL 設定
           tls:
-            enabled: true
-            certSource: secret
+            enabled: true        # HTTPS を有効化
+            certSource: secret   # Secret から証明書を取得
             secret:
-              secretName: harbor-tls
+              secretName: harbor-tls  # 使用する TLS Secret の名前
+          
+          # Ingress 設定
           ingress:
             hosts:
-              core: harbor.aooba.net
-            className: cloudflare-tunnel
+              core: harbor.aooba.net  # Harbor のメインホスト名
+            className: cloudflare-tunnel  # Cloudflare Tunnel Ingress を使用
+        
+        # Harbor の外部 URL 設定（メール通知などで使用）
         externalURL: https://harbor.aooba.net
+
+  # デプロイ先の設定
   destination:
-    server: "https://kubernetes.default.svc"
+    server: "https://kubernetes.default.svc"  # ローカル Kubernetes クラスター
     namespace: harbor
+  
+  # 同期設定
   syncPolicy:
     syncOptions:
+      # Namespace が存在しない場合は自動作成
       - CreateNamespace=true

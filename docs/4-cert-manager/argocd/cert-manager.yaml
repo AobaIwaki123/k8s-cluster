@@ -1,21 +1,33 @@
+# cert-manager の ArgoCD Application 設定
+# Let's Encrypt などの CA から SSL/TLS 証明書を自動取得・更新
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: cert-manager
   namespace: argocd
   annotations:
+    # 他のアプリケーションが証明書を必要とする場合があるため、先にデプロイ
     argocd.argoproj.io/sync-wave: "-1"
   finalizers:
+    # リソースのクリーンアップを確実に行うためのファイナライザー
     - resources-finalizer.argocd.argoproj.io
 spec:
+  # ArgoCD プロジェクト設定
   project: default
+  
+  # Helm チャートのソース設定
   source:
-    repoURL: https://charts.jetstack.io
+    repoURL: https://charts.jetstack.io  # Jetstack 公式 Helm リポジトリ
     chart: cert-manager
-    targetRevision: 1.17.1
+    targetRevision: 1.17.1  # 使用する cert-manager のバージョン
+
+  # デプロイ先の設定
   destination:
-    server: "https://kubernetes.default.svc"
+    server: "https://kubernetes.default.svc"  # ローカル Kubernetes クラスター
     namespace: cert-manager
+  
+  # 同期設定
   syncPolicy:
     syncOptions:
+      # Namespace が存在しない場合は自動作成
       - CreateNamespace=true

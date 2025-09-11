@@ -1,16 +1,27 @@
+# Let's Encrypt からの証明書取得用 ClusterIssuer
+# Cloudflare DNS チャレンジを使用してワイルドカード証明書も取得可能
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-cloudflare
 spec:
   acme:
-    email: aobaiwaki@gmail.com # ← 自分のメールアドレスに変更！
+    # Let's Encrypt アカウントのメールアドレス（証明書期限通知用）
+    email: aobaiwaki@gmail.com
+    
+    # Let's Encrypt の本番環境 API エンドポイント
     server: https://acme-v02.api.letsencrypt.org/directory
+    
+    # ACME アカウントの秘密鍵を保存する Secret 名
     privateKeySecretRef:
       name: letsencrypt-cloudflare-account-key
+    
+    # DNS チャレンジの設定
     solvers:
       - dns01:
           cloudflare:
+            # Cloudflare API トークンを含む Secret の参照
+            # 必要な権限: Zone:DNS:Edit
             apiTokenSecretRef:
               name: cloudflare-api-token-secret
               key: api-token

@@ -1,3 +1,5 @@
+# Firebolt Core StatefulSet
+# 永続化されたストレージを使用する Firebolt データベースエンジンの定義
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -6,10 +8,14 @@ metadata:
   name: {{ include "fbcore.fullname" . }}
   labels:
     {{- include "fbcore.labels" . | nindent 4 }}
+    # ノード数をラベルとして追加（監視やデバッグで有用）
     firebolt/nodes-count: {{ .Values.nodesCount | quote }}
 spec:
+  # StatefulSet 用のヘッドレスサービス
   serviceName: {{ include "fbcore.fullname" . }}-svc
+  # デプロイするレプリカ数
   replicas: {{ .Values.nodesCount }}
+  # Pod を並列で作成・削除（順次実行ではない）
   podManagementPolicy: Parallel
   selector:
     matchLabels:
