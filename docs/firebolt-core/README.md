@@ -1,12 +1,12 @@
 ## Getting Started
 
-### argocdでデプロイ
+### ArgoCD でデプロイ
 
 ```sh
 $ argocd app create --file argocd/firebolt-core.yml
 ```
 
-### クエリを叩いてみる
+### サンプルクエリの実行
 
 ```sh
 $ kubectl port-forward firebolt-core-0 3473:3473 -n firebolt-core
@@ -24,7 +24,7 @@ int
 - `TabSeparatedWithNamesAndTypes`: default
 - `JSON_Compact`: 
 - `JSON_CompactLimited`: limited 10,000 rows
-- `JSONLines_Compact`: chunked versin of `JSON_CompactLimited`
+- `JSONLines_Compact`: chunked version of `JSON_CompactLimited`
 
 ### JSON Compact
 

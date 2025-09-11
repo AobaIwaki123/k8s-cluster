@@ -1,32 +1,32 @@
-# Install argocd
+# ArgoCD のインストール
 
-## argocd namespaceを作成
+## ArgoCD namespaceを作成
 
 ```sh
 $ kubectl create namespace argocd
 ```
 
-## argocdをインストール
+## ArgoCD をインストール
 
 ```sh
 $ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
 
-## Ingressで公開するためにSSL リダイレクトを無効化
+## Ingress で公開するための SSL リダイレクトの無効化
 
 ```sh
 $ kubectl apply -n argocd -f manifests/argocd-cmd-params-cm.yml
-$ kubectl rollout restart deployment argocd-server -n argocd # argocd-serverを再起動
+$ kubectl rollout restart deployment argocd-server -n argocd # ArgoCD Server のローリング再起動
 ```
 
-## argocdのServiceをNodePortに変更
+## ArgoCD の Service を NodePort に変更
 
 ```sh
 $ kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
 ```
 
 
-## argocdの初期パスワードを取得して更新
+## ArgoCD の初期パスワードの取得と変更
 
 ```sh
 $ argocd admin initial-password -n argocd
@@ -46,7 +46,7 @@ Cloudflare Ingress Controllerのセットアップが必要です。
 $ kubectl apply -f manifests/ingress.yml
 ```
 
-## 外部からsync curlする方法
+## 外部から API を使用してアプリケーションを同期する方法
 
 ### コマンドラインからConfig Mapを編集する方法
 
@@ -67,7 +67,7 @@ data:
 $ kubectl apply -f manifests/argocd-cm.yml
 ```
 
-### argocd-serverの再起動
+### ArgoCD Server の再起動
 
 ```sh
 $ kubectl rollout restart deployment argocd-server -n argocd

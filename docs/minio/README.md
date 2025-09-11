@@ -1,13 +1,13 @@
-# Install Minio
+# MinIO のインストール
 
 
-## 1. Minio Operatorをインストール
+## 1. MinIO Operator のインストール
 
 ```sh
 $ kubectl create ns minio-operator
 ```
 
-### 1-1. Helmを使う場合
+### 1-1. Helm を使用したインストール
 
 ```sh
 $ helm repo add minio https://operator.min.io/
@@ -20,20 +20,21 @@ $ helm install \
   operator minio-operator/operator
 ```
 
-### 1-2. ArgoCDを使う場合
+### 1-2. ArgoCD を使用したインストール
 
 ```sh
 $ argocd app create --file apps/minio-operator.yaml
 ```
 
-## 2. Minio Tenantを作成
+## 2. MinIO Tenant の作成
 
 ```sh
 $ kubectl create ns minio-tenant
 ```
 
-使用したいStorageClassをデフォルトに設定しておく (TODO: StorageClass作成時点でやる方法を今度調べる)  
-以下はCephのStorageClassをデフォルトに設定する例
+使用したい StorageClass をデフォルトに設定します。
+
+以下は Ceph の StorageClass をデフォルトに設定する例です：
 
 ```sh
 $ kubectl patch storageclass ceph-rbd \
@@ -42,10 +43,10 @@ $ kubectl patch storageclass ceph-rbd \
 
 ```sh
 $ kubectl get sc
-# DefaultになっていればOK
+# Default になっていれば正常です
 ```
 
-### 2-1. Helmを使う場合
+### 2-1. Helm を使用したインストール
 
 ```sh
 $ helm install \
@@ -54,30 +55,30 @@ $ helm install \
   TENANT-NAME minio-operator/tenant
 ``` 
 
-### 2-2. ArgoCDを使う場合
+### 2-2. ArgoCD を使用したインストール
 
 ```sh
 $ argocd app create --file apps/minio-tenant.yaml
 ```
 
-## 3. Minio Consoleを開く
+## 3. MinIO Console のアクセス設定
 
 ### 3-1. ポートを開く
 
 ```sh
 $ kubectl get svc -n minio-tenant myminio-console
-# Minio Console Serviceを特定
-# 適当な方法でポートを開く (Port-Forward, NodePort, etc)
+# MinIO Console Service を特定します
+# Port-Forward、NodePort、Ingress などの方法でポートを開きます
 ```
 
 ### 3-2. シークレットの取得
 
 ```sh
 $ kubectl get secret -n minio-tenant myminio-env-configuration -o jsonpath="{.metadata.annotations}"
-# 出力から、MINIO_ROOT_USERとMINIO_ROOT_PASSWORDを確認
+# 出力結果から MINIO_ROOT_USER と MINIO_ROOT_PASSWORD を確認します
 ```
 
-確認した情報を使って、Minio Consoleにログイン
+確認した情報を使用して MinIO Console にログインします。
 
 ## Minio Operator と Minio Tenant の関係
 
@@ -108,11 +109,7 @@ graph TB
     end
 ```
 
-了解しました。以下に **簡潔版の解説（Markdown形式）** をまとめます：
-
----
-
-## 🧩 MinIO Operator と MinIO Tenant CR の関係
+## MinIO Operator と MinIO Tenant CR の関係
 
 ### 🔹 MinIO Operator とは？
 - Kubernetes 上で MinIO クラスタ（＝Tenant）を管理する **オペレーター**
