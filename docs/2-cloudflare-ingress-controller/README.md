@@ -1,5 +1,10 @@
-```sh
-$ argocd app create --file ./argocd/cloudflare-tunnel-ingress-controller.yml
+## Cloudflare Tunnel Ingress Controllerのセットアップ
+
+```yaml
+        cloudflare:
+          apiToken: hoge # READMEのPermissionを参考にしてトークンを作成
+          accountId: hoge
+          tunnelName: cf-tunnel-ingress-controller # トンネルをCloudflareで作成しておく
 ```
 
 ### Permissions: 
@@ -9,6 +14,12 @@ CloudflareのPermissionは`:`区切りの3つのパートから構成されま�
 - Zone:Zone:Read
 - Zone:DNS:Edit
 - Account:Cloudflare Tunnel:Edit
+
+## ArgoCDでセットアップ
+
+```sh
+$ argocd app create --file ./argocd/cloudflare-tunnel-ingress-controller.yml
+```
 
 ## 参考
 
