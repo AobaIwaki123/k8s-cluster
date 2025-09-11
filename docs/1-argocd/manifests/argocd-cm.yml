@@ -1,3 +1,5 @@
+# ArgoCD 設定のカスタマイズ用 ConfigMap
+# 外部からのAPI呼び出しによるアプリケーション同期を可能にするための設定を含む
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,8 +9,15 @@ metadata:
   name: argocd-cm
   namespace: argocd
 data:
+  # アカウント設定: admin ユーザーでのログインと API トークンの使用を許可
   accounts.admin: login,apiKey
+  
+  # アプリケーション識別用のラベルキー設定
   application.instanceLabelKey: argocd.argoproj.io/instance
+  
+  # RBAC ログ設定: デバッグ目的で無効化
   server.rbac.log.enforce.enable: "false"
-  timeout.hard.reconciliation: 0s
-  timeout.reconciliation: 180s
+  
+  # 同期タイムアウト設定
+  timeout.hard.reconciliation: 0s      # ハード同期タイムアウト (0s = 無制限)
+  timeout.reconciliation: 180s         # 通常の同期タイムアウト (3分)

@@ -1,29 +1,44 @@
+# Nginx Ingress Controller の ArgoCD Application 設定
+# HTTP/HTTPS トラフィックの負荷分散とルーティングを提供
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: nginx-ingress
   namespace: argocd
   annotations:
+    # 他のアプリケーションが Ingress リソースを使用する前にデプロイが必要
     argocd.argoproj.io/sync-wave: "-1"
   finalizers:
+    # リソースのクリーンアップを確実に行うためのファイナライザー
     - resources-finalizer.argocd.argoproj.io
 spec:
+  # ArgoCD プロジェクト設定
   project: default
+  
+  # Helm チャートのソース設定
   source:
-    repoURL: https://kubernetes.github.io/ingress-nginx
+    repoURL: https://kubernetes.github.io/ingress-nginx  # Ingress Nginx 公式 Helm リポジトリ
     chart: ingress-nginx
-    targetRevision: 4.12.0
+    targetRevision: 4.12.0  # 使用する Nginx Ingress Controller のバージョン
+    
     helm:
       values: |
+        # Nginx Ingress Controller の設定
         controller:
           service:
+            # NodePort を使用して外部からアクセス可能にする
             type: NodePort
             nodePorts:
-              http: 30080
-              https: 30443
+              http: 30080   # HTTP トラフィック用のノードポート
+              https: 30443  # HTTPS トラフィック用のノードポート
+
+  # デプロイ先の設定
   destination:
-    server: "https://kubernetes.default.svc"
+    server: "https://kubernetes.default.svc"  # ローカル Kubernetes クラスター
     namespace: nginx-ingress
+  
+  # 同期設定
   syncPolicy:
     syncOptions:
+      # Namespace が存在しない場合は自動作成
       - CreateNamespace=true

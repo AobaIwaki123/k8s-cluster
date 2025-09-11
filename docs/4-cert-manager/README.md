@@ -1,18 +1,18 @@
-TODO: ArgoCD化されていないのでいつかリプレイスする
+# cert-manager のインストール
 
-## NameSpaceを作成
+## NameSpace を作成
 
 ```sh
 $ kubectl create ns cert-manager
 ```
 
-## CRDを追加
+## CRD を追加
 
 ```sh
 $ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.17.1/cert-manager.crds.yaml -n cert-manager
 ```
 
-## Argo CD の APP を起動
+## ArgoCD アプリケーションを起動
 
 ```sh
 $ argocd app create --file ./argocd/cert-manager.yaml
@@ -32,7 +32,7 @@ Include → Specific Zone →（対象のドメイン名を選択）
 
 ```sh
 $ kubectl create secret generic cloudflare-api-token-secret \
-  --from-literal=api-token=hoge \
+  --from-literal=api-token=YOUR_CLOUDFLARE_API_TOKEN \
   --namespace=cert-manager
 ```
 

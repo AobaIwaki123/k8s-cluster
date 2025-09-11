@@ -1,13 +1,22 @@
+# Harbor 用の SSL/TLS 証明書設定
+# Let's Encrypt から Cloudflare DNS チャレンジを使用して証明書を取得
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: harbor-tls
   namespace: harbor
 spec:
-  secretName: harbor-tls  # これが Harbor に渡す secret 名になります
+  # 証明書を保存する Secret 名（Harbor の設定と一致させる必要がある）
+  secretName: harbor-tls
+  
+  # 証明書を発行する ClusterIssuer の参照
   issuerRef:
     name: letsencrypt-cloudflare
     kind: ClusterIssuer
+  
+  # 証明書のメインドメイン名
   commonName: harbor.aooba.net
+  
+  # 証明書で有効とするドメイン名のリスト
   dnsNames:
     - harbor.aooba.net

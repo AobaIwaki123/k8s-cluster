@@ -2,20 +2,22 @@
 
 ```yaml
         cloudflare:
-          apiToken: hoge # READMEのPermissionを参考にしてトークンを作成
-          accountId: hoge
-          tunnelName: cf-tunnel-ingress-controller # トンネルをCloudflareで作成しておく
+          apiToken: YOUR_API_TOKEN # 下記のPermissionsを参考にしてトークンを作成
+          accountId: YOUR_ACCOUNT_ID
+          tunnelName: cf-tunnel-ingress-controller # 事前にCloudflareダッシュボードでトンネルを作成しておく
 ```
 
-### Permissions: 
+## API トークンに必要な Permissions
 
-CloudflareのPermissionは`:`区切りの3つのパートから構成されます。
+Cloudflare の API トークンには以下の権限が必要です：
 
 - Zone:Zone:Read
 - Zone:DNS:Edit
 - Account:Cloudflare Tunnel:Edit
 
-## ArgoCDでセットアップ
+各権限は `リソースタイプ:サブリソース:アクセスレベル` の形式です。
+
+## ArgoCD でセットアップ
 
 ```sh
 $ argocd app create --file ./argocd/cloudflare-tunnel-ingress-controller.yml

@@ -18,7 +18,7 @@ $ pveceph pool create k8s-pv-pool --pg_autoscale_mode-on
 
 ## 3. 環境変数の取得
 
-以下のコマンドを**Proxmoxのホスト上**で実行する
+以下のコマンドを **Proxmox のホスト上**で実行します。
 
 ```sh
 $ wget https://raw.githubusercontent.com/rook/rook/release-1.16/deploy/examples/create-external-cluster-resources.py
@@ -26,7 +26,7 @@ $ python3 create-external-cluster-resources.py --namespace rook-ceph-external --
 # 出力値は後で使うのでコピーしておく
 ```
 
-次に以下のコマンドを実行する **`kubectl` が使えるホスト上** で以下のコマンドを実行する
+次に、**`kubectl` が使用できるホスト上**で以下のコマンドを実行します。
 
 ```sh
 # env.shに前に取得した環境変数をコピーする
@@ -35,17 +35,18 @@ $ wget https://raw.githubusercontent.com/rook/rook/release-1.16/deploy/examples/
 . import-external-cluster.sh
 ```
 
-## 4. Cephのデフォルトストレージクラスを変更
+## 4. Ceph ストレージクラスをデフォルトに設定
 
 ```sh
 $ kubectl patch storageclass ceph-rbd \
   -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
 ```
 
-## 5. 外部のCeph Clusterに接続するためのリソースを追加
+## 5. 外部 Ceph クラスターに接続するためのリソース追加
 
-Rook経由ではなく、Proxmoxの機能でCephを作成しているため以下が必要になる
-Rookで全てまとめた方がおそらく楽
+Proxmox の機能で作成された Ceph クラスターに接続するため、以下のリソースが必要です。
+
+※ 注意：将来的には Rook で統一した Ceph 橋成を検討することを推奨します。
 
 ```sh
 $ argocd app create --file ./argocd/rook-ceph-external-cluster.yaml

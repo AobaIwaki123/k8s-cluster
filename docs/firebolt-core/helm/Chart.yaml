@@ -1,9 +1,25 @@
+# Firebolt Core Helm Chart メタデータ
+# セルフホスト型 Firebolt データベースエンジンのデプロイ用チャート
+
 apiVersion: v2
 name: firebolt-core
 description: Firebolt Core on Kubernetes
+
+# チャートタイプ（アプリケーションチャート）
 type: application
+
+# Firebolt Core のアイコン
 icon: https://raw.githubusercontent.com/firebolt-db/firebolt-core/refs/heads/main/static/core.svg
+
+# プロジェクトのホームページ
 home: "https://github.com/firebolt-db/firebolt-core/tree/main/helm"
-sources: ["https://github.com/firebolt-db/firebolt-core/tree/main/helm"]
+
+# ソースコードのリポジトリ
+sources: 
+  - "https://github.com/firebolt-db/firebolt-core/tree/main/helm"
+
+# このチャートのバージョン
 version: 0.1.0
+
+# デプロイされるアプリケーションのバージョン
 appVersion: preview-rc

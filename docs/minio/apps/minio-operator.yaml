@@ -1,21 +1,33 @@
+# MinIO Operator の ArgoCD Application 設定
+# Kubernetes 上で MinIO クラスター（Tenant）を管理するオペレーター
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: minio-operator
   namespace: argocd
   annotations:
+    # MinIO Tenant より先にオペレーターをデプロイする必要があるため
     argocd.argoproj.io/sync-wave: "-1"
   finalizers:
+    # リソースのクリーンアップを確実に行うためのファイナライザー
     - resources-finalizer.argocd.argoproj.io
 spec:
+  # ArgoCD プロジェクト設定
   project: default
+  
+  # Helm チャートのソース設定
   source:
-    repoURL: https://operator.min.io/
+    repoURL: https://operator.min.io/  # MinIO 公式 Operator Helm リポジトリ
     chart: operator
-    targetRevision: 7.0.1
+    targetRevision: 7.0.1  # 使用する MinIO Operator のバージョン
+
+  # デプロイ先の設定
   destination:
-    server: "https://kubernetes.default.svc"
+    server: "https://kubernetes.default.svc"  # ローカル Kubernetes クラスター
     namespace: minio-operator
+  
+  # 同期設定
   syncPolicy:
     syncOptions:
+      # Namespace が存在しない場合は自動作成
       - CreateNamespace=true

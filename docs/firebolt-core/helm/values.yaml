@@ -1,43 +1,75 @@
-image:
-  # -- use a custom ECR repository to pull the Docker image used by the pods
-  repository: ghcr.io/firebolt-db/firebolt-core
-  # -- use a custom Docker image tag; when unspecified the app version from chart will be used instead
-  tag:
+# =============================================================================
+# Firebolt Core Helm Chart Values
+# セルフホスト型の Firebolt データベースエンジン設定
+# =============================================================================
 
-# -- number of nodes to deploy
+# Docker イメージ設定
+image:
+  # Firebolt Core の公式イメージリポジトリ
+  repository: ghcr.io/firebolt-db/firebolt-core
+  # イメージタグ（未指定の場合は Chart.yaml の appVersion を使用）
+  tag: ""
+
+# =============================================================================
+# デプロイメント設定
+# =============================================================================
+
+# デプロイするノード数（StatefulSet のレプリカ数）
 nodesCount: 1
 
-# -- readiness check on each pod
+# Pod の readiness プローブを有効にするかどうか
 readiness: true
 
-# -- resources for each pod; at least 1 core is advised
+# =============================================================================
+# リソース設定
+# =============================================================================
+
+# 各 Pod のリソース制限とリクエスト
+# 注意: Firebolt Core は最低でも 1CPU を推奨
 resources:
   requests:
-    cpu: "1"
-    memory: 4Gi
+    cpu: "1"     # CPU リクエスト
+    memory: 4Gi  # メモリリクエスト
   limits:
-    memory: 4Gi
+    memory: 4Gi  # メモリ制限
 
-# -- extra labels to assign to each pod
+# Pod に追加するラベル
 extraLabels: {}
 
+# =============================================================================
+# デプロイメント詳細設定
+# =============================================================================
+
 deployment:
-  # -- give a few seconds of grace time on shutdown to allow queries to finish
+  # Pod 終了時の猶予時間（秒）
+  # クエリの完了を待つための時間
   terminationGracePeriodSeconds: 5
-  # -- security context which will be used by each pod
+  
+  # Pod のセキュリティコンテキスト
   securityContext:
-    readOnlyRootFilesystem: false
-  # -- security capabilities which will be used by each pod
+    readOnlyRootFilesystem: false  # ルートファイルシステムを読み取り専用にしない
+  
+  # Pod のセキュリティ権限
   securityCapabilities:
     add:
-      - IPC_LOCK
-      - SYS_NICE
+      - IPC_LOCK  # メモリロック権限
+      - SYS_NICE  # プロセス優先度変更権限
+  
+  # =============================================================================
+  # ストレージ設定
+  # =============================================================================
+  
   storageSpec:
+    # アクセスモード
     accessModes:
-      - ReadWriteOnce
+      - ReadWriteOnce  # 単一ノードからの読み書きアクセス
+    
+    # 使用するストレージクラス（Ceph RBD を使用）
     storageClassName: ceph-rbd
+    
+    # ストレージリソース設定
     resources:
       requests:
-        storage: 1Gi
+        storage: 1Gi  # 要求するストレージ容量
       limits:
-        storage: 1Gi
+        storage: 1Gi  # ストレージ容量の上限

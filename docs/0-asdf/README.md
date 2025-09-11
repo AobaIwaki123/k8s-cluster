@@ -26,10 +26,10 @@ asdfプラグインの使用の責任はユーザーにあり、サービス開�
 
 - PLUGIN_NAME: プラグイン名
 - PLUGIN_URL: プラグインが公開されているGitHubのURL
-- PLUGIN_VERSION: プラグインのバージョン (adsf listで確認できる)
+- PLUGIN_VERSION: プラグインのバージョン (asdf listで確認できる)
 
 ```sh
 $ asdf plugin add {PLUGIN_NAME} {PLUGIN_GITHUB_URL}
-$ asdf install {PLUGIN_NAME} latest # たまにlatestが使えない場合があるので注意
+$ asdf install {PLUGIN_NAME} latest # 一部のプラグインでlatestが使用できない場合は具体的なバージョン番号を指定してください
 $ asdf set -u {PLUGIN_NAME} {PLUGIN_VERSION}
 ```
