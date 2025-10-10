@@ -1,10 +1,18 @@
-# k8s Cluster on Proxmox 構築手順
+# k8s Cluster on Proxmox
 
-## このドキュメントでできること
+k0s、ArgoCD、および各種クラウドネイティブツールを使用した Kubernetes クラスターセットアップ
+
+## 📚 ドキュメント
+
+詳細なドキュメントは [GitHub Pages](https://aobaiwaki123.github.io/k8s-cluster/) で公開されています。
+
+または、`docs/` ディレクトリ内のマークダウンファイルを直接参照してください。
+
+## 主な機能
 
 ### 1. ArgoCDを用いたアプリケーションの管理
 
-![alt text](imgs/argocd.png "ArgoCD")
+![ArgoCD](docs/assets/images/argocd.png)
 
 ### 2. Cloudflare Ingress Controllerを用いたサービスの公開
 
@@ -13,10 +21,9 @@
 
 ### 3. Rook Cephを用いた永続ストレージの構築
 
-
 ### 4. Harborを用いたプライベートDocker Registryの構築
 
-![alt text](imgs/harbor.png "Rook Ceph")
+![Harbor](docs/assets/images/harbor.png)
 
 ## 発展
 
@@ -51,63 +58,37 @@
 - kubectl: 1.32.3
 - argocd: 2.14.7
 
-## 0. 前準備
+## クイックスタート
 
-### 1. asdfをインストール
-  
-[手順](docs/0-asdf/README.md)
+### 0. 前準備
 
-### 2. asdf pluginの追加
+- [asdfのインストール](manifests/0-asdf/README.md)
+- [必要なツールのインストール](manifests/0-asdf/README.md)
 
-[手順](docs/0-asdf/README.md)
+### k0sクラスターの構築
 
-それ以外の上記[Versions](#versions)に記載のツールをasdf pluginを用いてインストール
+```bash
+cd k0s
+make apply
+make config
+```
 
+詳細は [k0s/README.md](k0s/README.md) を参照
 
-## k0sctlでk8sクラスターを構築
+## コンポーネントのセットアップ
 
-1. k0sctl.ymlの作成 (`k0sctl init > k0ctl.yml`)
-2. k0sctl.ymlの適用 (`k0sctl apply --config k0sctl.yml`)
-3. kube configの取得 (`k0sctl kubeconfig > ~/.kube/config`)
+各コンポーネントの詳細なセットアップ手順は、以下のドキュメントを参照してください：
 
-## 1. ArgoCDのセットアップ
+### 必須コンポーネント
 
-NodePortで一旦公開します。
+1. **ArgoCD** - [手順](manifests/1-argocd/README.md) | [詳細ドキュメント](docs/components/argocd.md)
+2. **Cloudflare Ingress Controller** - [手順](manifests/2-cloudflare-ingress-controller/README.md) | [詳細ドキュメント](docs/components/cloudflare-ingress.md)
+3. **Rook Ceph** - [手順](manifests/3-rook-ceph-pvc/README.md) | [詳細ドキュメント](docs/components/rook-ceph.md)
+4. **Cert Manager** - [手順](manifests/4-cert-manager/README.md) | [詳細ドキュメント](docs/components/cert-manager.md)
+5. **Harbor** - [手順](manifests/5-harbor/README.md) | [詳細ドキュメント](docs/components/harbor.md)
 
-[手順](docs/1-argocd/README.md)
+### オプションコンポーネント
 
-## 2. Cloudflare Ingress Controllerのセットアップ
-
-CloudflareのAPIを用いて、CloudflareのDNSを自動的に更新するIngress Controllerです。
-これを用いることでどんなサービスもSSL化して公開することができます。
-
-[手順](docs/2-cloudflare-ingress-controller/README.md)
-
-## 1'. ArgoCDの本セットアップ
-
-ArgoCD上にCloudflare Ingress Controllerをセットアップした後、Cloudflare Tunnel経由で公開します。
-
-[手順](docs/1-argocd/README.md)
-
-## 3. Rook Cephを用いたPVCの構築
-
-[手順](docs/3-rook-ceph-pvc/README.md)
-
-## 4. Cert Managerのセットアップ
-
-Let's Encrypt + cert-manager + Cloudflare DNSで自動的に正式な証明書を発行します
-
-[手順](docs/4-cert-manager/README.md)
-
-## 5. Harborのセットアップ
-
-[手順](docs/5-harbor/README.md)
-
-
-## Minioのセットアップ (任意)
-
-[手順](docs/minio/README.md)
-
-## Nginx Ingress Controllerのセットアップ (任意)
-
-[手順](docs/nginx/README.md)
+- **Firebolt Core** - [手順](manifests/firebolt-core/README.md) | [詳細ドキュメント](docs/components/firebolt-core.md)
+- **MinIO** - [手順](manifests/minio/README.md) | [詳細ドキュメント](docs/components/minio.md)
+- **Nginx Ingress** - [手順](manifests/nginx/README.md) | [詳細ドキュメント](docs/components/nginx-ingress.md)
