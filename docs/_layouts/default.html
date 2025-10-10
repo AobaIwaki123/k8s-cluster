@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>{{ page.title }} - {{ site.title }}</title>
+  <meta name="description" content="{{ site.description }}">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <a href="{{ '/' | relative_url }}">
+            <i class="fas fa-cubes"></i>
+            <span>{{ site.title }}</span>
+          </a>
+        </div>
+        <button class="mobile-menu-toggle" aria-label="Toggle menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="main-wrapper">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <h3><i class="fas fa-rocket"></i> はじめに</h3>
+          <ul>
+            <li><a href="{{ '/setup/prerequisites.html' | relative_url }}">前準備</a></li>
+            <li><a href="{{ '/setup/cluster-installation.html' | relative_url }}">クラスター構築</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <h3><i class="fas fa-puzzle-piece"></i> コンポーネント</h3>
+          <ul>
+            <li><a href="{{ '/components/argocd.html' | relative_url }}">ArgoCD</a></li>
+            <li><a href="{{ '/components/cloudflare-ingress.html' | relative_url }}">Cloudflare Ingress</a></li>
+            <li><a href="{{ '/components/rook-ceph.html' | relative_url }}">Rook Ceph</a></li>
+            <li><a href="{{ '/components/cert-manager.html' | relative_url }}">Cert Manager</a></li>
+            <li><a href="{{ '/components/harbor.html' | relative_url }}">Harbor</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <h3><i class="fas fa-plus-circle"></i> オプション</h3>
+          <ul>
+            <li><a href="{{ '/components/firebolt-core.html' | relative_url }}">Firebolt Core</a></li>
+            <li><a href="{{ '/components/minio.html' | relative_url }}">MinIO</a></li>
+            <li><a href="{{ '/components/nginx-ingress.html' | relative_url }}">Nginx Ingress</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <h3><i class="fas fa-info-circle"></i> バージョン</h3>
+          <div class="version-info">
+            <div class="version-item">
+              <span class="version-label">asdf</span>
+              <span class="version-number">v0.16.6</span>
+            </div>
+            <div class="version-item">
+              <span class="version-label">k0sctl</span>
+              <span class="version-number">v0.23.0</span>
+            </div>
+            <div class="version-item">
+              <span class="version-label">kubectl</span>
+              <span class="version-number">1.32.3</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <!-- Breadcrumb -->
+        {% if page.url != "/" %}
+        <nav class="breadcrumb">
+          <a href="{{ '/' | relative_url }}"><i class="fas fa-home"></i> Home</a>
+          {% if page.url contains '/setup/' %}
+          <span class="separator">/</span>
+          <span>Setup</span>
+          {% elsif page.url contains '/components/' %}
+          <span class="separator">/</span>
+          <span>Components</span>
+          {% endif %}
+          <span class="separator">/</span>
+          <span class="current">{{ page.title }}</span>
+        </nav>
+        {% endif %}
+
+        <!-- Page Content -->
+        <article class="page-content">
+          {{ content }}
+        </article>
+
+        <!-- Table of Contents for long pages -->
+        <aside class="toc-sidebar" id="toc"></aside>
+      </div>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <div class="footer-content">
+          <p>&copy; 2025 {{ site.title }}. Built with <i class="fas fa-heart"></i> and Kubernetes.</p>
+          <div class="footer-links">
+            <a href="https://github.com" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+</body>
+</html>
