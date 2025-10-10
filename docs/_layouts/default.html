@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{{ page.title }} | {{ site.title }}</title>
+  <meta name="description" content="{{ site.description }}">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  
+  <!-- Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-content">
+        <a href="{{ '/' | relative_url }}" class="logo">
+          <i class="fas fa-cube"></i>
+          <span>{{ site.title }}</span>
+        </a>
+        
+        <nav class="main-nav">
+          <a href="{{ '/' | relative_url }}" class="nav-link {% if page.url == '/' %}active{% endif %}">
+            <i class="fas fa-home"></i> ホーム
+          </a>
+          <a href="{{ '/setup/prerequisites.html' | relative_url }}" class="nav-link">
+            <i class="fas fa-cog"></i> セットアップ
+          </a>
+          <a href="https://github.com/AobaIwaki123/k8s-cluster" target="_blank" class="nav-link">
+            <i class="fab fa-github"></i> GitHub
+          </a>
+        </nav>
+        
+        <button class="theme-toggle" id="theme-toggle" aria-label="ダークモード切替">
+          <i class="fas fa-moon"></i>
+        </button>
+        
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="メニュー">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <nav class="mobile-nav">
+      <a href="{{ '/' | relative_url }}" class="mobile-nav-link">
+        <i class="fas fa-home"></i> ホーム
+      </a>
+      <a href="{{ '/setup/prerequisites.html' | relative_url }}" class="mobile-nav-link">
+        <i class="fas fa-cog"></i> セットアップ
+      </a>
+      <a href="https://github.com/AobaIwaki123/k8s-cluster" target="_blank" class="mobile-nav-link">
+        <i class="fab fa-github"></i> GitHub
+      </a>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <main class="site-main">
+    <div class="container">
+      <div class="content-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar-content">
+            <h3 class="sidebar-title">
+              <i class="fas fa-book"></i> ドキュメント
+            </h3>
+            
+            <div class="sidebar-section">
+              <h4 class="sidebar-section-title">
+                <i class="fas fa-play-circle"></i> はじめに
+              </h4>
+              <ul class="sidebar-list">
+                <li><a href="{{ '/setup/prerequisites.html' | relative_url }}">前準備</a></li>
+                <li><a href="{{ '/setup/cluster-installation.html' | relative_url }}">クラスター構築</a></li>
+              </ul>
+            </div>
+            
+            <div class="sidebar-section">
+              <h4 class="sidebar-section-title">
+                <i class="fas fa-puzzle-piece"></i> コンポーネント
+              </h4>
+              <ul class="sidebar-list">
+                <li><a href="{{ '/components/argocd.html' | relative_url }}">ArgoCD</a></li>
+                <li><a href="{{ '/components/cloudflare-ingress.html' | relative_url }}">Cloudflare Ingress</a></li>
+                <li><a href="{{ '/components/rook-ceph.html' | relative_url }}">Rook Ceph</a></li>
+                <li><a href="{{ '/components/cert-manager.html' | relative_url }}">Cert Manager</a></li>
+                <li><a href="{{ '/components/harbor.html' | relative_url }}">Harbor</a></li>
+                <li><a href="{{ '/components/firebolt-core.html' | relative_url }}">Firebolt Core</a></li>
+                <li><a href="{{ '/components/minio.html' | relative_url }}">MinIO</a></li>
+                <li><a href="{{ '/components/nginx-ingress.html' | relative_url }}">Nginx Ingress</a></li>
+              </ul>
+            </div>
+            
+            <div class="sidebar-section">
+              <h4 class="sidebar-section-title">
+                <i class="fas fa-info-circle"></i> バージョン情報
+              </h4>
+              <ul class="version-list">
+                <li><code>asdf</code> v0.16.6</li>
+                <li><code>k0sctl</code> v0.23.0</li>
+                <li><code>k9s</code> v0.40.10</li>
+                <li><code>helm</code> 3.17.2</li>
+                <li><code>kubectl</code> 1.32.3</li>
+                <li><code>argocd</code> 2.14.7</li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Article Content -->
+        <article class="main-content">
+          <div class="article-header">
+            {% if page.title %}
+            <h1 class="article-title">{{ page.title }}</h1>
+            {% endif %}
+          </div>
+          
+          <div class="article-body">
+            {{ content }}
+          </div>
+          
+          <footer class="article-footer">
+            <div class="article-meta">
+              <i class="fas fa-clock"></i> 最終更新: {{ site.time | date: "%Y年%m月%d日" }}
+            </div>
+          </footer>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-left">
+          <p>&copy; 2025 {{ site.title }}. All rights reserved.</p>
+        </div>
+        <div class="footer-right">
+          <a href="https://github.com/AobaIwaki123" target="_blank" class="footer-link">
+            <i class="fab fa-github"></i> GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+</body>
+</html>

@@ -4,21 +4,59 @@ description: k0s、ArgoCD、および各種クラウドネイティブツール�
 baseurl: "" # サブパスを使う場合は "/repository-name"
 url: "" # GitHub Pages のURLを指定
 
-# Theme
-theme: jekyll-theme-cayman
-
-# Markdown settings
+# Build settings
 markdown: kramdown
 kramdown:
   input: GFM
   syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    block:
+      line_numbers: false
+
+# Sass/SCSS processing
+sass:
+  sass_dir: assets/css
+  style: compressed
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
 
 # Exclude from processing
 exclude:
-- README.md
-- Gemfile
-- Gemfile.lock
-- vendor/
-- .sass-cache/
-- .jekyll-cache/
-- gemfiles/
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - node_modules/
+  - "*.gemspec"
+
+# Collections (optional - for future use)
+collections:
+  components:
+    output: true
+  setup:
+    output: true
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  - scope:
+      path: ""
+      type: "components"
+    values:
+      layout: "default"
+  - scope:
+      path: ""
+      type: "setup"
+    values:
+      layout: "default"
