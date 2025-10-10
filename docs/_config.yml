@@ -1,0 +1,24 @@
+# Site settings
+title: k8s Cluster on Proxmox
+description: k0s、ArgoCD、および各種クラウドネイティブツールを使用した Kubernetes クラスターセットアップドキュメント
+baseurl: "" # サブパスを使う場合は "/repository-name"
+url: "" # GitHub Pages のURLを指定
+
+# Theme
+theme: jekyll-theme-cayman
+
+# Markdown settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Exclude from processing
+exclude:
+- README.md
+- Gemfile
+- Gemfile.lock
+- vendor/
+- .sass-cache/
+- .jekyll-cache/
+- gemfiles/
