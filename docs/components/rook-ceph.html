@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Rook Ceph - k8s Cluster on Proxmox</title>
+  <meta name="description" content="Rook Cephストレージの構築とPVC設定">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="../" class="logo">
+        <i class="fas fa-cubes logo-icon"></i>
+        <span class="logo-text">k8s Cluster</span>
+      </a>
+      
+      <div class="header-actions">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="検索... (Ctrl+K)" aria-label="Search">
+        </div>
+        
+        <button class="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon theme-icon"></i>
+        </button>
+        
+        <button class="mobile-menu-toggle" aria-label="Toggle menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay"></div>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- Navigation will be rendered by JavaScript -->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <div class="breadcrumb-item">
+            <a href="../" class="breadcrumb-link">
+              <i class="fas fa-home"></i> Home
+            </a>
+          </div>
+          <span class="breadcrumb-separator">/</span>
+          <div class="breadcrumb-item">
+            <span class="breadcrumb-current">Rook Ceph</span>
+          </div>
+        </nav>
+
+        <!-- Article Content -->
+        <article class="article-content">
+          <h1>Rook Ceph</h1>
+          
+          <p>Rook Cephは、Kubernetes上で動作する分散ストレージシステムです。PersistentVolumeを提供し、StatefulSetなどの永続化が必要なアプリケーションに対応します。</p>
+
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <p>Rook Cephを使用すると、Kubernetes内で自己管理型の分散ストレージを構築できます。</p>
+          </div>
+
+          <h2>概要</h2>
+          
+          <p>Rook Cephの主な特徴：</p>
+          <ul>
+            <li>Kubernetes-native な分散ストレージ</li>
+            <li>自動的なストレージのプロビジョニング</li>
+            <li>Block、File、Object ストレージのサポート</li>
+            <li>高可用性とデータの冗長性</li>
+            <li>スナップショット機能</li>
+          </ul>
+
+          <h2>前提条件</h2>
+
+          <ul>
+            <li>Kubernetes 1.22以上</li>
+            <li>各ワーカーノードに未使用のディスク（推奨）</li>
+            <li>最低3つのワーカーノード（高可用性のため）</li>
+          </ul>
+
+          <h2>インストール</h2>
+
+          <h3>1. Rook Operatorのインストール</h3>
+          
+          <pre><code class="language-bash"># クローン
+git clone --single-branch --branch v1.13.0 https://github.com/rook/rook.git
+cd rook/deploy/examples
+
+# CRDとOperatorをデプロイ
+kubectl create -f crds.yaml
+kubectl create -f common.yaml
+kubectl create -f operator.yaml</code></pre>
+
+          <h3>2. Cephクラスターの作成</h3>
+          
+          <pre><code class="language-bash"># Cephクラスターの作成
+kubectl create -f cluster.yaml</code></pre>
+
+          <h3>3. デプロイの確認</h3>
+          
+          <pre><code class="language-bash"># Podの確認
+kubectl get pods -n rook-ceph
+
+# Cephクラスターの状態確認
+kubectl get cephcluster -n rook-ceph</code></pre>
+
+          <h2>StorageClassの作成</h2>
+
+          <h3>Block Storage（RBD）</h3>
+          
+          <pre><code class="language-yaml">apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: rook-ceph-block
+provisioner: rook-ceph.rbd.csi.ceph.com
+parameters:
+  clusterID: rook-ceph
+  pool: replicapool
+  imageFormat: "2"
+  imageFeatures: layering
+  csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+  csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
+  csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+  csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
+  csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+  csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
+  csi.storage.k8s.io/fstype: ext4
+allowVolumeExpansion: true
+reclaimPolicy: Delete</code></pre>
+
+          <h3>File Storage（CephFS）</h3>
+          
+          <pre><code class="language-yaml">apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: rook-cephfs
+provisioner: rook-ceph.cephfs.csi.ceph.com
+parameters:
+  clusterID: rook-ceph
+  fsName: myfs
+  pool: myfs-data0
+  csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
+  csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
+  csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+  csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
+  csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
+  csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
+allowVolumeExpansion: true
+reclaimPolicy: Delete</code></pre>
+
+          <h2>PVCの作成と使用</h2>
+
+          <h3>PersistentVolumeClaimの作成</h3>
+          
+          <pre><code class="language-yaml">apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  storageClassName: rook-ceph-block
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi</code></pre>
+
+          <h3>Podでの使用</h3>
+          
+          <pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pod
+spec:
+  containers:
+  - name: test-container
+    image: nginx
+    volumeMounts:
+    - name: my-volume
+      mountPath: /data
+  volumes:
+  - name: my-volume
+    persistentVolumeClaim:
+      claimName: my-pvc</code></pre>
+
+          <h2>Cephダッシュボード</h2>
+
+          <h3>ダッシュボードへのアクセス</h3>
+          
+          <pre><code class="language-bash"># Port Forward
+kubectl port-forward -n rook-ceph svc/rook-ceph-mgr-dashboard 7000:7000
+
+# パスワードの取得
+kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o jsonpath="{['data']['password']}" | base64 --decode</code></pre>
+
+          <p>ブラウザで <code>https://localhost:7000</code> を開き、ユーザー名 <code>admin</code> と取得したパスワードでログインします。</p>
+
+          <h2>モニタリング</h2>
+
+          <h3>クラスターの状態確認</h3>
+          
+          <pre><code class="language-bash"># Cephツールを使用
+kubectl exec -n rook-ceph -it deploy/rook-ceph-tools -- bash
+
+# Cephステータス
+ceph status
+
+# OSDの状態
+ceph osd status
+
+# 容量確認
+ceph df</code></pre>
+
+          <h2>トラブルシューティング</h2>
+
+          <h3>一般的な問題</h3>
+
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p><strong>Podが起動しない場合：</strong>ノードにディスクが正しく認識されているか確認してください。</p>
+          </div>
+
+          <pre><code class="language-bash"># ログの確認
+kubectl logs -n rook-ceph deploy/rook-ceph-operator
+
+# OSDの状態確認
+kubectl get pods -n rook-ceph -l app=rook-ceph-osd</code></pre>
+
+          <h3>クリーンアップ</h3>
+          
+          <pre><code class="language-bash"># Rook Cephの完全削除
+kubectl delete -f cluster.yaml
+kubectl delete -f operator.yaml
+kubectl delete -f common.yaml
+kubectl delete -f crds.yaml
+
+# データの削除（各ノードで実行）
+sudo rm -rf /var/lib/rook</code></pre>
+
+          <h2>参考リンク</h2>
+          
+          <ul>
+            <li><a href="https://rook.io/docs/rook/latest/" target="_blank" rel="noopener noreferrer">Rook公式ドキュメント</a></li>
+            <li><a href="https://docs.ceph.com/" target="_blank" rel="noopener noreferrer">Ceph公式ドキュメント</a></li>
+            <li><a href="https://github.com/rook/rook" target="_blank" rel="noopener noreferrer">Rook GitHub</a></li>
+          </ul>
+        </article>
+      </div>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <div class="footer-container">
+          <p class="footer-text">
+            &copy; 2025 k8s Cluster on Proxmox. Built with <i class="fas fa-heart footer-heart"></i> and Kubernetes.
+          </p>
+          <div class="footer-links">
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="footer-link">
+              <i class="fab fa-github"></i> GitHub
+            </a>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Table of Contents -->
+    <aside class="toc-container">
+      <!-- TOC will be generated by JavaScript -->
+    </aside>
+  </div>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/theme.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/search.js"></script>
+  <script src="../assets/js/toc.js"></script>
+  <script src="../assets/js/code-highlight.js"></script>
+  <script src="../assets/js/page-navigation.js"></script>
+  <script src="../assets/js/scroll-progress.js"></script>
+  <script src="../assets/js/keyboard-shortcuts.js"></script>
+  <script src="../assets/js/page-transitions.js"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

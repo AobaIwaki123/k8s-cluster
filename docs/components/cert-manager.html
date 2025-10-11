@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Cert Manager - k8s Cluster on Proxmox</title>
+  <meta name="description" content="cert-managerとLet's Encryptを使ったTLS証明書の自動管理">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="../" class="logo">
+        <i class="fas fa-cubes logo-icon"></i>
+        <span class="logo-text">k8s Cluster</span>
+      </a>
+      
+      <div class="header-actions">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="検索... (Ctrl+K)" aria-label="Search">
+        </div>
+        
+        <button class="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon theme-icon"></i>
+        </button>
+        
+        <button class="mobile-menu-toggle" aria-label="Toggle menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay"></div>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- Navigation will be rendered by JavaScript -->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <div class="breadcrumb-item">
+            <a href="../" class="breadcrumb-link">
+              <i class="fas fa-home"></i> Home
+            </a>
+          </div>
+          <span class="breadcrumb-separator">/</span>
+          <div class="breadcrumb-item">
+            <span class="breadcrumb-current">Cert Manager</span>
+          </div>
+        </nav>
+
+        <!-- Article Content -->
+        <article class="article-content">
+          <h1>Cert Manager</h1>
+          
+          <p>cert-managerは、Kubernetes内でTLS証明書を自動的に管理するためのツールです。Let's Encryptなどの認証局から証明書を自動取得・更新します。</p>
+
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <p>cert-managerを使用すると、TLS証明書の取得と更新を完全に自動化できます。</p>
+          </div>
+
+          <h2>概要</h2>
+          
+          <p>cert-managerの主な特徴：</p>
+          <ul>
+            <li>TLS証明書の自動取得と更新</li>
+            <li>Let's Encrypt、Venafi、HashiCorp Vaultなど複数の認証局に対応</li>
+            <li>ACME（HTTP-01、DNS-01）チャレンジサポート</li>
+            <li>証明書の自動ローテーション</li>
+            <li>Ingressとの統合</li>
+          </ul>
+
+          <h2>インストール</h2>
+
+          <h3>1. cert-managerのインストール</h3>
+          
+          <p>Helmを使用してインストールします。</p>
+          
+          <pre><code class="language-bash"># Helm リポジトリの追加
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+
+# cert-managerのインストール
+helm install cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --version v1.13.0 \
+  --set installCRDs=true</code></pre>
+
+          <h3>2. インストールの確認</h3>
+          
+          <pre><code class="language-bash"># Podの確認
+kubectl get pods -n cert-manager
+
+# CRDの確認
+kubectl get crd | grep cert-manager</code></pre>
+
+          <h2>ClusterIssuerの設定</h2>
+
+          <h3>Let's Encrypt（Staging）</h3>
+          
+          <p>まずはステージング環境で動作確認を行います。</p>
+          
+          <pre><code class="language-yaml">apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: your-email@example.com
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+    - http01:
+        ingress:
+          class: nginx</code></pre>
+
+          <h3>Let's Encrypt（Production）</h3>
+          
+          <p>動作確認後、本番環境用のIssuerを作成します。</p>
+          
+          <pre><code class="language-yaml">apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: your-email@example.com
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: nginx</code></pre>
+
+          <h3>DNS-01チャレンジ（Cloudflare）</h3>
+          
+          <p>ワイルドカード証明書を取得する場合はDNS-01チャレンジを使用します。</p>
+          
+          <pre><code class="language-yaml">apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-dns
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: your-email@example.com
+    privateKeySecretRef:
+      name: letsencrypt-dns
+    solvers:
+    - dns01:
+        cloudflare:
+          email: your-email@example.com
+          apiTokenSecretRef:
+            name: cloudflare-api-token
+            key: api-token</code></pre>
+
+          <h2>証明書の取得</h2>
+
+          <h3>Ingressでの自動証明書取得</h3>
+          
+          <p>Ingressにアノテーションを追加することで、自動的に証明書を取得できます。</p>
+          
+          <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - example.com
+    secretName: example-tls
+  rules:
+  - host: example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: example-service
+            port:
+              number: 80</code></pre>
+
+          <h3>Certificate リソースの直接作成</h3>
+          
+          <pre><code class="language-yaml">apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: example-cert
+  namespace: default
+spec:
+  secretName: example-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - example.com
+  - www.example.com</code></pre>
+
+          <h2>証明書の確認</h2>
+
+          <h3>Certificateリソースの確認</h3>
+          
+          <pre><code class="language-bash"># Certificate一覧
+kubectl get certificate
+
+# 詳細確認
+kubectl describe certificate example-cert
+
+# CertificateRequestの確認
+kubectl get certificaterequest
+
+# Orderの確認
+kubectl get order
+
+# Challengeの確認
+kubectl get challenge</code></pre>
+
+          <h3>証明書の内容確認</h3>
+          
+          <pre><code class="language-bash"># Secretから証明書を取得
+kubectl get secret example-tls -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout</code></pre>
+
+          <h2>トラブルシューティング</h2>
+
+          <h3>証明書が発行されない場合</h3>
+
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Let's Encryptには厳しいレート制限があります。テストはステージング環境で行ってください。</p>
+          </div>
+
+          <pre><code class="language-bash"># ログの確認
+kubectl logs -n cert-manager deploy/cert-manager
+
+# Challengeの詳細確認
+kubectl describe challenge &lt;challenge-name&gt;
+
+# Certificateの詳細確認
+kubectl describe certificate &lt;cert-name&gt;</code></pre>
+
+          <h3>一般的な問題</h3>
+
+          <ul>
+            <li><strong>HTTP-01チャレンジが失敗</strong>: Ingressが正しく設定されているか確認</li>
+            <li><strong>DNS-01チャレンジが失敗</strong>: DNSプロバイダーのAPIトークンが正しいか確認</li>
+            <li><strong>レート制限エラー</strong>: ステージング環境で十分にテストしてから本番環境へ</li>
+          </ul>
+
+          <h2>ベストプラクティス</h2>
+
+          <ul>
+            <li><strong>ステージング環境でテスト</strong>: 本番前に必ずステージング環境で動作確認</li>
+            <li><strong>証明書の有効期限監視</strong>: 自動更新が失敗した場合に備えてモニタリング</li>
+            <li><strong>ClusterIssuerの使用</strong>: 名前空間を跨いで使用する場合はClusterIssuer</li>
+            <li><strong>適切なチャレンジ方法</strong>: ワイルドカード証明書にはDNS-01を使用</li>
+          </ul>
+
+          <h2>証明書の更新</h2>
+
+          <p>cert-managerは証明書の有効期限が30日を切ると自動的に更新を試みます。</p>
+
+          <h3>手動更新</h3>
+          
+          <pre><code class="language-bash"># Certificateの削除と再作成
+kubectl delete certificate example-cert
+kubectl apply -f certificate.yaml
+
+# またはSecretの削除（自動的に再発行される）
+kubectl delete secret example-tls</code></pre>
+
+          <h2>参考リンク</h2>
+          
+          <ul>
+            <li><a href="https://cert-manager.io/docs/" target="_blank" rel="noopener noreferrer">cert-manager公式ドキュメント</a></li>
+            <li><a href="https://letsencrypt.org/docs/" target="_blank" rel="noopener noreferrer">Let's Encrypt公式ドキュメント</a></li>
+            <li><a href="https://github.com/cert-manager/cert-manager" target="_blank" rel="noopener noreferrer">cert-manager GitHub</a></li>
+          </ul>
+        </article>
+      </div>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <div class="footer-container">
+          <p class="footer-text">
+            &copy; 2025 k8s Cluster on Proxmox. Built with <i class="fas fa-heart footer-heart"></i> and Kubernetes.
+          </p>
+          <div class="footer-links">
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="footer-link">
+              <i class="fab fa-github"></i> GitHub
+            </a>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Table of Contents -->
+    <aside class="toc-container">
+      <!-- TOC will be generated by JavaScript -->
+    </aside>
+  </div>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/theme.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/search.js"></script>
+  <script src="../assets/js/toc.js"></script>
+  <script src="../assets/js/code-highlight.js"></script>
+  <script src="../assets/js/page-navigation.js"></script>
+  <script src="../assets/js/scroll-progress.js"></script>
+  <script src="../assets/js/keyboard-shortcuts.js"></script>
+  <script src="../assets/js/page-transitions.js"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
