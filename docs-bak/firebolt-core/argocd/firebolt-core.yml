@@ -1,0 +1,43 @@
+# Firebolt Core データベースの ArgoCD Application 設定
+# セルフホスト型の Firebolt データベースエンジンをデプロイ
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: firebolt-core
+  namespace: argocd
+spec:
+  # ArgoCD プロジェクト設定
+  project: default
+  
+  # Git リポジトリの Helm チャートをソースとして使用
+  source:
+    repoURL: https://github.com/AobaIwaki123/k8s-cluter.git
+    targetRevision: main  # メインブランチを使用
+    path: docs/firebolt-core/helm  # Helm チャートのパス
+    
+    helm:
+      valueFiles:
+        - values.yaml  # デフォルトの values ファイルを使用
+      parameters:
+        # 追加の Helm パラメーター
+        - name: namespace
+          value: firebolt-core
+
+  # デプロイ先の設定
+  destination:
+    server: https://kubernetes.default.svc  # ローカル Kubernetes クラスター
+    namespace: firebolt-core
+  
+  # 自動同期とリトライの設定
+  syncPolicy:
+    automated:
+      prune: true     # 不要なリソースを自動削除
+      selfHeal: true  # ドリフトを自動修正
+      
+    # 同期失敗時のリトライ設定
+    retry:
+      limit: 5        # 最大リトライ回数
+      backoff:
+        duration: 5s      # 初回リトライまでの待機時間
+        factor: 2         # 待機時間の倍率
+        maxDuration: 3m   # 最大待機時間

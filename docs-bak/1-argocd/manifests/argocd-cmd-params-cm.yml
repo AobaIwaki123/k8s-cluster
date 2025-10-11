@@ -1,0 +1,14 @@
+# ArgoCD Server のコマンドライン引数設定用 ConfigMap
+# Ingress 経由でのアクセスを可能にするための設定を含む
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cmd-params-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-cmd-params-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  # SSL リダイレクトを無効化 - Ingress で TLS 終端を行うため
+  # Ingress Controller が HTTP で ArgoCD Server と通信できるようにする
+  server.insecure: "true"

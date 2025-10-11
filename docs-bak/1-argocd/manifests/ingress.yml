@@ -1,0 +1,29 @@
+# ArgoCD Server を外部に公開するための Ingress 設定
+# Cloudflare Tunnel Ingress Controller を使用して外部からアクセス可能にする
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-ingress
+  namespace: argocd
+  annotations:
+    # SSL リダイレクトを無効化 - ArgoCD Server が insecure モードで動作するため
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # バックエンドプロトコルを HTTP に指定
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  # Cloudflare Tunnel Ingress Controller を使用
+  ingressClassName: "cloudflare-tunnel"
+  
+  rules:
+  # 公開ホスト名の設定
+  - host: argocd.aooba.net
+    http:
+      paths:
+      # ルートパス以下のすべてのリクエストを ArgoCD Server に転送
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argocd-server
+            port:
+              number: 80  # ArgoCD Server の HTTP ポート
