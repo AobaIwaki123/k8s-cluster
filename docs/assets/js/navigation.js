@@ -161,21 +161,26 @@
      */
     getBasePath() {
       const basePath = CONFIG.basePath || "";
-      const currentPath = window.location.pathname;
 
-      // Determine depth from current location
+      // For GitHub Pages, always use the basePath
+      if (basePath) {
+        return basePath + "/";
+      }
+
+      // For local development, use relative paths
+      const currentPath = window.location.pathname;
       const pathSegments = currentPath
         .split("/")
         .filter((s) => s && s !== "index.html");
       const depth = pathSegments.length;
 
-      // If we're at root (docs/index.html), return basePath as is
+      // If we're at root (docs/index.html), return empty
       if (
         depth === 0 ||
         currentPath.endsWith("/docs/") ||
         currentPath.endsWith("/docs/index.html")
       ) {
-        return basePath;
+        return "";
       }
 
       // For each level deep, add '../'
@@ -207,8 +212,8 @@
         `;
 
         section.items.forEach((item) => {
-          // Use absolute URL if it starts with '/', otherwise prepend basePath
-          const url = item.url.startsWith("/") ? item.url : basePath + item.url;
+          // Prepend basePath to all URLs
+          const url = basePath + item.url;
           html += `
               <li class="nav-item">
                 <a href="${url}" class="nav-link">${item.title}</a>

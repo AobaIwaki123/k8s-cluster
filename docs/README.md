@@ -101,6 +101,18 @@ php -S localhost:8000 -t docs
 
 数分後に自動的にデプロイされます。
 
+**重要**: GitHub Pagesでプロジェクトページ（`https://username.github.io/repo-name/`）として公開する場合は、`assets/js/config.js` でベースパスを設定してください：
+
+```javascript
+// プロジェクトページの場合（https://username.github.io/k8s-cluster/）
+basePath: "/k8s-cluster",
+
+// ユーザー/組織ページの場合（https://username.github.io/）
+basePath: "",
+```
+
+**ローカル開発時**: ローカルで表示する場合は `basePath: ""` に設定してください。
+
 ## カスタマイズ
 
 ### カラーテーマの変更
@@ -122,12 +134,18 @@ php -S localhost:8000 -t docs
 
 ```javascript
 const CONFIG = {
+  // GitHub Pagesのベースパス
+  // プロジェクトページ: '/repo-name'
+  // ユーザー/組織ページまたはローカル: ''
+  basePath: "/k8s-cluster",
+  
   navigation: [
     {
       title: 'セクション名',
       icon: 'fa-icon',
       items: [
-        { title: 'ページ名', url: '/path/to/page.html' }
+        // URLは相対パスで指定（先頭に / を付けない）
+        { title: 'ページ名', url: 'path/to/page.html' }
       ]
     }
   ]

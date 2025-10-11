@@ -7,8 +7,8 @@ const CONFIG = {
   // Site info
   siteTitle: "k8s Cluster on Proxmox",
 
-  // Base path for GitHub Pages (set to '' for root domain)
-  basePath: "",
+  // Base path for GitHub Pages (set to '' for root domain, '/repo-name' for project pages)
+  basePath: "/k8s-cluster",
 
   // Navigation structure
   navigation: [
@@ -16,10 +16,10 @@ const CONFIG = {
       title: "はじめに",
       icon: "fa-rocket",
       items: [
-        { title: "前準備", url: "/setup/prerequisites.html" },
+        { title: "前準備", url: "setup/prerequisites.html" },
         {
           title: "クラスター構築",
-          url: "/setup/cluster-installation.html",
+          url: "setup/cluster-installation.html",
         },
       ],
     },
@@ -27,17 +27,17 @@ const CONFIG = {
       title: "コンポーネント",
       icon: "fa-puzzle-piece",
       items: [
-        { title: "ArgoCD", url: "/components/argocd.html" },
+        { title: "ArgoCD", url: "components/argocd.html" },
         {
           title: "Cloudflare Ingress",
-          url: "/components/cloudflare-ingress.html",
+          url: "components/cloudflare-ingress.html",
         },
-        { title: "Rook Ceph", url: "/components/rook-ceph.html" },
+        { title: "Rook Ceph", url: "components/rook-ceph.html" },
         {
           title: "Cert Manager",
-          url: "/components/cert-manager.html",
+          url: "components/cert-manager.html",
         },
-        { title: "Harbor", url: "/components/harbor.html" },
+        { title: "Harbor", url: "components/harbor.html" },
       ],
     },
   ],

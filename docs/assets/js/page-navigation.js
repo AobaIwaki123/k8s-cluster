@@ -20,11 +20,12 @@
      */
     getAllPages() {
       const pages = [];
+      const basePath = CONFIG.basePath || "";
 
       // Add home page
       pages.push({
         title: "ホーム",
-        url: "/",
+        url: basePath ? basePath + "/" : "/",
         section: "ホーム",
       });
 
@@ -33,7 +34,7 @@
         section.items.forEach((item) => {
           pages.push({
             title: item.title,
-            url: item.url,
+            url: basePath ? basePath + "/" + item.url : item.url,
             section: section.title,
           });
         });
