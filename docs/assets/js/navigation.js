@@ -40,12 +40,20 @@
         this.toggleSidebar();
       });
 
-      // Close on overlay click
+      // Prevent sidebar clicks from closing
+      sidebar.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+
+      // Close on overlay click and touch
       const currentOverlay = document.querySelector(".sidebar-overlay");
       if (currentOverlay) {
-        currentOverlay.addEventListener("click", () => {
+        const closeOnOverlay = () => {
           this.closeSidebar();
-        });
+        };
+        
+        currentOverlay.addEventListener("click", closeOnOverlay);
+        currentOverlay.addEventListener("touchend", closeOnOverlay);
       }
 
       // Close on link click (mobile)
