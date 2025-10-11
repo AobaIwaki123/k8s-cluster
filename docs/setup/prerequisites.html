@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>前準備 - k8s Cluster on Proxmox</title>
+  <meta name="description" content="Kubernetesクラスターを構築する前に必要なツールのインストール手順">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="../" class="logo">
+        <i class="fas fa-cubes logo-icon"></i>
+        <span class="logo-text">k8s Cluster</span>
+      </a>
+      
+      <div class="header-actions">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="検索... (Ctrl+K)" aria-label="Search">
+        </div>
+        
+        <button class="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon theme-icon"></i>
+        </button>
+        
+        <button class="mobile-menu-toggle" aria-label="Toggle menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay"></div>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- Navigation will be rendered by JavaScript -->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <div class="breadcrumb-item">
+            <a href="../" class="breadcrumb-link">
+              <i class="fas fa-home"></i> Home
+            </a>
+          </div>
+          <span class="breadcrumb-separator">/</span>
+          <div class="breadcrumb-item">
+            <span class="breadcrumb-current">前準備</span>
+          </div>
+        </nav>
+
+        <!-- Article Content -->
+        <article class="article-content">
+          <h1>前準備</h1>
+          
+          <p>Kubernetesクラスターを構築する前に、必要なツールをインストールします。</p>
+
+          <h2>asdfのインストール</h2>
+          
+          <p>asdfは複数のバージョン管理ツールを統合的に管理できるツールです。</p>
+
+          <h3>1. asdfをダウンロード・インストール</h3>
+          
+          <pre><code class="language-bash">wget https://github.com/asdf-vm/asdf/releases/download/v0.16.6/asdf-v0.16.6-linux-amd64.tar.gz
+tar -xzvf asdf-v0.16.6-linux-amd64.tar.gz 
+sudo install asdf /usr/bin</code></pre>
+
+          <h3>2. パスを通す</h3>
+          
+          <p>以下を<code>.bashrc</code>や<code>.zshrc</code>に追記してください。</p>
+          
+          <pre><code class="language-bash">export PATH=$PATH:$HOME/.asdf/shims</code></pre>
+          
+          <p>設定を反映させるために、シェルを再起動するか以下のコマンドを実行します。</p>
+          
+          <pre><code class="language-bash">source ~/.bashrc  # または source ~/.zshrc</code></pre>
+
+          <h2>必要なツールのインストール</h2>
+
+          <h3>プラグインの追加とインストール</h3>
+          
+          <p>以下のツールをasdfを使ってインストールします。</p>
+          
+          <pre><code class="language-bash"># k0sctl (Kubernetes クラスター管理ツール)
+asdf plugin add k0sctl
+asdf install k0sctl 0.23.0
+asdf global k0sctl 0.23.0
+
+# k9s (Kubernetes CLI UI)
+asdf plugin add k9s
+asdf install k9s 0.40.10
+asdf global k9s 0.40.10
+
+# helm (Kubernetes パッケージマネージャー)
+asdf plugin add helm
+asdf install helm 3.17.2
+asdf global helm 3.17.2
+
+# kubectl (Kubernetes CLI)
+asdf plugin add kubectl
+asdf install kubectl 1.32.3
+asdf global kubectl 1.32.3
+
+# argocd (GitOps ツール)
+asdf plugin add argocd
+asdf install argocd 2.14.7
+asdf global argocd 2.14.7</code></pre>
+
+          <h3>インストールの確認</h3>
+          
+          <p>各ツールが正しくインストールされているか確認します。</p>
+          
+          <pre><code class="language-bash">k0sctl version
+k9s version
+helm version
+kubectl version --client
+argocd version --client</code></pre>
+
+          <h2>SSH設定の確認</h2>
+          
+          <p>各ノードにSSH接続できることを確認します。</p>
+          
+          <pre><code class="language-bash"># SSH鍵の確認
+ssh-add -l
+
+# ノードへの接続テスト
+ssh &lt;ユーザー名&gt;@&lt;ノードのIPアドレス&gt;</code></pre>
+
+          <h2>注意事項</h2>
+
+          <h3>asdfプラグインについて</h3>
+          
+          <p>asdfプラグインの使用の責任はユーザーにあり、サービス開発者はasdf-core以外についてSecurity Policyを保証しないと以下のように明記されています。使用する際は自己責任でお願いします。</p>
+          
+          <blockquote>
+            <p><strong>重要:</strong> This security policy only applies to asdf core, which is the code contained in this repository. All plugins are the responsibility of their creators and are not covered under this security policy.</p>
+            <p><a href="https://github.com/asdf-vm/asdf/security" target="_blank" rel="noopener noreferrer">https://github.com/asdf-vm/asdf/security</a></p>
+          </blockquote>
+
+          <h2>次のステップ</h2>
+          
+          <p>前準備が完了したら、<a href="cluster-installation.html">クラスター構築</a>に進んでください。</p>
+        </article>
+      </div>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <div class="footer-container">
+          <p class="footer-text">
+            &copy; 2025 k8s Cluster on Proxmox. Built with <i class="fas fa-heart footer-heart"></i> and Kubernetes.
+          </p>
+          <div class="footer-links">
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="footer-link">
+              <i class="fab fa-github"></i> GitHub
+            </a>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Table of Contents -->
+    <aside class="toc-container">
+      <!-- TOC will be generated by JavaScript -->
+    </aside>
+  </div>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/theme.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/search.js"></script>
+  <script src="../assets/js/toc.js"></script>
+  <script src="../assets/js/code-highlight.js"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
