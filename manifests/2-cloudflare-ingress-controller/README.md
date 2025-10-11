@@ -1,29 +1,35 @@
-## Cloudflare Tunnel Ingress Controllerのセットアップ
+# Cloudflare Tunnel Ingress Controller
 
-```yaml
-        cloudflare:
-          apiToken: YOUR_API_TOKEN # 下記のPermissionsを参考にしてトークンを作成
-          accountId: YOUR_ACCOUNT_ID
-          tunnelName: cf-tunnel-ingress-controller # 事前にCloudflareダッシュボードでトンネルを作成しておく
-```
+> **📚 詳細なドキュメントは [GitHub Pages](https://aobaiwaki123.github.io/k8s-cluster/components/cloudflare-ingress.html) を参照してください。**
 
-## API トークンに必要な Permissions
+## クイックリファレンス
 
-Cloudflare の API トークンには以下の権限が必要です：
+### 前提条件
+- ArgoCD がインストールされていること
+- Cloudflare アカウントと API トークン
+- Cloudflare ダッシュボードでトンネルが作成済みであること
 
+### API トークンの権限
 - Zone:Zone:Read
 - Zone:DNS:Edit
 - Account:Cloudflare Tunnel:Edit
 
-各権限は `リソースタイプ:サブリソース:アクセスレベル` の形式です。
+### インストール
 
-## ArgoCD でセットアップ
+```bash
+# ArgoCD Application の作成前に、以下の値を設定してください
+# - cloudflare.apiToken
+# - cloudflare.accountId
+# - cloudflare.tunnelName
 
-```sh
-$ argocd app create --file ./argocd/cloudflare-tunnel-ingress-controller.yml
+# ArgoCD Application の作成
+argocd app create --file ../1-argocd/argocd/cloudflare-ingress.yaml
 ```
 
-## 参考
+### 関連ファイル
+- ArgoCD Application: `../1-argocd/argocd/cloudflare-ingress.yaml`
 
-- [自宅 kubernetes で cloudflare-tunnel-ingress-controller を使ってお手軽外部公開](https://zenn.dev/yh/articles/11823e77bd4379)
+## 参考リンク
 - [Cloudflare Tunnel Ingress Controller](https://github.com/STRRL/cloudflare-tunnel-ingress-controller)
+- [自宅 kubernetes で cloudflare-tunnel-ingress-controller を使ってお手軽外部公開](https://zenn.dev/yh/articles/11823e77bd4379)
+- [詳細ドキュメント](https://aobaiwaki123.github.io/k8s-cluster/components/cloudflare-ingress.html)

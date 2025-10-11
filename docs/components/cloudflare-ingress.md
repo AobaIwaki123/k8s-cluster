@@ -49,7 +49,7 @@ Cloudflare ダッシュボードで事前にトンネルを作成しておきま
 
 ### 1. ArgoCD Application の設定ファイルを編集
 
-`manifests/2-cloudflare-ingress-controller/argocd/cloudflare-tunnel-ingress-controller.yml` を編集します。
+`manifests/1-argocd/argocd/cloudflare-ingress.yaml` を編集します。
 
 ```yaml
 cloudflare:
@@ -61,7 +61,7 @@ cloudflare:
 ### 2. ArgoCD でデプロイ
 
 ```bash
-argocd app create --file ../../manifests/2-cloudflare-ingress-controller/argocd/cloudflare-tunnel-ingress-controller.yml
+argocd app create --file ../../manifests/1-argocd/argocd/cloudflare-ingress.yaml
 ```
 
 ### 3. 動作確認

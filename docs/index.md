@@ -221,25 +221,6 @@ title: Home
   </a>
 </div>
 
-## ➕ オプションコンポーネント
-
-<div class="component-grid">
-  <a href="components/firebolt-core.html" class="component-link">
-    <strong><i class="fas fa-fire"></i> Firebolt Core <span class="badge optional">Optional</span></strong>
-    <span>Firebolt データベース</span>
-  </a>
-  
-  <a href="components/minio.html" class="component-link">
-    <strong><i class="fas fa-cloud-upload-alt"></i> MinIO <span class="badge optional">Optional</span></strong>
-    <span>オブジェクトストレージ</span>
-  </a>
-  
-  <a href="components/nginx-ingress.html" class="component-link">
-    <strong><i class="fas fa-network-wired"></i> Nginx Ingress <span class="badge optional">Optional</span></strong>
-    <span>Nginx Ingress Controller</span>
-  </a>
-</div>
-
 ## 🔧 バージョン情報
 
 | ツール | バージョン |
