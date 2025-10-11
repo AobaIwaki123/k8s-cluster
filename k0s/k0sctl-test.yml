@@ -1,65 +1,53 @@
+# k0sctl Configuration for Kubernetes Cluster
+# This configuration defines a k0s cluster with 1 controller and 4 worker nodes
 apiVersion: k0sctl.k0sproject.io/v1beta1
 kind: Cluster
 
 metadata:
-  name: k0s-cluster-test
+  name: k0s-cluster
   user: admin
 
 spec:
   hosts:
-    - ssh:
-        address: 192.168.11.240
-        user: aoba
-        port: 22
-        keyPath: null
-      role: controller
+  # ======================
+  # Controller Node (1台)
+  # ======================
+  - ssh:
+      address: 192.168.11.240 # k8s-ctl (controller node)
+      user: aoba
+      port: 22
+    role: controller
 
-    - ssh:
-        address: 192.168.11.241
-        user: aoba
-        port: 22
-        keyPath: null
-      role: worker
-
-    - ssh:
-        address: 192.168.11.242
-        user: aoba
-        port: 22
-        keyPath: null
-      role: worker
-
-    - ssh:
-        address: 192.168.11.243
-        user: aoba
-        port: 22
-        keyPath: null
-      role: worker
+  # ====================
+  # Worker Nodes (4台)
+  # ====================
+  - ssh:
+      address: 192.168.11.243 # k8s-worker-3
+      user: aoba
+      port: 22
+    role: worker
   # ====================
   # k0s Configuration
   # ====================
-  k0s:
-    version: v1.33.4+k0s.0 # Use the latest stable version
-    config:
-      # API server configuration
-      # apiServer:
-      #   extraArgs:
-      #     # Enable audit logging
-      #     audit-log-maxage: 30
-      #     audit-log-maxbackup: 3
-      #     audit-log-maxsize: 100
-
-      # Network configuration
-      # network:
-      #   provider: calico # CNI plugin
-      #   calico:
-      #     mode: vxlan # or ipip
-      #     vxlanPort: 4789
-      #     mtu: 1450
-
-      # Storage configuration  
-      storage:
-        type: etcd # embedded etcd
-
-      # Enable pod security standards
-      podSecurityPolicy:
-        defaultPolicy: restricted
+#   k0s:
+#     version: 1.31.2+k0s.0
+#     config:
+#       # API server configuration
+#       api:
+#         extraArgs:
+#           # Enable audit logging
+#           audit-log-maxage: "30"
+#           audit-log-maxbackup: "3"
+#           audit-log-maxsize: "100"
+# 
+#       # Network configuration
+#       network:
+#         provider: calico # CNI plugin
+#         calico:
+#           mode: vxlan # or ipip
+#           vxlanPort: 4789
+#           mtu: 1450
+# 
+#       # Storage configuration
+#       storage:
+#         type: etcd # embedded etcd
