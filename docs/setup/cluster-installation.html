@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>クラスター構築 - k8s Cluster on Proxmox</title>
+  <meta name="description" content="k0sを使用したKubernetesクラスターの構築手順">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="../" class="logo">
+        <i class="fas fa-cubes logo-icon"></i>
+        <span class="logo-text">k8s Cluster</span>
+      </a>
+      
+      <div class="header-actions">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="検索... (Ctrl+K)" aria-label="Search">
+        </div>
+        
+        <button class="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon theme-icon"></i>
+        </button>
+        
+        <button class="mobile-menu-toggle" aria-label="Toggle menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay"></div>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- Navigation will be rendered by JavaScript -->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <div class="breadcrumb-item">
+            <a href="../" class="breadcrumb-link">
+              <i class="fas fa-home"></i> Home
+            </a>
+          </div>
+          <span class="breadcrumb-separator">/</span>
+          <div class="breadcrumb-item">
+            <span class="breadcrumb-current">クラスター構築</span>
+          </div>
+        </nav>
+
+        <!-- Article Content -->
+        <article class="article-content">
+          <h1>k0s Kubernetes クラスター構築</h1>
+          
+          <p>k0sを使用してKubernetesクラスターを構築します。</p>
+
+          <h2>k0sとは</h2>
+          
+          <p>k0sは、軽量でセキュアなKubernetesディストリビューションです。</p>
+          
+          <ul>
+            <li><strong>シングルバイナリ</strong>: 依存関係が少なく、インストールが簡単</li>
+            <li><strong>軽量</strong>: 必要最小限のリソースで動作</li>
+            <li><strong>セキュア</strong>: デフォルトでセキュアな設定</li>
+            <li><strong>柔軟性</strong>: 様々な環境に対応可能</li>
+          </ul>
+
+          <h2>クラスター構成</h2>
+          
+          <p>現在の構成例:</p>
+          <ul>
+            <li><strong>コントローラーノード</strong>: 1台 (192.168.11.221)</li>
+            <li><strong>ワーカーノード</strong>: 4台 (192.168.11.214, 192.168.11.220, 192.168.11.231, 192.168.11.234)</li>
+          </ul>
+
+          <h2>前提条件</h2>
+          
+          <ul>
+            <li>k0sctlがインストールされていること (<a href="prerequisites.html">前準備</a>参照)</li>
+            <li>各ノードへSSH接続が可能であること</li>
+            <li>各ノードで必要なポートが開放されていること
+              <ul>
+                <li>6443 (Kubernetes API Server)</li>
+                <li>8080 (k0s API)</li>
+                <li>9443 (k0s Controller Join API)</li>
+                <li>2380 (etcd peer)</li>
+                <li>その他CNI関連のポート</li>
+              </ul>
+            </li>
+          </ul>
+
+          <h2>クラスターのセットアップ</h2>
+
+          <h3>1. k0sctl設定ファイルの作成</h3>
+          
+          <p>プロジェクトには既に <code>k0s/k0sctl.yml</code> が含まれていますが、新規に作成する場合は以下のコマンドを使用します。</p>
+          
+          <pre><code class="language-bash">cd k0s
+k0sctl init > k0sctl.yml</code></pre>
+          
+          <p>設定ファイルを環境に合わせて編集します。主な設定項目：</p>
+          
+          <ul>
+            <li>ホスト情報（IPアドレス、SSHユーザー、SSHキー）</li>
+            <li>コントローラーとワーカーの役割</li>
+            <li>ネットワーク設定（CNIプラグイン）</li>
+            <li>ストレージ設定</li>
+          </ul>
+
+          <h3>2. クラスターの構築</h3>
+          
+          <p>Makefileを使用する場合（推奨）：</p>
+          
+          <pre><code class="language-bash">cd k0s
+make apply</code></pre>
+          
+          <p>直接k0sctlを使用する場合：</p>
+          
+          <pre><code class="language-bash">cd k0s
+k0sctl apply --config k0sctl.yml</code></pre>
+
+          <h3>3. kubeconfigの取得</h3>
+          
+          <p>Makefileを使用する場合：</p>
+          
+          <pre><code class="language-bash">make config</code></pre>
+          
+          <p>直接k0sctlを使用する場合：</p>
+          
+          <pre><code class="language-bash">k0sctl kubeconfig --config k0sctl.yml > ~/.kube/config</code></pre>
+
+          <h3>4. クラスターの確認</h3>
+          
+          <pre><code class="language-bash"># ノードの状態確認
+kubectl get nodes
+
+# Podの状態確認
+kubectl get pods -A
+
+# クラスター情報の確認
+kubectl cluster-info</code></pre>
+
+          <h2>Makefileコマンド一覧</h2>
+          
+          <p>プロジェクトには便利なMakefileが含まれています。</p>
+          
+          <pre><code class="language-bash"># クラスターのセットアップ
+make apply
+
+# kubeconfigの取得・設定
+make config
+
+# クラスターのリセット（全削除）
+make reset
+
+# 利用可能なコマンドを確認
+make help</code></pre>
+
+          <h2>トラブルシューティング</h2>
+
+          <h3>SSH接続エラー</h3>
+          
+          <pre><code class="language-bash"># SSH接続の確認
+ssh &lt;ユーザー名&gt;@&lt;ノードのIPアドレス&gt;
+
+# SSH鍵の設定確認
+ssh-add -l
+
+# SSH設定ファイルの確認
+cat ~/k8s-cluster/ssh_config</code></pre>
+
+          <h3>クラスター構築に失敗する場合</h3>
+          
+          <ol>
+            <li><strong>時刻同期の確認</strong>: 各ノードの時刻が同期されているか確認</li>
+            <li><strong>ファイアウォール設定</strong>: 必要なポートが開放されているか確認</li>
+            <li><strong>k0sctlバージョン</strong>: 最新版を使用しているか確認</li>
+            <li><strong>リソース</strong>: 各ノードに十分なリソース（CPU、メモリ、ディスク）があるか確認</li>
+          </ol>
+
+          <h3>kubeconfigが正しく設定されない場合</h3>
+          
+          <pre><code class="language-bash"># 現在のコンテキストを確認
+kubectl config current-context
+
+# kubeconfigの再取得
+cd k0s
+make config
+
+# kubeconfigファイルの確認
+cat ~/.kube/config</code></pre>
+
+          <h3>ノードがReadyにならない場合</h3>
+          
+          <pre><code class="language-bash"># ノードの詳細情報を確認
+kubectl describe node &lt;ノード名&gt;
+
+# Podの状態を確認
+kubectl get pods -A
+
+# ノードのログを確認（ノードにSSH接続して）
+sudo k0s status
+sudo journalctl -u k0s* -f</code></pre>
+
+          <h2>次のステップ</h2>
+          
+          <p>クラスターの構築が完了したら、各コンポーネントをセットアップします。</p>
+          
+          <ol>
+            <li><a href="../components/argocd.html">ArgoCD</a> - GitOps ツールのセットアップ</li>
+            <li><a href="../components/cloudflare-ingress.html">Cloudflare Ingress Controller</a> - Ingressのセットアップ</li>
+            <li>その他のコンポーネント</li>
+          </ol>
+
+          <h2>参考リンク</h2>
+          
+          <ul>
+            <li><a href="https://docs.k0sproject.io/" target="_blank" rel="noopener">k0s公式ドキュメント</a></li>
+            <li><a href="https://github.com/k0sproject/k0sctl" target="_blank" rel="noopener">k0sctl公式ドキュメント</a></li>
+            <li><a href="https://kubernetes.io/ja/docs/" target="_blank" rel="noopener">Kubernetes公式ドキュメント</a></li>
+          </ul>
+        </article>
+
+        <!-- Table of Contents -->
+        <aside class="toc">
+          <!-- TOC will be generated by JavaScript -->
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>k8s Cluster</h4>
+          <p>Infrastructure as Code with k0s & ArgoCD</p>
+        </div>
+        
+        <div class="footer-section">
+          <h4>リンク</h4>
+          <ul class="footer-links">
+            <li><a href="https://github.com/AobaIwaki123/k8s-cluster" target="_blank" rel="noopener">
+              <i class="fab fa-github"></i> GitHub
+            </a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2024 k8s-cluster. Built with ❤️ and Kubernetes.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/theme.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/search.js"></script>
+  <script src="../assets/js/toc.js"></script>
+  <script src="../assets/js/code-highlight.js"></script>
+  <script src="../assets/js/page-navigation.js"></script>
+  <script src="../assets/js/scroll-progress.js"></script>
+  <script src="../assets/js/keyboard-shortcuts.js"></script>
+  <script src="../assets/js/page-transitions.js"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
