@@ -158,6 +158,26 @@
     },
     
     /**
+     * Get base path for navigation
+     */
+    getBasePath() {
+      const basePath = CONFIG.basePath || '';
+      const currentPath = window.location.pathname;
+      
+      // Determine depth from current location
+      const pathSegments = currentPath.split('/').filter(s => s && s !== 'index.html');
+      const depth = pathSegments.length;
+      
+      // If we're at root (docs/index.html), return basePath as is
+      if (depth === 0 || currentPath.endsWith('/docs/') || currentPath.endsWith('/docs/index.html')) {
+        return basePath;
+      }
+      
+      // For each level deep, add '../'
+      return '../'.repeat(depth) || './';
+    },
+    
+    /**
      * Render sidebar navigation
      */
     renderSidebar() {
@@ -167,6 +187,7 @@
       // Check if navigation is already rendered
       if (sidebar.querySelector('.nav-section')) return;
       
+      const basePath = this.getBasePath();
       let html = '';
       
       // Render navigation sections
@@ -181,9 +202,10 @@
         `;
         
         section.items.forEach(item => {
+          const url = basePath + item.url;
           html += `
               <li class="nav-item">
-                <a href="${item.url}" class="nav-link">${item.title}</a>
+                <a href="${url}" class="nav-link">${item.title}</a>
               </li>
           `;
         });
