@@ -208,6 +208,13 @@
       const basePath = this.getBasePath();
       let html = "";
 
+      // Add close button for mobile
+      html += `
+        <button class="sidebar-close" aria-label="Close sidebar">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+
       // Render navigation sections
       CONFIG.navigation.forEach((section) => {
         html += `
@@ -265,6 +272,22 @@
 
       // Re-highlight active link after rendering
       this.highlightActiveLink();
+      
+      // Setup close button
+      this.setupSidebarCloseButton();
+    },
+    
+    /**
+     * Setup sidebar close button
+     */
+    setupSidebarCloseButton() {
+      const closeBtn = document.querySelector(".sidebar-close");
+      if (!closeBtn) return;
+      
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.closeSidebar();
+      });
     },
 
     /**
