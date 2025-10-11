@@ -1,125 +1,134 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>MinIO - k8s Cluster on Proxmox</title>
-  <meta name="description" content="MinIOオブジェクトストレージのデプロイメント">
-  
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  
-  <!-- Syntax Highlighting -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-  
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="../assets/css/main.css">
-</head>
-<body>
-  <!-- Header -->
-  <header class="site-header">
-    <div class="header-container">
-      <a href="../" class="logo">
-        <i class="fas fa-cubes logo-icon"></i>
-        <span class="logo-text">k8s Cluster</span>
-      </a>
-      
-      <div class="header-actions">
-        <div class="search-container">
-          <i class="fas fa-search search-icon"></i>
-          <input type="text" class="search-input" placeholder="検索... (Ctrl+K)" aria-label="Search">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>MinIO - k8s Cluster on Proxmox</title>
+    <meta
+      name="description"
+      content="MinIOオブジェクトストレージのデプロイメント"
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- Syntax Highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/main.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="header-container">
+        <a href="../" class="logo">
+          <i class="fas fa-cubes logo-icon"></i>
+          <span class="logo-text">k8s Cluster</span>
+        </a>
+
+        <div class="header-actions">
+          <button class="theme-toggle" aria-label="Toggle theme">
+            <i class="fas fa-moon theme-icon"></i>
+          </button>
+
+          <button class="mobile-menu-toggle" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+          </button>
         </div>
-        
-        <button class="theme-toggle" aria-label="Toggle theme">
-          <i class="fas fa-moon theme-icon"></i>
-        </button>
-        
-        <button class="mobile-menu-toggle" aria-label="Toggle menu">
-          <i class="fas fa-bars"></i>
-        </button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Sidebar Overlay -->
-  <div class="sidebar-overlay"></div>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay"></div>
 
-  <!-- Main Wrapper -->
-  <div class="main-wrapper">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <!-- Navigation will be rendered by JavaScript -->
-    </aside>
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <!-- Navigation will be rendered by JavaScript -->
+      </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="content-container">
-        <!-- Breadcrumb -->
-        <nav class="breadcrumb">
-          <div class="breadcrumb-item">
-            <a href="../" class="breadcrumb-link">
-              <i class="fas fa-home"></i> Home
-            </a>
-          </div>
-          <span class="breadcrumb-separator">/</span>
-          <div class="breadcrumb-item">
-            <span class="breadcrumb-current">MinIO</span>
-          </div>
-        </nav>
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="content-container">
+          <!-- Breadcrumb -->
+          <nav class="breadcrumb">
+            <div class="breadcrumb-item">
+              <a href="../" class="breadcrumb-link">
+                <i class="fas fa-home"></i> Home
+              </a>
+            </div>
+            <span class="breadcrumb-separator">/</span>
+            <div class="breadcrumb-item">
+              <span class="breadcrumb-current">MinIO</span>
+            </div>
+          </nav>
 
-        <!-- Article Content -->
-        <article class="article-content">
-          <h1>MinIO</h1>
-          
-          <p>MinIOは、Amazon S3互換のオープンソースオブジェクトストレージサーバーです。Kubernetes上で高性能な分散ストレージを提供します。</p>
+          <!-- Article Content -->
+          <article class="article-content">
+            <h1>MinIO</h1>
 
-          <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i>
-            <p>このコンポーネントはオプションです。S3互換のオブジェクトストレージが必要な場合にインストールしてください。</p>
-          </div>
+            <p>
+              MinIOは、Amazon
+              S3互換のオープンソースオブジェクトストレージサーバーです。Kubernetes上で高性能な分散ストレージを提供します。
+            </p>
 
-          <h2>概要</h2>
-          
-          <p>MinIOの主な特徴：</p>
-          <ul>
-            <li>Amazon S3完全互換API</li>
-            <li>高性能な分散ストレージ</li>
-            <li>エラーコレクション（Erasure Coding）</li>
-            <li>バージョニングとライフサイクル管理</li>
-            <li>マルチテナント対応</li>
-            <li>暗号化（サーバー側、クライアント側）</li>
-            <li>WebベースのGUI</li>
-          </ul>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <p>
+                このコンポーネントはオプションです。S3互換のオブジェクトストレージが必要な場合にインストールしてください。
+              </p>
+            </div>
 
-          <h2>前提条件</h2>
+            <h2>概要</h2>
 
-          <ul>
-            <li>Kubernetes 1.22以上</li>
-            <li>MinIO Operator</li>
-            <li>PersistentVolume（Rook Cephなど）</li>
-            <li>最低4つのボリューム（高可用性のため）</li>
-          </ul>
+            <p>MinIOの主な特徴：</p>
+            <ul>
+              <li>Amazon S3完全互換API</li>
+              <li>高性能な分散ストレージ</li>
+              <li>エラーコレクション（Erasure Coding）</li>
+              <li>バージョニングとライフサイクル管理</li>
+              <li>マルチテナント対応</li>
+              <li>暗号化（サーバー側、クライアント側）</li>
+              <li>WebベースのGUI</li>
+            </ul>
 
-          <h2>MinIO Operatorのインストール</h2>
+            <h2>前提条件</h2>
 
-          <h3>1. Operatorのデプロイ</h3>
-          
-          <pre><code class="language-bash">kubectl apply -k "github.com/minio/operator?ref=v5.0.10"</code></pre>
+            <ul>
+              <li>Kubernetes 1.22以上</li>
+              <li>MinIO Operator</li>
+              <li>PersistentVolume（Rook Cephなど）</li>
+              <li>最低4つのボリューム（高可用性のため）</li>
+            </ul>
 
-          <h3>2. Operatorの確認</h3>
-          
-          <pre><code class="language-bash">kubectl get pods -n minio-operator</code></pre>
+            <h2>MinIO Operatorのインストール</h2>
 
-          <h2>MinIO Tenantのデプロイ</h2>
+            <h3>1. Operatorのデプロイ</h3>
 
-          <h3>Tenant定義</h3>
-          
-          <pre><code class="language-yaml">apiVersion: minio.min.io/v2
+            <pre><code class="language-bash">kubectl apply -k "github.com/minio/operator?ref=v5.0.10"</code></pre>
+
+            <h3>2. Operatorの確認</h3>
+
+            <pre><code class="language-bash">kubectl get pods -n minio-operator</code></pre>
+
+            <h2>MinIO Tenantのデプロイ</h2>
+
+            <h3>Tenant定義</h3>
+
+            <pre><code class="language-yaml">apiVersion: minio.min.io/v2
 kind: Tenant
 metadata:
   name: minio-tenant
@@ -156,9 +165,9 @@ spec:
     consoleSecret:
       name: minio-console-secret</code></pre>
 
-          <h3>Secretの作成</h3>
-          
-          <pre><code class="language-bash"># ユーザー認証情報
+            <h3>Secretの作成</h3>
+
+            <pre><code class="language-bash"># ユーザー認証情報
 kubectl create secret generic minio-user \
   --from-literal=CONSOLE_ACCESS_KEY=admin \
   --from-literal=CONSOLE_SECRET_KEY=admin123 \
@@ -177,14 +186,14 @@ kubectl create secret generic minio-env-configuration \
   --from-literal=config.env="" \
   -n minio-tenant</code></pre>
 
-          <h3>Tenantのデプロイ</h3>
-          
-          <pre><code class="language-bash">kubectl create namespace minio-tenant
+            <h3>Tenantのデプロイ</h3>
+
+            <pre><code class="language-bash">kubectl create namespace minio-tenant
 kubectl apply -f minio-tenant.yaml</code></pre>
 
-          <h3>デプロイの確認</h3>
-          
-          <pre><code class="language-bash"># Tenantの確認
+            <h3>デプロイの確認</h3>
+
+            <pre><code class="language-bash"># Tenantの確認
 kubectl get tenant -n minio-tenant
 
 # Podの確認
@@ -193,18 +202,22 @@ kubectl get pods -n minio-tenant
 # Serviceの確認
 kubectl get svc -n minio-tenant</code></pre>
 
-          <h2>アクセス設定</h2>
+            <h2>アクセス設定</h2>
 
-          <h3>MinIO Console（GUI）へのアクセス</h3>
-          
-          <pre><code class="language-bash"># Port Forward
+            <h3>MinIO Console（GUI）へのアクセス</h3>
+
+            <pre><code class="language-bash"># Port Forward
 kubectl port-forward svc/minio-tenant-console -n minio-tenant 9443:9443</code></pre>
 
-          <p>ブラウザで <code>https://localhost:9443</code> を開き、設定した認証情報でログインします。</p>
+            <p>
+              ブラウザで
+              <code>https://localhost:9443</code>
+              を開き、設定した認証情報でログインします。
+            </p>
 
-          <h3>MinIO Client（mc）のインストール</h3>
-          
-          <pre><code class="language-bash"># Linuxの場合
+            <h3>MinIO Client（mc）のインストール</h3>
+
+            <pre><code class="language-bash"># Linuxの場合
 wget https://dl.min.io/client/mc/release/linux-amd64/mc
 chmod +x mc
 sudo mv mc /usr/local/bin/
@@ -212,41 +225,41 @@ sudo mv mc /usr/local/bin/
 # macOSの場合
 brew install minio/stable/mc</code></pre>
 
-          <h3>エイリアスの設定</h3>
-          
-          <pre><code class="language-bash">mc alias set myminio http://minio-tenant-hl.minio-tenant.svc.cluster.local:9000 admin admin123</code></pre>
+            <h3>エイリアスの設定</h3>
 
-          <h2>バケット操作</h2>
+            <pre><code class="language-bash">mc alias set myminio http://minio-tenant-hl.minio-tenant.svc.cluster.local:9000 admin admin123</code></pre>
 
-          <h3>バケットの作成</h3>
-          
-          <pre><code class="language-bash"># CLIで作成
+            <h2>バケット操作</h2>
+
+            <h3>バケットの作成</h3>
+
+            <pre><code class="language-bash"># CLIで作成
 mc mb myminio/my-bucket
 
 # バケット一覧
 mc ls myminio/</code></pre>
 
-          <h3>ファイルのアップロード</h3>
-          
-          <pre><code class="language-bash"># ファイルをアップロード
+            <h3>ファイルのアップロード</h3>
+
+            <pre><code class="language-bash"># ファイルをアップロード
 mc cp myfile.txt myminio/my-bucket/
 
 # ディレクトリを再帰的にアップロード
 mc cp --recursive ./mydir/ myminio/my-bucket/</code></pre>
 
-          <h3>ファイルのダウンロード</h3>
-          
-          <pre><code class="language-bash"># ファイルをダウンロード
+            <h3>ファイルのダウンロード</h3>
+
+            <pre><code class="language-bash"># ファイルをダウンロード
 mc cp myminio/my-bucket/myfile.txt ./
 
 # バケット全体をダウンロード
 mc cp --recursive myminio/my-bucket/ ./local-backup/</code></pre>
 
-          <h2>ポリシー設定</h2>
+            <h2>ポリシー設定</h2>
 
-          <h3>パブリックアクセスポリシー</h3>
-          
-          <pre><code class="language-bash"># バケットをパブリックに設定
+            <h3>パブリックアクセスポリシー</h3>
+
+            <pre><code class="language-bash"># バケットをパブリックに設定
 mc anonymous set public myminio/my-bucket
 
 # 読み取り専用に設定
@@ -255,9 +268,9 @@ mc anonymous set download myminio/my-bucket
 # プライベートに戻す
 mc anonymous set none myminio/my-bucket</code></pre>
 
-          <h3>カスタムポリシー</h3>
-          
-          <pre><code class="language-json">{
+            <h3>カスタムポリシー</h3>
+
+            <pre><code class="language-json">{
   "Version": "2012-10-17",
   "Statement": [
     {
@@ -275,28 +288,28 @@ mc anonymous set none myminio/my-bucket</code></pre>
   ]
 }</code></pre>
 
-          <pre><code class="language-bash"># ポリシーの適用
+            <pre><code class="language-bash"># ポリシーの適用
 mc anonymous set-json policy.json myminio/my-bucket</code></pre>
 
-          <h2>バージョニング</h2>
+            <h2>バージョニング</h2>
 
-          <h3>バージョニングの有効化</h3>
-          
-          <pre><code class="language-bash"># バージョニングを有効化
+            <h3>バージョニングの有効化</h3>
+
+            <pre><code class="language-bash"># バージョニングを有効化
 mc version enable myminio/my-bucket
 
 # バージョニングの状態確認
 mc version info myminio/my-bucket</code></pre>
 
-          <h3>バージョンの一覧</h3>
-          
-          <pre><code class="language-bash">mc ls --versions myminio/my-bucket/</code></pre>
+            <h3>バージョンの一覧</h3>
 
-          <h2>ライフサイクル管理</h2>
+            <pre><code class="language-bash">mc ls --versions myminio/my-bucket/</code></pre>
 
-          <h3>有効期限の設定</h3>
-          
-          <pre><code class="language-json">{
+            <h2>ライフサイクル管理</h2>
+
+            <h3>有効期限の設定</h3>
+
+            <pre><code class="language-json">{
   "Rules": [
     {
       "Expiration": {
@@ -308,17 +321,17 @@ mc version info myminio/my-bucket</code></pre>
   ]
 }</code></pre>
 
-          <pre><code class="language-bash"># ライフサイクルポリシーの適用
+            <pre><code class="language-bash"># ライフサイクルポリシーの適用
 mc ilm import myminio/my-bucket < lifecycle.json
 
 # ライフサイクルポリシーの確認
 mc ilm ls myminio/my-bucket</code></pre>
 
-          <h2>アプリケーションからの使用</h2>
+            <h2>アプリケーションからの使用</h2>
 
-          <h3>AWS SDK（Python）</h3>
-          
-          <pre><code class="language-python">import boto3
+            <h3>AWS SDK（Python）</h3>
+
+            <pre><code class="language-python">import boto3
 from botocore.client import Config
 
 # MinIOクライアントの作成
@@ -340,9 +353,9 @@ s3.upload_file('local-file.txt', 'my-bucket', 'remote-file.txt')
 # ファイルのダウンロード
 s3.download_file('my-bucket', 'remote-file.txt', 'downloaded-file.txt')</code></pre>
 
-          <h3>MinIO SDK（Go）</h3>
-          
-          <pre><code class="language-go">package main
+            <h3>MinIO SDK（Go）</h3>
+
+            <pre><code class="language-go">package main
 
 import (
     "context"
@@ -376,103 +389,140 @@ func main() {
     log.Println("Successfully uploaded")
 }</code></pre>
 
-          <h2>モニタリング</h2>
+            <h2>モニタリング</h2>
 
-          <h3>Prometheusメトリクス</h3>
-          
-          <p>MinIOは<code>/minio/v2/metrics/cluster</code>エンドポイントでPrometheusメトリクスを公開します。</p>
+            <h3>Prometheusメトリクス</h3>
 
-          <h3>ヘルスチェック</h3>
-          
-          <pre><code class="language-bash"># クラスターのヘルスチェック
+            <p>
+              MinIOは<code>/minio/v2/metrics/cluster</code>エンドポイントでPrometheusメトリクスを公開します。
+            </p>
+
+            <h3>ヘルスチェック</h3>
+
+            <pre><code class="language-bash"># クラスターのヘルスチェック
 mc admin info myminio/</code></pre>
 
-          <h2>バックアップとリストア</h2>
+            <h2>バックアップとリストア</h2>
 
-          <h3>バケットのミラーリング</h3>
-          
-          <pre><code class="language-bash"># バケットのバックアップ
+            <h3>バケットのミラーリング</h3>
+
+            <pre><code class="language-bash"># バケットのバックアップ
 mc mirror myminio/my-bucket/ /backup/my-bucket/
 
 # リストア
 mc mirror /backup/my-bucket/ myminio/my-bucket/</code></pre>
 
-          <h2>トラブルシューティング</h2>
+            <h2>トラブルシューティング</h2>
 
-          <h3>ログの確認</h3>
-          
-          <pre><code class="language-bash"># Podのログ
+            <h3>ログの確認</h3>
+
+            <pre><code class="language-bash"># Podのログ
 kubectl logs -n minio-tenant minio-tenant-pool-0-0
 
 # Operatorのログ
 kubectl logs -n minio-operator -l name=minio-operator</code></pre>
 
-          <h3>一般的な問題</h3>
+            <h3>一般的な問題</h3>
 
-          <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle"></i>
-            <p><strong>ストレージ不足：</strong>PVCのサイズを確認し、必要に応じて拡張してください。</p>
-          </div>
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>
+                <strong>ストレージ不足：</strong
+                >PVCのサイズを確認し、必要に応じて拡張してください。
+              </p>
+            </div>
 
-          <ul>
-            <li><strong>接続エラー</strong>: Service名とポート番号を確認</li>
-            <li><strong>認証エラー</strong>: アクセスキーとシークレットキーを確認</li>
-            <li><strong>パフォーマンス問題</strong>: ノード数とボリューム数を増やす</li>
-          </ul>
+            <ul>
+              <li><strong>接続エラー</strong>: Service名とポート番号を確認</li>
+              <li>
+                <strong>認証エラー</strong>:
+                アクセスキーとシークレットキーを確認
+              </li>
+              <li>
+                <strong>パフォーマンス問題</strong>:
+                ノード数とボリューム数を増やす
+              </li>
+            </ul>
 
-          <h2>参考リンク</h2>
-          
-          <ul>
-            <li><a href="https://min.io/docs/minio/kubernetes/upstream/" target="_blank" rel="noopener noreferrer">MinIO Kubernetes公式ドキュメント</a></li>
-            <li><a href="https://github.com/minio/operator" target="_blank" rel="noopener noreferrer">MinIO Operator GitHub</a></li>
-            <li><a href="https://min.io/docs/minio/linux/reference/minio-mc.html" target="_blank" rel="noopener noreferrer">MinIO Client (mc) ドキュメント</a></li>
-          </ul>
-        </article>
-      </div>
+            <h2>参考リンク</h2>
 
-      <!-- Footer -->
-      <footer class="site-footer">
-        <div class="footer-container">
-          <p class="footer-text">
-            &copy; 2025 k8s Cluster on Proxmox. Built with <i class="fas fa-heart footer-heart"></i> and Kubernetes.
-          </p>
-          <div class="footer-links">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="footer-link">
-              <i class="fab fa-github"></i> GitHub
-            </a>
-          </div>
+            <ul>
+              <li>
+                <a
+                  href="https://min.io/docs/minio/kubernetes/upstream/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >MinIO Kubernetes公式ドキュメント</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/minio/operator"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >MinIO Operator GitHub</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://min.io/docs/minio/linux/reference/minio-mc.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >MinIO Client (mc) ドキュメント</a
+                >
+              </li>
+            </ul>
+          </article>
         </div>
-      </footer>
-    </main>
 
-    <!-- Table of Contents -->
-    <aside class="toc-container">
-      <!-- TOC will be generated by JavaScript -->
-    </aside>
-  </div>
+        <!-- Footer -->
+        <footer class="site-footer">
+          <div class="footer-container">
+            <p class="footer-text">
+              &copy; 2025 k8s Cluster on Proxmox. Built with
+              <i class="fas fa-heart footer-heart"></i> and Kubernetes.
+            </p>
+            <div class="footer-links">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="footer-link"
+              >
+                <i class="fab fa-github"></i> GitHub
+              </a>
+            </div>
+          </div>
+        </footer>
+      </main>
 
-  <!-- Scroll to Top Button -->
-  <button class="scroll-to-top" aria-label="Scroll to top">
-    <i class="fas fa-arrow-up"></i>
-  </button>
+      <!-- Table of Contents -->
+      <aside class="toc-container">
+        <!-- TOC will be generated by JavaScript -->
+      </aside>
+    </div>
 
-  <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
-  <script src="../assets/js/config.js"></script>
-  <script src="../assets/js/theme.js"></script>
-  <script src="../assets/js/navigation.js"></script>
-  <script src="../assets/js/search.js"></script>
-  <script src="../assets/js/toc.js"></script>
-  <script src="../assets/js/code-highlight.js"></script>
-  <script src="../assets/js/page-navigation.js"></script>
-  <script src="../assets/js/scroll-progress.js"></script>
-  <script src="../assets/js/keyboard-shortcuts.js"></script>
-  <script src="../assets/js/page-transitions.js"></script>
-  <script src="../assets/js/main.js"></script>
-</body>
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" aria-label="Scroll to top">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/navigation.js"></script>
+    <script src="../assets/js/toc.js"></script>
+    <script src="../assets/js/code-highlight.js"></script>
+    <script src="../assets/js/page-navigation.js"></script>
+    <script src="../assets/js/scroll-progress.js"></script>
+    <script src="../assets/js/keyboard-shortcuts.js"></script>
+    <script src="../assets/js/page-transitions.js"></script>
+    <script src="../assets/js/main.js"></script>
+  </body>
 </html>

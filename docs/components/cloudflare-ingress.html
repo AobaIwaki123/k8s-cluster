@@ -1,159 +1,184 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Cloudflare Ingress Controller - k8s Cluster on Proxmox</title>
-  <meta name="description" content="Cloudflare Tunnel Ingress Controllerのセットアップ手順">
-  
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  
-  <!-- Syntax Highlighting -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-  
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="../assets/css/main.css">
-</head>
-<body>
-  <!-- Header -->
-  <header class="site-header">
-    <div class="header-container">
-      <a href="../" class="logo">
-        <i class="fas fa-cubes logo-icon"></i>
-        <span class="logo-text">k8s Cluster</span>
-      </a>
-      
-      <div class="header-actions">
-        <div class="search-container">
-          <i class="fas fa-search search-icon"></i>
-          <input type="text" class="search-input" placeholder="検索... (Ctrl+K)" aria-label="Search">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Cloudflare Ingress Controller - k8s Cluster on Proxmox</title>
+    <meta
+      name="description"
+      content="Cloudflare Tunnel Ingress Controllerのセットアップ手順"
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- Syntax Highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/main.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="header-container">
+        <a href="../" class="logo">
+          <i class="fas fa-cubes logo-icon"></i>
+          <span class="logo-text">k8s Cluster</span>
+        </a>
+
+        <div class="header-actions">
+          <button class="theme-toggle" aria-label="Toggle theme">
+            <i class="fas fa-moon theme-icon"></i>
+          </button>
+
+          <button class="mobile-menu-toggle" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+          </button>
         </div>
-        
-        <button class="theme-toggle" aria-label="Toggle theme">
-          <i class="fas fa-moon theme-icon"></i>
-        </button>
-        
-        <button class="mobile-menu-toggle" aria-label="Toggle menu">
-          <i class="fas fa-bars"></i>
-        </button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Sidebar Overlay -->
-  <div class="sidebar-overlay"></div>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay"></div>
 
-  <!-- Main Wrapper -->
-  <div class="main-wrapper">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <!-- Navigation will be rendered by JavaScript -->
-    </aside>
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <!-- Navigation will be rendered by JavaScript -->
+      </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="content-container">
-        <!-- Breadcrumb -->
-        <nav class="breadcrumb">
-          <div class="breadcrumb-item">
-            <a href="../" class="breadcrumb-link">
-              <i class="fas fa-home"></i> Home
-            </a>
-          </div>
-          <span class="breadcrumb-separator">/</span>
-          <div class="breadcrumb-item">
-            <span class="breadcrumb-current">Cloudflare Ingress Controller</span>
-          </div>
-        </nav>
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="content-container">
+          <!-- Breadcrumb -->
+          <nav class="breadcrumb">
+            <div class="breadcrumb-item">
+              <a href="../" class="breadcrumb-link">
+                <i class="fas fa-home"></i> Home
+              </a>
+            </div>
+            <span class="breadcrumb-separator">/</span>
+            <div class="breadcrumb-item">
+              <span class="breadcrumb-current"
+                >Cloudflare Ingress Controller</span
+              >
+            </div>
+          </nav>
 
-        <!-- Article Content -->
-        <article class="article-content">
-          <h1>Cloudflare Tunnel Ingress Controller のセットアップ</h1>
-          
-          <p>Cloudflare Tunnel Ingress Controllerは、Cloudflare Tunnelを使用してKubernetesのIngressリソースを自動的に外部公開するコントローラーです。</p>
+          <!-- Article Content -->
+          <article class="article-content">
+            <h1>Cloudflare Tunnel Ingress Controller のセットアップ</h1>
 
-          <h2>特徴</h2>
-          
-          <ul>
-            <li>SSL/TLS 証明書の自動管理</li>
-            <li>Cloudflare の CDN とセキュリティ機能を活用</li>
-            <li>グローバルな負荷分散</li>
-            <li>DDoS 攻撃からの保護</li>
-            <li>ファイアウォールやポート開放が不要</li>
-          </ul>
+            <p>
+              Cloudflare Tunnel Ingress Controllerは、Cloudflare
+              Tunnelを使用してKubernetesのIngressリソースを自動的に外部公開するコントローラーです。
+            </p>
 
-          <h2>前提条件</h2>
-          
-          <ul>
-            <li>Cloudflare アカウント</li>
-            <li>ドメインが Cloudflare で管理されていること</li>
-            <li>Cloudflare Tunnel が作成済みであること</li>
-            <li>ArgoCD がセットアップ済みであること</li>
-          </ul>
+            <h2>特徴</h2>
 
-          <h2>API トークンの作成</h2>
-          
-          <p>Cloudflare ダッシュボードで API トークンを作成します。</p>
+            <ul>
+              <li>SSL/TLS 証明書の自動管理</li>
+              <li>Cloudflare の CDN とセキュリティ機能を活用</li>
+              <li>グローバルな負荷分散</li>
+              <li>DDoS 攻撃からの保護</li>
+              <li>ファイアウォールやポート開放が不要</li>
+            </ul>
 
-          <h3>必要な Permissions</h3>
-          
-          <p>以下の権限を持つトークンを作成します：</p>
-          
-          <ul>
-            <li><code>Zone:Zone:Read</code> - ゾーン情報の読み取り</li>
-            <li><code>Zone:DNS:Edit</code> - DNS レコードの編集</li>
-            <li><code>Account:Cloudflare Tunnel:Edit</code> - トンネルの編集</li>
-          </ul>
-          
-          <p>各権限は <code>リソースタイプ:サブリソース:アクセスレベル</code> の形式です。</p>
+            <h2>前提条件</h2>
 
-          <h2>Cloudflare Tunnel の作成</h2>
-          
-          <p>Cloudflare ダッシュボードで事前にトンネルを作成しておきます。</p>
-          
-          <ol>
-            <li>Cloudflare ダッシュボードにログイン</li>
-            <li>Zero Trust → Access → Tunnels</li>
-            <li>Create a tunnel → Cloudflared</li>
-            <li>トンネル名を入力（例: <code>cf-tunnel-ingress-controller</code>）</li>
-          </ol>
+            <ul>
+              <li>Cloudflare アカウント</li>
+              <li>ドメインが Cloudflare で管理されていること</li>
+              <li>Cloudflare Tunnel が作成済みであること</li>
+              <li>ArgoCD がセットアップ済みであること</li>
+            </ul>
 
-          <h2>セットアップ手順</h2>
+            <h2>API トークンの作成</h2>
 
-          <h3>1. ArgoCD Application の設定ファイルを編集</h3>
-          
-          <p><code>manifests/2-cloudflare-ingress-controller/argocd/cloudflare-tunnel-ingress-controller.yml</code> を編集します。</p>
-          
-          <pre><code class="language-yaml">cloudflare:
+            <p>Cloudflare ダッシュボードで API トークンを作成します。</p>
+
+            <h3>必要な Permissions</h3>
+
+            <p>以下の権限を持つトークンを作成します：</p>
+
+            <ul>
+              <li><code>Zone:Zone:Read</code> - ゾーン情報の読み取り</li>
+              <li><code>Zone:DNS:Edit</code> - DNS レコードの編集</li>
+              <li>
+                <code>Account:Cloudflare Tunnel:Edit</code> - トンネルの編集
+              </li>
+            </ul>
+
+            <p>
+              各権限は
+              <code>リソースタイプ:サブリソース:アクセスレベル</code>
+              の形式です。
+            </p>
+
+            <h2>Cloudflare Tunnel の作成</h2>
+
+            <p>Cloudflare ダッシュボードで事前にトンネルを作成しておきます。</p>
+
+            <ol>
+              <li>Cloudflare ダッシュボードにログイン</li>
+              <li>Zero Trust → Access → Tunnels</li>
+              <li>Create a tunnel → Cloudflared</li>
+              <li>
+                トンネル名を入力（例:
+                <code>cf-tunnel-ingress-controller</code>）
+              </li>
+            </ol>
+
+            <h2>セットアップ手順</h2>
+
+            <h3>1. ArgoCD Application の設定ファイルを編集</h3>
+
+            <p>
+              <code
+                >manifests/2-cloudflare-ingress-controller/argocd/cloudflare-tunnel-ingress-controller.yml</code
+              >
+              を編集します。
+            </p>
+
+            <pre><code class="language-yaml">cloudflare:
   apiToken: YOUR_API_TOKEN  # Cloudflare API トークン
   accountId: YOUR_ACCOUNT_ID  # Cloudflare アカウント ID
   tunnelName: cf-tunnel-ingress-controller  # 作成したトンネル名</code></pre>
 
-          <h3>2. ArgoCD でデプロイ</h3>
-          
-          <pre><code class="language-bash">argocd app create --file ../../manifests/2-cloudflare-ingress-controller/argocd/cloudflare-tunnel-ingress-controller.yml</code></pre>
+            <h3>2. ArgoCD でデプロイ</h3>
 
-          <h3>3. 動作確認</h3>
-          
-          <p>コントローラーが正常に起動していることを確認します。</p>
-          
-          <pre><code class="language-bash"># Pod の状態を確認
+            <pre><code class="language-bash">argocd app create --file ../../manifests/2-cloudflare-ingress-controller/argocd/cloudflare-tunnel-ingress-controller.yml</code></pre>
+
+            <h3>3. 動作確認</h3>
+
+            <p>コントローラーが正常に起動していることを確認します。</p>
+
+            <pre><code class="language-bash"># Pod の状態を確認
 kubectl get pods -n cloudflare-tunnel-ingress-controller
 
 # ログを確認
 kubectl logs -n cloudflare-tunnel-ingress-controller deployment/cloudflare-tunnel-ingress-controller</code></pre>
 
-          <h2>Ingress リソースの作成例</h2>
-          
-          <p>Cloudflare Ingress Controller を使用した Ingress リソースの例：</p>
-          
-          <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+            <h2>Ingress リソースの作成例</h2>
+
+            <p>
+              Cloudflare Ingress Controller を使用した Ingress リソースの例：
+            </p>
+
+            <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: example-ingress
@@ -172,87 +197,116 @@ spec:
             port:
               number: 80</code></pre>
 
-          <h2>トラブルシューティング</h2>
+            <h2>トラブルシューティング</h2>
 
-          <h3>トンネルが接続されない</h3>
-          
-          <ul>
-            <li>API トークンの権限を確認</li>
-            <li>トンネル名が正しいか確認</li>
-            <li>Cloudflare ダッシュボードでトンネルの状態を確認</li>
-          </ul>
+            <h3>トンネルが接続されない</h3>
 
-          <h3>DNS レコードが作成されない</h3>
-          
-          <ul>
-            <li>API トークンに <code>Zone:DNS:Edit</code> 権限があるか確認</li>
-            <li>ドメインが Cloudflare で管理されているか確認</li>
-          </ul>
+            <ul>
+              <li>API トークンの権限を確認</li>
+              <li>トンネル名が正しいか確認</li>
+              <li>Cloudflare ダッシュボードでトンネルの状態を確認</li>
+            </ul>
 
-          <h3>Pod が起動しない</h3>
-          
-          <pre><code class="language-bash"># Pod の状態を確認
+            <h3>DNS レコードが作成されない</h3>
+
+            <ul>
+              <li>
+                API トークンに <code>Zone:DNS:Edit</code> 権限があるか確認
+              </li>
+              <li>ドメインが Cloudflare で管理されているか確認</li>
+            </ul>
+
+            <h3>Pod が起動しない</h3>
+
+            <pre><code class="language-bash"># Pod の状態を確認
 kubectl describe pod -n cloudflare-tunnel-ingress-controller &lt;pod-name&gt;
 
 # イベントログを確認
 kubectl get events -n cloudflare-tunnel-ingress-controller --sort-by='.lastTimestamp'</code></pre>
 
-          <h2>参考リンク</h2>
-          
-          <ul>
-            <li><a href="https://github.com/STRRL/cloudflare-tunnel-ingress-controller" target="_blank" rel="noopener">Cloudflare Tunnel Ingress Controller GitHub</a></li>
-            <li><a href="https://zenn.dev/yh/articles/11823e77bd4379" target="_blank" rel="noopener">自宅 kubernetes で cloudflare-tunnel-ingress-controller を使ってお手軽外部公開</a></li>
-            <li><a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/" target="_blank" rel="noopener">Cloudflare Tunnel 公式ドキュメント</a></li>
-          </ul>
-        </article>
+            <h2>参考リンク</h2>
 
-        <!-- Table of Contents -->
-        <aside class="toc">
-          <!-- TOC will be generated by JavaScript -->
-        </aside>
-      </div>
-    </main>
-  </div>
+            <ul>
+              <li>
+                <a
+                  href="https://github.com/STRRL/cloudflare-tunnel-ingress-controller"
+                  target="_blank"
+                  rel="noopener"
+                  >Cloudflare Tunnel Ingress Controller GitHub</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://zenn.dev/yh/articles/11823e77bd4379"
+                  target="_blank"
+                  rel="noopener"
+                  >自宅 kubernetes で cloudflare-tunnel-ingress-controller
+                  を使ってお手軽外部公開</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/"
+                  target="_blank"
+                  rel="noopener"
+                  >Cloudflare Tunnel 公式ドキュメント</a
+                >
+              </li>
+            </ul>
+          </article>
 
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h4>k8s Cluster</h4>
-          <p>Infrastructure as Code with k0s & ArgoCD</p>
+          <!-- Table of Contents -->
+          <aside class="toc">
+            <!-- TOC will be generated by JavaScript -->
+          </aside>
         </div>
-        
-        <div class="footer-section">
-          <h4>リンク</h4>
-          <ul class="footer-links">
-            <li><a href="https://github.com/AobaIwaki123/k8s-cluster" target="_blank" rel="noopener">
-              <i class="fab fa-github"></i> GitHub
-            </a></li>
-          </ul>
-        </div>
-      </div>
-      
-      <div class="footer-bottom">
-        <p>&copy; 2024 k8s-cluster. Built with ❤️ and Kubernetes.</p>
-      </div>
+      </main>
     </div>
-  </footer>
 
-  <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
-  <script src="../assets/js/config.js"></script>
-  <script src="../assets/js/theme.js"></script>
-  <script src="../assets/js/navigation.js"></script>
-  <script src="../assets/js/search.js"></script>
-  <script src="../assets/js/toc.js"></script>
-  <script src="../assets/js/code-highlight.js"></script>
-  <script src="../assets/js/page-navigation.js"></script>
-  <script src="../assets/js/scroll-progress.js"></script>
-  <script src="../assets/js/keyboard-shortcuts.js"></script>
-  <script src="../assets/js/page-transitions.js"></script>
-  <script src="../assets/js/main.js"></script>
-</body>
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="footer-container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>k8s Cluster</h4>
+            <p>Infrastructure as Code with k0s & ArgoCD</p>
+          </div>
+
+          <div class="footer-section">
+            <h4>リンク</h4>
+            <ul class="footer-links">
+              <li>
+                <a
+                  href="https://github.com/AobaIwaki123/k8s-cluster"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <i class="fab fa-github"></i> GitHub
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>&copy; 2024 k8s-cluster. Built with ❤️ and Kubernetes.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/navigation.js"></script>
+    <script src="../assets/js/toc.js"></script>
+    <script src="../assets/js/code-highlight.js"></script>
+    <script src="../assets/js/page-navigation.js"></script>
+    <script src="../assets/js/scroll-progress.js"></script>
+    <script src="../assets/js/keyboard-shortcuts.js"></script>
+    <script src="../assets/js/page-transitions.js"></script>
+    <script src="../assets/js/main.js"></script>
+  </body>
 </html>

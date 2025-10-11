@@ -1,107 +1,118 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Nginx Ingress - k8s Cluster on Proxmox</title>
-  <meta name="description" content="Nginx Ingress Controllerのインストールと設定">
-  
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  
-  <!-- Syntax Highlighting -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-  
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="../assets/css/main.css">
-</head>
-<body>
-  <!-- Header -->
-  <header class="site-header">
-    <div class="header-container">
-      <a href="../" class="logo">
-        <i class="fas fa-cubes logo-icon"></i>
-        <span class="logo-text">k8s Cluster</span>
-      </a>
-      
-      <div class="header-actions">
-        <div class="search-container">
-          <i class="fas fa-search search-icon"></i>
-          <input type="text" class="search-input" placeholder="検索... (Ctrl+K)" aria-label="Search">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Nginx Ingress - k8s Cluster on Proxmox</title>
+    <meta
+      name="description"
+      content="Nginx Ingress Controllerのインストールと設定"
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- Syntax Highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/main.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="header-container">
+        <a href="../" class="logo">
+          <i class="fas fa-cubes logo-icon"></i>
+          <span class="logo-text">k8s Cluster</span>
+        </a>
+
+        <div class="header-actions">
+          <button class="theme-toggle" aria-label="Toggle theme">
+            <i class="fas fa-moon theme-icon"></i>
+          </button>
+
+          <button class="mobile-menu-toggle" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+          </button>
         </div>
-        
-        <button class="theme-toggle" aria-label="Toggle theme">
-          <i class="fas fa-moon theme-icon"></i>
-        </button>
-        
-        <button class="mobile-menu-toggle" aria-label="Toggle menu">
-          <i class="fas fa-bars"></i>
-        </button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Sidebar Overlay -->
-  <div class="sidebar-overlay"></div>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay"></div>
 
-  <!-- Main Wrapper -->
-  <div class="main-wrapper">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <!-- Navigation will be rendered by JavaScript -->
-    </aside>
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <!-- Navigation will be rendered by JavaScript -->
+      </aside>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="content-container">
-        <!-- Breadcrumb -->
-        <nav class="breadcrumb">
-          <div class="breadcrumb-item">
-            <a href="../" class="breadcrumb-link">
-              <i class="fas fa-home"></i> Home
-            </a>
-          </div>
-          <span class="breadcrumb-separator">/</span>
-          <div class="breadcrumb-item">
-            <span class="breadcrumb-current">Nginx Ingress</span>
-          </div>
-        </nav>
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="content-container">
+          <!-- Breadcrumb -->
+          <nav class="breadcrumb">
+            <div class="breadcrumb-item">
+              <a href="../" class="breadcrumb-link">
+                <i class="fas fa-home"></i> Home
+              </a>
+            </div>
+            <span class="breadcrumb-separator">/</span>
+            <div class="breadcrumb-item">
+              <span class="breadcrumb-current">Nginx Ingress</span>
+            </div>
+          </nav>
 
-        <!-- Article Content -->
-        <article class="article-content">
-          <h1>Nginx Ingress Controller</h1>
-          
-          <p>Nginx Ingress Controllerは、Kubernetes上で最も広く使用されているIngress Controllerです。HTTPとHTTPSトラフィックのルーティングを行います。</p>
+          <!-- Article Content -->
+          <article class="article-content">
+            <h1>Nginx Ingress Controller</h1>
 
-          <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i>
-            <p>このコンポーネントはオプションです。Cloudflare Ingressの代わりに使用できます。</p>
-          </div>
+            <p>
+              Nginx Ingress
+              Controllerは、Kubernetes上で最も広く使用されているIngress
+              Controllerです。HTTPとHTTPSトラフィックのルーティングを行います。
+            </p>
 
-          <h2>概要</h2>
-          
-          <p>Nginx Ingress Controllerの主な特徴：</p>
-          <ul>
-            <li>HTTPとHTTPSのルーティング</li>
-            <li>TLS/SSL終端</li>
-            <li>パスベースとホストベースのルーティング</li>
-            <li>リダイレクト、リライト機能</li>
-            <li>レート制限とIP制限</li>
-            <li>Basic認証とOAuth統合</li>
-            <li>WebSocketサポート</li>
-            <li>カスタムエラーページ</li>
-          </ul>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <p>
+                このコンポーネントはオプションです。Cloudflare
+                Ingressの代わりに使用できます。
+              </p>
+            </div>
 
-          <h2>インストール</h2>
+            <h2>概要</h2>
 
-          <h3>Helmを使用したインストール</h3>
-          
-          <pre><code class="language-bash"># Helm リポジトリの追加
+            <p>Nginx Ingress Controllerの主な特徴：</p>
+            <ul>
+              <li>HTTPとHTTPSのルーティング</li>
+              <li>TLS/SSL終端</li>
+              <li>パスベースとホストベースのルーティング</li>
+              <li>リダイレクト、リライト機能</li>
+              <li>レート制限とIP制限</li>
+              <li>Basic認証とOAuth統合</li>
+              <li>WebSocketサポート</li>
+              <li>カスタムエラーページ</li>
+            </ul>
+
+            <h2>インストール</h2>
+
+            <h3>Helmを使用したインストール</h3>
+
+            <pre><code class="language-bash"># Helm リポジトリの追加
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 
@@ -111,13 +122,13 @@ helm install ingress-nginx ingress-nginx/ingress-nginx \
   --create-namespace \
   --set controller.service.type=LoadBalancer</code></pre>
 
-          <h3>マニフェストを使用したインストール</h3>
-          
-          <pre><code class="language-bash">kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.0/deploy/static/provider/cloud/deploy.yaml</code></pre>
+            <h3>マニフェストを使用したインストール</h3>
 
-          <h3>インストールの確認</h3>
-          
-          <pre><code class="language-bash"># Podの確認
+            <pre><code class="language-bash">kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.0/deploy/static/provider/cloud/deploy.yaml</code></pre>
+
+            <h3>インストールの確認</h3>
+
+            <pre><code class="language-bash"># Podの確認
 kubectl get pods -n ingress-nginx
 
 # Serviceの確認
@@ -126,11 +137,11 @@ kubectl get svc -n ingress-nginx
 # IngressClassの確認
 kubectl get ingressclass</code></pre>
 
-          <h2>基本的な使い方</h2>
+            <h2>基本的な使い方</h2>
 
-          <h3>シンプルなIngress</h3>
-          
-          <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+            <h3>シンプルなIngress</h3>
+
+            <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: example-ingress
@@ -150,9 +161,9 @@ spec:
             port:
               number: 80</code></pre>
 
-          <h3>TLS設定付きIngress</h3>
-          
-          <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+            <h3>TLS設定付きIngress</h3>
+
+            <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: tls-ingress
@@ -177,11 +188,11 @@ spec:
             port:
               number: 80</code></pre>
 
-          <h2>高度な設定</h2>
+            <h2>高度な設定</h2>
 
-          <h3>パスベースルーティング</h3>
-          
-          <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+            <h3>パスベースルーティング</h3>
+
+            <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: path-based-ingress
@@ -207,9 +218,9 @@ spec:
             port:
               number: 80</code></pre>
 
-          <h3>リダイレクト設定</h3>
-          
-          <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+            <h3>リダイレクト設定</h3>
+
+            <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: redirect-ingress
@@ -220,9 +231,9 @@ spec:
   rules:
   - host: old-domain.com</code></pre>
 
-          <h3>リライト設定</h3>
-          
-          <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+            <h3>リライト設定</h3>
+
+            <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: rewrite-ingress
@@ -242,15 +253,15 @@ spec:
             port:
               number: 80</code></pre>
 
-          <h3>Basic認証</h3>
-          
-          <pre><code class="language-bash"># htpasswdファイルの作成
+            <h3>Basic認証</h3>
+
+            <pre><code class="language-bash"># htpasswdファイルの作成
 htpasswd -c auth username
 
 # Secretの作成
 kubectl create secret generic basic-auth --from-file=auth</code></pre>
 
-          <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+            <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: auth-ingress
@@ -272,9 +283,9 @@ spec:
             port:
               number: 80</code></pre>
 
-          <h3>レート制限</h3>
-          
-          <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+            <h3>レート制限</h3>
+
+            <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: rate-limit-ingress
@@ -295,9 +306,9 @@ spec:
             port:
               number: 80</code></pre>
 
-          <h3>WebSocketサポート</h3>
-          
-          <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+            <h3>WebSocketサポート</h3>
+
+            <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: websocket-ingress
@@ -318,11 +329,11 @@ spec:
             port:
               number: 8080</code></pre>
 
-          <h2>カスタマイズ</h2>
+            <h2>カスタマイズ</h2>
 
-          <h3>ConfigMapでの設定</h3>
-          
-          <pre><code class="language-yaml">apiVersion: v1
+            <h3>ConfigMapでの設定</h3>
+
+            <pre><code class="language-yaml">apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ingress-nginx-controller
@@ -343,9 +354,9 @@ data:
   # ログ形式
   log-format-upstream: '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"'</code></pre>
 
-          <h3>カスタムエラーページ</h3>
-          
-          <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+            <h3>カスタムエラーページ</h3>
+
+            <pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: custom-error-ingress
@@ -366,40 +377,43 @@ spec:
             port:
               number: 80</code></pre>
 
-          <h2>モニタリング</h2>
+            <h2>モニタリング</h2>
 
-          <h3>Prometheusメトリクス</h3>
-          
-          <p>Nginx Ingress Controllerは自動的にPrometheusメトリクスを公開します。</p>
-          
-          <pre><code class="language-bash"># メトリクスエンドポイント
+            <h3>Prometheusメトリクス</h3>
+
+            <p>
+              Nginx Ingress
+              Controllerは自動的にPrometheusメトリクスを公開します。
+            </p>
+
+            <pre><code class="language-bash"># メトリクスエンドポイント
 kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller-metrics 10254:10254
 
 # ブラウザでアクセス
 # http://localhost:10254/metrics</code></pre>
 
-          <h3>ログの確認</h3>
-          
-          <pre><code class="language-bash"># Controllerのログ
+            <h3>ログの確認</h3>
+
+            <pre><code class="language-bash"># Controllerのログ
 kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx
 
 # リアルタイムログ
 kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx -f</code></pre>
 
-          <h2>トラブルシューティング</h2>
+            <h2>トラブルシューティング</h2>
 
-          <h3>デバッグモードの有効化</h3>
-          
-          <pre><code class="language-bash"># ConfigMapで設定
+            <h3>デバッグモードの有効化</h3>
+
+            <pre><code class="language-bash"># ConfigMapで設定
 kubectl edit configmap ingress-nginx-controller -n ingress-nginx
 
 # 以下を追加
 data:
   error-log-level: "debug"</code></pre>
 
-          <h3>Ingressの状態確認</h3>
-          
-          <pre><code class="language-bash"># Ingress一覧
+            <h3>Ingressの状態確認</h3>
+
+            <pre><code class="language-bash"># Ingress一覧
 kubectl get ingress -A
 
 # 詳細確認
@@ -408,24 +422,35 @@ kubectl describe ingress example-ingress
 # Nginx設定の確認
 kubectl exec -n ingress-nginx ingress-nginx-controller-xxx -- cat /etc/nginx/nginx.conf</code></pre>
 
-          <h3>一般的な問題</h3>
+            <h3>一般的な問題</h3>
 
-          <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle"></i>
-            <p><strong>502 Bad Gateway：</strong>バックエンドサービスが正しく動作しているか確認してください。</p>
-          </div>
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>
+                <strong>502 Bad Gateway：</strong
+                >バックエンドサービスが正しく動作しているか確認してください。
+              </p>
+            </div>
 
-          <ul>
-            <li><strong>404 Not Found</strong>: Ingressのpathとサービス名を確認</li>
-            <li><strong>503 Service Unavailable</strong>: バックエンドのPodが起動しているか確認</li>
-            <li><strong>TLS証明書エラー</strong>: Secretが正しく作成されているか確認</li>
-          </ul>
+            <ul>
+              <li>
+                <strong>404 Not Found</strong>: Ingressのpathとサービス名を確認
+              </li>
+              <li>
+                <strong>503 Service Unavailable</strong>:
+                バックエンドのPodが起動しているか確認
+              </li>
+              <li>
+                <strong>TLS証明書エラー</strong>:
+                Secretが正しく作成されているか確認
+              </li>
+            </ul>
 
-          <h2>パフォーマンスチューニング</h2>
+            <h2>パフォーマンスチューニング</h2>
 
-          <h3>レプリカ数の調整</h3>
-          
-          <pre><code class="language-bash"># Helm valuesで設定
+            <h3>レプリカ数の調整</h3>
+
+            <pre><code class="language-bash"># Helm valuesで設定
 controller:
   replicaCount: 3
   resources:
@@ -436,9 +461,9 @@ controller:
       cpu: 200m
       memory: 180Mi</code></pre>
 
-          <h3>接続プール設定</h3>
-          
-          <pre><code class="language-yaml">data:
+            <h3>接続プール設定</h3>
+
+            <pre><code class="language-yaml">data:
   # ワーカープロセス数
   worker-processes: "4"
   
@@ -449,56 +474,82 @@ controller:
   keep-alive-requests: "100"
   upstream-keepalive-connections: "64"</code></pre>
 
-          <h2>参考リンク</h2>
-          
-          <ul>
-            <li><a href="https://kubernetes.github.io/ingress-nginx/" target="_blank" rel="noopener noreferrer">Nginx Ingress Controller公式ドキュメント</a></li>
-            <li><a href="https://github.com/kubernetes/ingress-nginx" target="_blank" rel="noopener noreferrer">Nginx Ingress GitHub</a></li>
-            <li><a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/" target="_blank" rel="noopener noreferrer">Annotationsリファレンス</a></li>
-          </ul>
-        </article>
-      </div>
+            <h2>参考リンク</h2>
 
-      <!-- Footer -->
-      <footer class="site-footer">
-        <div class="footer-container">
-          <p class="footer-text">
-            &copy; 2025 k8s Cluster on Proxmox. Built with <i class="fas fa-heart footer-heart"></i> and Kubernetes.
-          </p>
-          <div class="footer-links">
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="footer-link">
-              <i class="fab fa-github"></i> GitHub
-            </a>
-          </div>
+            <ul>
+              <li>
+                <a
+                  href="https://kubernetes.github.io/ingress-nginx/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Nginx Ingress Controller公式ドキュメント</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/kubernetes/ingress-nginx"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Nginx Ingress GitHub</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Annotationsリファレンス</a
+                >
+              </li>
+            </ul>
+          </article>
         </div>
-      </footer>
-    </main>
 
-    <!-- Table of Contents -->
-    <aside class="toc-container">
-      <!-- TOC will be generated by JavaScript -->
-    </aside>
-  </div>
+        <!-- Footer -->
+        <footer class="site-footer">
+          <div class="footer-container">
+            <p class="footer-text">
+              &copy; 2025 k8s Cluster on Proxmox. Built with
+              <i class="fas fa-heart footer-heart"></i> and Kubernetes.
+            </p>
+            <div class="footer-links">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="footer-link"
+              >
+                <i class="fab fa-github"></i> GitHub
+              </a>
+            </div>
+          </div>
+        </footer>
+      </main>
 
-  <!-- Scroll to Top Button -->
-  <button class="scroll-to-top" aria-label="Scroll to top">
-    <i class="fas fa-arrow-up"></i>
-  </button>
+      <!-- Table of Contents -->
+      <aside class="toc-container">
+        <!-- TOC will be generated by JavaScript -->
+      </aside>
+    </div>
 
-  <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
-  <script src="../assets/js/config.js"></script>
-  <script src="../assets/js/theme.js"></script>
-  <script src="../assets/js/navigation.js"></script>
-  <script src="../assets/js/search.js"></script>
-  <script src="../assets/js/toc.js"></script>
-  <script src="../assets/js/code-highlight.js"></script>
-  <script src="../assets/js/page-navigation.js"></script>
-  <script src="../assets/js/scroll-progress.js"></script>
-  <script src="../assets/js/keyboard-shortcuts.js"></script>
-  <script src="../assets/js/page-transitions.js"></script>
-  <script src="../assets/js/main.js"></script>
-</body>
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" aria-label="Scroll to top">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/navigation.js"></script>
+    <script src="../assets/js/toc.js"></script>
+    <script src="../assets/js/code-highlight.js"></script>
+    <script src="../assets/js/page-navigation.js"></script>
+    <script src="../assets/js/scroll-progress.js"></script>
+    <script src="../assets/js/keyboard-shortcuts.js"></script>
+    <script src="../assets/js/page-transitions.js"></script>
+    <script src="../assets/js/main.js"></script>
+  </body>
 </html>

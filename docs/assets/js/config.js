@@ -16,10 +16,10 @@ const CONFIG = {
       title: "はじめに",
       icon: "fa-rocket",
       items: [
-        { title: "前準備", url: "/k8s-cluster/setup/prerequisites.html" },
+        { title: "前準備", url: "/setup/prerequisites.html" },
         {
           title: "クラスター構築",
-          url: "/k8s-cluster/setup/cluster-installation.html",
+          url: "/setup/cluster-installation.html",
         },
       ],
     },
@@ -27,17 +27,17 @@ const CONFIG = {
       title: "コンポーネント",
       icon: "fa-puzzle-piece",
       items: [
-        { title: "ArgoCD", url: "/k8s-cluster/components/argocd.html" },
+        { title: "ArgoCD", url: "/components/argocd.html" },
         {
           title: "Cloudflare Ingress",
-          url: "/k8s-cluster/components/cloudflare-ingress.html",
+          url: "/components/cloudflare-ingress.html",
         },
-        { title: "Rook Ceph", url: "/k8s-cluster/components/rook-ceph.html" },
+        { title: "Rook Ceph", url: "/components/rook-ceph.html" },
         {
           title: "Cert Manager",
-          url: "/k8s-cluster/components/cert-manager.html",
+          url: "/components/cert-manager.html",
         },
-        { title: "Harbor", url: "/k8s-cluster/components/harbor.html" },
+        { title: "Harbor", url: "/components/harbor.html" },
       ],
     },
   ],
@@ -56,10 +56,6 @@ const CONFIG = {
 
   // Code highlight
   highlightLanguages: ["bash", "yaml", "javascript", "python", "go"],
-
-  // Search
-  searchEnabled: true,
-  searchPlaceholder: "検索... (Ctrl+K)",
 
   // TOC
   tocMinHeadings: 3, // Minimum number of headings to show TOC
