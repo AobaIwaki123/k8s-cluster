@@ -1,0 +1,36 @@
+apiVersion: k0sctl.k0sproject.io/v1beta1
+kind: Cluster
+
+metadata:
+  name: k0s-cluster-test
+  user: admin
+
+spec:
+  hosts:
+    - ssh:
+        address: 192.168.11.240
+        user: aoba
+        port: 22
+        keyPath: null
+      role: controller
+
+    - ssh:
+        address: 192.168.11.241
+        user: aoba
+        port: 22
+        keyPath: null
+      role: worker
+
+    - ssh:
+        address: 192.168.11.242
+        user: aoba
+        port: 22
+        keyPath: null
+      role: worker
+
+    - ssh:
+        address: 192.168.11.243
+        user: aoba
+        port: 22
+        keyPath: null
+      role: worker
