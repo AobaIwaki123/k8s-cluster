@@ -2,33 +2,34 @@
 
 Pure HTML/CSS/JavaScript で実装されたドキュメントサイトです。
 
-## 🎨 特徴
+## 特徴
 
 - **Pure HTML/CSS/JS**: フレームワーク不要、ビルドツール不要
 - **ダークモード**: ライト/ダークテーマ切り替え対応
 - **レスポンシブ**: モバイル、タブレット、デスクトップ対応
-- **検索機能**: リアルタイム検索（Ctrl+K）
 - **目次自動生成**: 長いページでは目次を自動生成
 - **コードハイライト**: シンタックスハイライト + コピーボタン
+- **キーボードショートカット**: 快適なナビゲーション
+- **ページ遷移**: スムーズなアニメーション
 - **アクセシブル**: WCAG 2.1準拠
 
-## 📁 構造
+## 構造
 
 ```
 docs/
-├── index.html                    # ホームページ ✅
+├── index.html                    # ホームページ
 ├── setup/                        # セットアップガイド
-│   ├── prerequisites.html        # ✅ 完成
-│   └── cluster-installation.html # 📝 Markdown版あり
+│   ├── prerequisites.html        # 前準備
+│   └── cluster-installation.html # クラスター構築
 ├── components/                   # コンポーネントドキュメント
-│   ├── argocd.html              # 📝 Markdown版あり
-│   ├── cloudflare-ingress.html  # 📝 Markdown版あり
-│   ├── rook-ceph.html           # 📝 Markdown版あり
-│   ├── cert-manager.html        # 📝 Markdown版あり
-│   ├── harbor.html              # 📝 Markdown版あり
-│   ├── firebolt-core.html       # 📝 Markdown版あり
-│   ├── minio.html               # 📝 Markdown版あり
-│   └── nginx-ingress.html       # 📝 Markdown版あり
+│   ├── argocd.html              # ArgoCD
+│   ├── cloudflare-ingress.html  # Cloudflare Ingress Controller
+│   ├── rook-ceph.html           # Rook Ceph
+│   ├── cert-manager.html        # Cert Manager
+│   ├── harbor.html              # Harbor
+│   ├── firebolt-core.html       # Firebolt Core
+│   ├── minio.html               # MinIO
+│   └── nginx-ingress.html       # Nginx Ingress
 ├── assets/
 │   ├── css/                      # スタイルシート
 │   │   ├── variables.css         # CSS変数
@@ -41,34 +42,38 @@ docs/
 │   │   ├── config.js            # 設定
 │   │   ├── theme.js             # テーマ切り替え
 │   │   ├── navigation.js        # ナビゲーション
-│   │   ├── search.js            # 検索機能
 │   │   ├── toc.js               # 目次生成
 │   │   ├── code-highlight.js    # コードハイライト
+│   │   ├── page-navigation.js   # ページナビゲーション
+│   │   ├── scroll-progress.js   # スクロール進捗
+│   │   ├── keyboard-shortcuts.js # キーボードショートカット
+│   │   ├── page-transitions.js  # ページ遷移
 │   │   └── main.js              # メインスクリプト
 │   └── images/                   # 画像
 └── README.md                     # このファイル
 ```
 
-## 📝 実装状況
+## 実装状況
 
-現在、以下のページが完成しています：
+✅ **すべて完成しています！**
 
-✅ **完成**:
+### HTMLページ
 - `index.html` - ホームページ
 - `setup/prerequisites.html` - 前準備
-- すべてのCSS/JSファイル
+- `setup/cluster-installation.html` - クラスター構築
+- `components/argocd.html` - ArgoCD
+- `components/cloudflare-ingress.html` - Cloudflare Ingress Controller
+- `components/rook-ceph.html` - Rook Ceph
+- `components/cert-manager.html` - Cert Manager
+- `components/harbor.html` - Harbor
+- `components/firebolt-core.html` - Firebolt Core
+- `components/minio.html` - MinIO
+- `components/nginx-ingress.html` - Nginx Ingress
 
-📝 **Markdown版あり**（HTML変換が必要）:
-- `setup/cluster-installation.md`
-- `components/*.md`（8ファイル）
+### CSS/JSファイル
+すべてのスタイルシートとJavaScriptファイルが実装されています。
 
-これらのMarkdownファイルは `setup/prerequisites.html` をテンプレートとして使用して、
-HTML化できます。各ファイルの構造は同じです：
-1. ヘッダー、フッター、サイドバー構造をコピー
-2. `<article class="article-content">` 内にMarkdownの内容をHTMLに変換して配置
-3. パスを調整（`../assets/` 等）
-
-## 🚀 使い方
+## 使い方
 
 ### ローカルでの表示
 
@@ -96,7 +101,7 @@ php -S localhost:8000 -t docs
 
 数分後に自動的にデプロイされます。
 
-## 🎨 カスタマイズ
+## カスタマイズ
 
 ### カラーテーマの変更
 
@@ -136,25 +141,18 @@ const CONFIG = {
 3. `<article class="article-content">` 内のコンテンツを編集
 4. `config.js` のナビゲーションに追加
 
-## ⌨️ キーボードショートカット
+## キーボードショートカット
 
-- `Ctrl + K` または `Cmd + K`: 検索を開く
 - `Alt + T`: テーマ切り替え
-- `Esc`: サイドバー/検索を閉じる
+- `Esc`: サイドバーを閉じる
+- `↑`: スクロールトップへ
 
-## 🎯 機能
+## 機能
 
 ### テーマ切り替え
 
 ヘッダーの月/太陽アイコンをクリックしてテーマを切り替えられます。
 選択したテーマは LocalStorage に保存され、次回訪問時も維持されます。
-
-### 検索機能
-
-ヘッダーの検索バーで ドキュメント内を検索できます：
-- リアルタイムで結果を表示
-- マッチした箇所をハイライト
-- キーボードショートカット対応（Ctrl+K）
 
 ### 目次（TOC）
 
@@ -170,7 +168,7 @@ const CONFIG = {
 - コピーボタン
 - 言語ラベル
 
-## 🔧 開発
+## 開発
 
 ### CSS構成
 
@@ -190,14 +188,17 @@ JavaScriptも機能ごとにモジュール化されています：
 - `config.js`: グローバル設定
 - `theme.js`: ダークモード管理
 - `navigation.js`: サイドバーとモバイルメニュー
-- `search.js`: 検索機能
 - `toc.js`: 目次自動生成
 - `code-highlight.js`: コードハイライトとコピー
+- `page-navigation.js`: ページ間ナビゲーション
+- `scroll-progress.js`: スクロール進捗表示
+- `keyboard-shortcuts.js`: キーボードショートカット
+- `page-transitions.js`: ページ遷移アニメーション
 - `main.js`: その他のメイン機能
 
 各モジュールは独立しており、必要に応じて追加・削除できます。
 
-## 📱 レスポンシブデザイン
+## レスポンシブデザイン
 
 以下のブレークポイントで最適化されています：
 
@@ -206,7 +207,7 @@ JavaScriptも機能ごとにモジュール化されています：
 - デスクトップ: 1024px - 1440px
 - 大画面: > 1440px
 
-## ♿ アクセシビリティ
+## アクセシビリティ
 
 - セマンティックHTML5タグ使用
 - ARIA属性の適切な使用
@@ -215,14 +216,14 @@ JavaScriptも機能ごとにモジュール化されています：
 - カラーコントラスト WCAG AA準拠
 - スクリーンリーダー対応
 
-## 🌐 ブラウザサポート
+## ブラウザサポート
 
 - Chrome/Edge: 最新版と1つ前のバージョン
 - Firefox: 最新版と1つ前のバージョン
 - Safari: 最新版と1つ前のバージョン
 - モバイルブラウザ: iOS Safari, Chrome for Android
 
-## 📦 依存関係
+## 依存関係
 
 外部ライブラリは CDN から読み込まれます：
 
@@ -230,7 +231,7 @@ JavaScriptも機能ごとにモジュール化されています：
 - [Font Awesome](https://fontawesome.com/) - アイコン
 - [Google Fonts](https://fonts.google.com/) - フォント（Inter, Noto Sans JP, JetBrains Mono）
 
-## 🐛 トラブルシューティング
+## トラブルシューティング
 
 ### スタイルが適用されない
 
@@ -244,23 +245,10 @@ JavaScriptも機能ごとにモジュール化されています：
 - すべてのJSファイルが読み込まれているか確認
 - `CONFIG` オブジェクトが正しく定義されているか確認
 
-### 検索が機能しない
-
-- `config.js` の `searchEnabled` が `true` か確認
-- `navigation` 配列が正しく定義されているか確認
-
-## 📄 ライセンス
-
-このドキュメントサイトのコードは MIT License で提供されています。
-
-## 🤝 貢献
+## 貢献
 
 プルリクエストを歓迎します！大きな変更の場合は、まず issue を開いて変更内容を議論してください。
 
-## 📞 サポート
+## サポート
 
 質問や問題がある場合は、GitHubのIssueを開いてください。
-
----
-
-Built with ❤️ and Kubernetes
