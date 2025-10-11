@@ -50,7 +50,7 @@ kubectl describe certificate -n harbor
 ArgoCD を使用して Harbor をデプロイします。
 
 ```bash
-argocd app create --file ../../manifests/5-harbor/argocd/harbor.yaml
+argocd app create --file ../../manifests/1-argocd/argocd/harbor.yaml
 ```
 
 デプロイには数分かかります。

@@ -45,9 +45,6 @@ k0s、ArgoCD、および各種クラウドネイティブツールを使用し�
 - [3. Rook Cephを用いたPVCの構築](#3-rook-cephを用いたpvcの構築)
 - [4. Cert Managerのセットアップ](#4-cert-managerのセットアップ)
 - [5. Harborのセットアップ](#5-harborのセットアップ)
-- [Minioのセットアップ (任意)](#minioのセットアップ-任意)
-- [Nginx Ingress Controllerのセットアップ (任意)](#nginx-ingress-controllerのセットアップ-任意)
-- [参考](#参考)
 
 ## Versions
 
@@ -79,16 +76,8 @@ make config
 
 各コンポーネントの詳細なセットアップ手順は、以下のドキュメントを参照してください：
 
-### 必須コンポーネント
-
 1. **ArgoCD** - [手順](manifests/1-argocd/README.md) | [詳細ドキュメント](docs/components/argocd.md)
 2. **Cloudflare Ingress Controller** - [手順](manifests/2-cloudflare-ingress-controller/README.md) | [詳細ドキュメント](docs/components/cloudflare-ingress.md)
 3. **Rook Ceph** - [手順](manifests/3-rook-ceph-pvc/README.md) | [詳細ドキュメント](docs/components/rook-ceph.md)
 4. **Cert Manager** - [手順](manifests/4-cert-manager/README.md) | [詳細ドキュメント](docs/components/cert-manager.md)
 5. **Harbor** - [手順](manifests/5-harbor/README.md) | [詳細ドキュメント](docs/components/harbor.md)
-
-### オプションコンポーネント
-
-- **Firebolt Core** - [手順](manifests/firebolt-core/README.md) | [詳細ドキュメント](docs/components/firebolt-core.md)
-- **MinIO** - [手順](manifests/minio/README.md) | [詳細ドキュメント](docs/components/minio.md)
-- **Nginx Ingress** - [手順](manifests/nginx/README.md) | [詳細ドキュメント](docs/components/nginx-ingress.md)

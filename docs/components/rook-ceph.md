@@ -24,7 +24,7 @@ Rook Cephは、Kubernetes上でCephストレージクラスターを管理する
 ArgoCD を使用して Rook Ceph Operator をデプロイします。
 
 ```bash
-argocd app create --file ../../manifests/3-rook-ceph-pvc/argocd/rook-ceph.yaml
+argocd app create --file ../../manifests/1-argocd/argocd/rook-ceph.yaml
 ```
 
 ### 2. Proxmox で Pool を作成
@@ -89,7 +89,7 @@ kubectl patch storageclass ceph-rbd \
 ### 6. 外部 Ceph クラスター接続リソースのデプロイ
 
 ```bash
-argocd app create --file ../../manifests/3-rook-ceph-pvc/argocd/rook-ceph-external-cluster.yaml
+argocd app create --file ../../manifests/1-argocd/argocd/rook-ceph-external.yaml
 ```
 
 ## 動作確認

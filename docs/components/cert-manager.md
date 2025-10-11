@@ -53,7 +53,7 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 ArgoCD を使用して cert-manager をデプロイします。
 
 ```bash
-argocd app create --file ../../manifests/4-cert-manager/argocd/cert-manager.yaml
+argocd app create --file ../../manifests/1-argocd/argocd/cert-manager.yaml
 ```
 
 ### 4. Cloudflare API トークンの登録
