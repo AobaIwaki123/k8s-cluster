@@ -16,10 +16,10 @@ const CONFIG = {
       title: "はじめに",
       icon: "fa-rocket",
       items: [
-        { title: "前準備", url: "k8s-cluster/setup/prerequisites.html" },
+        { title: "前準備", url: "/k8s-cluster/setup/prerequisites.html" },
         {
           title: "クラスター構築",
-          url: "k8s-cluster/setup/cluster-installation.html",
+          url: "/k8s-cluster/setup/cluster-installation.html",
         },
       ],
     },
@@ -27,17 +27,17 @@ const CONFIG = {
       title: "コンポーネント",
       icon: "fa-puzzle-piece",
       items: [
-        { title: "ArgoCD", url: "k8s-cluster/components/argocd.html" },
+        { title: "ArgoCD", url: "/k8s-cluster/components/argocd.html" },
         {
           title: "Cloudflare Ingress",
-          url: "k8s-cluster/components/cloudflare-ingress.html",
+          url: "/k8s-cluster/components/cloudflare-ingress.html",
         },
-        { title: "Rook Ceph", url: "k8s-cluster/components/rook-ceph.html" },
+        { title: "Rook Ceph", url: "/k8s-cluster/components/rook-ceph.html" },
         {
           title: "Cert Manager",
-          url: "k8s-cluster/components/cert-manager.html",
+          url: "/k8s-cluster/components/cert-manager.html",
         },
-        { title: "Harbor", url: "k8s-cluster/components/harbor.html" },
+        { title: "Harbor", url: "/k8s-cluster/components/harbor.html" },
       ],
     },
   ],

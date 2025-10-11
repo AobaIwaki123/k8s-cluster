@@ -3,11 +3,10 @@
  * k8s Cluster Documentation
  */
 
-(function() {
-  'use strict';
-  
+(function () {
+  "use strict";
+
   const NavigationManager = {
-    
     /**
      * Initialize navigation
      */
@@ -17,181 +16,187 @@
       this.setupSmoothScroll();
       this.renderSidebar();
     },
-    
+
     /**
      * Setup mobile menu toggle
      */
     setupMobileMenu() {
-      const toggle = document.querySelector('.mobile-menu-toggle');
-      const sidebar = document.querySelector('.sidebar');
-      const overlay = document.querySelector('.sidebar-overlay');
-      
+      const toggle = document.querySelector(".mobile-menu-toggle");
+      const sidebar = document.querySelector(".sidebar");
+      const overlay = document.querySelector(".sidebar-overlay");
+
       if (!toggle || !sidebar) return;
-      
+
       // Create overlay if it doesn't exist
       if (!overlay) {
-        const newOverlay = document.createElement('div');
-        newOverlay.className = 'sidebar-overlay';
+        const newOverlay = document.createElement("div");
+        newOverlay.className = "sidebar-overlay";
         document.body.appendChild(newOverlay);
       }
-      
+
       // Toggle sidebar
-      toggle.addEventListener('click', (e) => {
+      toggle.addEventListener("click", (e) => {
         e.stopPropagation();
         this.toggleSidebar();
       });
-      
+
       // Close on overlay click
-      const currentOverlay = document.querySelector('.sidebar-overlay');
+      const currentOverlay = document.querySelector(".sidebar-overlay");
       if (currentOverlay) {
-        currentOverlay.addEventListener('click', () => {
+        currentOverlay.addEventListener("click", () => {
           this.closeSidebar();
         });
       }
-      
+
       // Close on link click (mobile)
-      const sidebarLinks = sidebar.querySelectorAll('.nav-link');
-      sidebarLinks.forEach(link => {
-        link.addEventListener('click', () => {
+      const sidebarLinks = sidebar.querySelectorAll(".nav-link");
+      sidebarLinks.forEach((link) => {
+        link.addEventListener("click", () => {
           if (window.innerWidth <= 1024) {
             this.closeSidebar();
           }
         });
       });
-      
+
       // Close on ESC key
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
           this.closeSidebar();
         }
       });
     },
-    
+
     /**
      * Toggle sidebar
      */
     toggleSidebar() {
-      const sidebar = document.querySelector('.sidebar');
-      const overlay = document.querySelector('.sidebar-overlay');
-      
+      const sidebar = document.querySelector(".sidebar");
+      const overlay = document.querySelector(".sidebar-overlay");
+
       if (sidebar) {
-        sidebar.classList.toggle('active');
+        sidebar.classList.toggle("active");
       }
-      
+
       if (overlay) {
-        overlay.classList.toggle('active');
+        overlay.classList.toggle("active");
       }
-      
+
       // Prevent body scroll when sidebar is open
-      if (sidebar && sidebar.classList.contains('active')) {
-        document.body.style.overflow = 'hidden';
+      if (sidebar && sidebar.classList.contains("active")) {
+        document.body.style.overflow = "hidden";
       } else {
-        document.body.style.overflow = '';
+        document.body.style.overflow = "";
       }
     },
-    
+
     /**
      * Close sidebar
      */
     closeSidebar() {
-      const sidebar = document.querySelector('.sidebar');
-      const overlay = document.querySelector('.sidebar-overlay');
-      
+      const sidebar = document.querySelector(".sidebar");
+      const overlay = document.querySelector(".sidebar-overlay");
+
       if (sidebar) {
-        sidebar.classList.remove('active');
+        sidebar.classList.remove("active");
       }
-      
+
       if (overlay) {
-        overlay.classList.remove('active');
+        overlay.classList.remove("active");
       }
-      
-      document.body.style.overflow = '';
+
+      document.body.style.overflow = "";
     },
-    
+
     /**
      * Highlight active navigation link
      */
     highlightActiveLink() {
       const currentPath = window.location.pathname;
-      const navLinks = document.querySelectorAll('.nav-link');
-      
-      navLinks.forEach(link => {
-        link.classList.remove('active');
-        const linkPath = link.getAttribute('href');
-        
+      const navLinks = document.querySelectorAll(".nav-link");
+
+      navLinks.forEach((link) => {
+        link.classList.remove("active");
+        const linkPath = link.getAttribute("href");
+
         if (linkPath && currentPath.endsWith(linkPath)) {
-          link.classList.add('active');
+          link.classList.add("active");
         }
       });
     },
-    
+
     /**
      * Setup smooth scrolling
      */
     setupSmoothScroll() {
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', (e) => {
-          const href = anchor.getAttribute('href');
-          
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", (e) => {
+          const href = anchor.getAttribute("href");
+
           // Skip if href is just "#"
-          if (href === '#') return;
-          
+          if (href === "#") return;
+
           e.preventDefault();
           const targetId = href.substring(1);
           const targetElement = document.getElementById(targetId);
-          
+
           if (targetElement) {
             const offset = CONFIG.scrollOffset || 80;
             const elementPosition = targetElement.offsetTop;
             const offsetPosition = elementPosition - offset;
-            
+
             window.scrollTo({
               top: offsetPosition,
-              behavior: 'smooth'
+              behavior: "smooth",
             });
-            
+
             // Update URL without jumping
             history.pushState(null, null, href);
           }
         });
       });
     },
-    
+
     /**
      * Get base path for navigation
      */
     getBasePath() {
-      const basePath = CONFIG.basePath || '';
+      const basePath = CONFIG.basePath || "";
       const currentPath = window.location.pathname;
-      
+
       // Determine depth from current location
-      const pathSegments = currentPath.split('/').filter(s => s && s !== 'index.html');
+      const pathSegments = currentPath
+        .split("/")
+        .filter((s) => s && s !== "index.html");
       const depth = pathSegments.length;
-      
+
       // If we're at root (docs/index.html), return basePath as is
-      if (depth === 0 || currentPath.endsWith('/docs/') || currentPath.endsWith('/docs/index.html')) {
+      if (
+        depth === 0 ||
+        currentPath.endsWith("/docs/") ||
+        currentPath.endsWith("/docs/index.html")
+      ) {
         return basePath;
       }
-      
+
       // For each level deep, add '../'
-      return '../'.repeat(depth) || './';
+      return "../".repeat(depth) || "./";
     },
-    
+
     /**
      * Render sidebar navigation
      */
     renderSidebar() {
-      const sidebar = document.querySelector('.sidebar');
+      const sidebar = document.querySelector(".sidebar");
       if (!sidebar || !CONFIG.navigation) return;
-      
+
       // Check if navigation is already rendered
-      if (sidebar.querySelector('.nav-section')) return;
-      
+      if (sidebar.querySelector(".nav-section")) return;
+
       const basePath = this.getBasePath();
-      let html = '';
-      
+      let html = "";
+
       // Render navigation sections
-      CONFIG.navigation.forEach(section => {
+      CONFIG.navigation.forEach((section) => {
         html += `
           <div class="nav-section">
             <h3 class="nav-section-title">
@@ -200,22 +205,23 @@
             </h3>
             <ul class="nav-list">
         `;
-        
-        section.items.forEach(item => {
-          const url = basePath + item.url;
+
+        section.items.forEach((item) => {
+          // Use absolute URL if it starts with '/', otherwise prepend basePath
+          const url = item.url.startsWith("/") ? item.url : basePath + item.url;
           html += `
               <li class="nav-item">
                 <a href="${url}" class="nav-link">${item.title}</a>
               </li>
           `;
         });
-        
+
         html += `
             </ul>
           </div>
         `;
       });
-      
+
       // Add version info if available
       if (CONFIG.versions && CONFIG.versions.length > 0) {
         html += `
@@ -226,8 +232,8 @@
             </h3>
             <div class="version-info">
         `;
-        
-        CONFIG.versions.forEach(version => {
+
+        CONFIG.versions.forEach((version) => {
           html += `
               <div class="version-item">
                 <span class="version-label">${version.label}</span>
@@ -235,31 +241,31 @@
               </div>
           `;
         });
-        
+
         html += `
             </div>
           </div>
         `;
       }
-      
+
       sidebar.innerHTML = html;
-      
+
       // Re-highlight active link after rendering
       this.highlightActiveLink();
     },
-    
+
     /**
      * Render breadcrumb
      */
     renderBreadcrumb() {
-      const breadcrumb = document.querySelector('.breadcrumb');
+      const breadcrumb = document.querySelector(".breadcrumb");
       if (!breadcrumb) return;
-      
+
       const path = window.location.pathname;
-      const segments = path.split('/').filter(s => s && s !== 'index.html');
-      
+      const segments = path.split("/").filter((s) => s && s !== "index.html");
+
       if (segments.length === 0) return;
-      
+
       let html = `
         <div class="breadcrumb-item">
           <a href="/" class="breadcrumb-link">
@@ -267,18 +273,18 @@
           </a>
         </div>
       `;
-      
-      let currentPath = '';
+
+      let currentPath = "";
       segments.forEach((segment, index) => {
-        currentPath += '/' + segment;
+        currentPath += "/" + segment;
         const isLast = index === segments.length - 1;
-        const name = segment.replace('.html', '').replace(/-/g, ' ');
+        const name = segment.replace(".html", "").replace(/-/g, " ");
         const displayName = name.charAt(0).toUpperCase() + name.slice(1);
-        
+
         html += `
           <span class="breadcrumb-separator">/</span>
         `;
-        
+
         if (isLast) {
           html += `
             <div class="breadcrumb-item">
@@ -293,19 +299,20 @@
           `;
         }
       });
-      
+
       breadcrumb.innerHTML = html;
-    }
+    },
   };
-  
+
   // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => NavigationManager.init());
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () =>
+      NavigationManager.init()
+    );
   } else {
     NavigationManager.init();
   }
-  
+
   // Export for use in other modules
   window.NavigationManager = NavigationManager;
-  
 })();
