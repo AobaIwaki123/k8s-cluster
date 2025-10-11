@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Home - k8s Cluster on Proxmox</title>
+    <meta
+      name="description"
+      content="k0s、ArgoCD、および各種クラウドネイティブツールを使用した Kubernetes クラスター構築ガイド"
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- Syntax Highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/main.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="header-container">
+        <a href="./" class="logo">
+          <i class="fas fa-cubes logo-icon"></i>
+          <span class="logo-text">k8s Cluster</span>
+        </a>
+
+        <div class="header-actions">
+          <button class="theme-toggle" aria-label="Toggle theme">
+            <i class="fas fa-moon theme-icon"></i>
+          </button>
+
+          <button class="mobile-menu-toggle" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Wrapper (No Sidebar for Home) -->
+    <div class="home-wrapper">
+      <main class="main-content">
+        <div class="content-container" style="max-width: 1200px">
+          <!-- Hero Section -->
+          <div class="hero">
+            <h1>🚀 k8s Cluster on Proxmox</h1>
+            <p>
+              k0s、ArgoCD、および各種クラウドネイティブツールを使用した<br />Kubernetesクラスター構築ガイド
+            </p>
+          </div>
+
+          <!-- Features -->
+          <h2 style="text-align: center; margin-bottom: var(--space-8)">
+            🎯 このドキュメントでできること
+          </h2>
+
+          <div class="features">
+            <div class="feature-card">
+              <h3><i class="fas fa-sync-alt"></i> GitOps 管理</h3>
+              <p>
+                ArgoCDを用いたアプリケーションの宣言的な管理とデプロイの自動化
+              </p>
+              <img
+                src="assets/images/argocd.png"
+                alt="ArgoCD"
+                class="feature-image"
+                loading="lazy"
+              />
+            </div>
+
+            <div class="feature-card">
+              <h3><i class="fas fa-globe"></i> サービス公開</h3>
+              <p>Cloudflare Ingress Controllerによる安全なサービス公開</p>
+              <ul
+                style="
+                  list-style: disc;
+                  padding-left: var(--space-6);
+                  color: var(--text-secondary);
+                "
+              >
+                <li>argocd.example.com</li>
+                <li>harbor.example.com</li>
+              </ul>
+            </div>
+
+            <div class="feature-card">
+              <h3><i class="fas fa-database"></i> 永続ストレージ</h3>
+              <p>Rook Cephを用いた高可用性永続ストレージの構築</p>
+            </div>
+
+            <div class="feature-card">
+              <h3><i class="fas fa-box"></i> プライベートRegistry</h3>
+              <p>Harborによるコンテナイメージの安全な管理</p>
+              <img
+                src="assets/images/harbor.png"
+                alt="Harbor"
+                class="feature-image"
+                loading="lazy"
+              />
+            </div>
+          </div>
+
+          <!-- Quick Start -->
+          <div class="quick-start">
+            <h2>🏁 クイックスタート</h2>
+            <ol style="list-style: decimal; padding-left: var(--space-8)">
+              <li style="margin-bottom: var(--space-3)">
+                <a href="setup/prerequisites.html">前準備</a> -
+                必要なツールのインストール
+              </li>
+              <li style="margin-bottom: var(--space-3)">
+                <a href="setup/cluster-installation.html">クラスター構築</a>
+                - k0sクラスターのセットアップ
+              </li>
+            </ol>
+          </div>
+
+          <!-- Core Components -->
+          <h2 style="margin-top: var(--space-16)">📦 コアコンポーネント</h2>
+
+          <div class="component-grid">
+            <a href="components/argocd.html" class="component-link">
+              <div class="component-link-title">
+                <i class="fas fa-sync-alt"></i> ArgoCD
+              </div>
+              <div class="component-link-desc">GitOps ツール</div>
+            </a>
+
+            <a href="components/cloudflare-ingress.html" class="component-link">
+              <div class="component-link-title">
+                <i class="fas fa-cloud"></i> Cloudflare Ingress
+              </div>
+              <div class="component-link-desc">SSL 対応 Ingress Controller</div>
+            </a>
+
+            <a href="components/rook-ceph.html" class="component-link">
+              <div class="component-link-title">
+                <i class="fas fa-database"></i> Rook Ceph
+              </div>
+              <div class="component-link-desc">永続ストレージ</div>
+            </a>
+
+            <a href="components/cert-manager.html" class="component-link">
+              <div class="component-link-title">
+                <i class="fas fa-certificate"></i> Cert Manager
+              </div>
+              <div class="component-link-desc">証明書管理</div>
+            </a>
+
+            <a href="components/harbor.html" class="component-link">
+              <div class="component-link-title">
+                <i class="fas fa-anchor"></i> Harbor
+              </div>
+              <div class="component-link-desc">
+                プライベートコンテナレジストリ
+              </div>
+            </a>
+          </div>
+
+          <!-- Version Info -->
+          <h2 style="margin-top: var(--space-16)">🔧 バージョン情報</h2>
+
+          <table>
+            <thead>
+              <tr>
+                <th>ツール</th>
+                <th>バージョン</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>asdf</td>
+                <td><code>v0.16.6</code></td>
+              </tr>
+              <tr>
+                <td>k0sctl</td>
+                <td><code>v0.23.0</code></td>
+              </tr>
+              <tr>
+                <td>k9s</td>
+                <td><code>v0.40.10</code></td>
+              </tr>
+              <tr>
+                <td>helm</td>
+                <td><code>3.17.2</code></td>
+              </tr>
+              <tr>
+                <td>kubectl</td>
+                <td><code>1.32.3</code></td>
+              </tr>
+              <tr>
+                <td>argocd</td>
+                <td><code>2.14.7</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Advanced -->
+          <h2 style="margin-top: var(--space-16)">🚀 発展</h2>
+
+          <p>
+            以下のリポジトリとProxmoxを組み合わせることで、VMの作成・削除、構成の自動化が可能になり、自宅に簡易的なクラウド基盤を構築できます。
+          </p>
+
+          <ul style="list-style: disc; padding-left: var(--space-8)">
+            <li>
+              <a
+                href="https://github.com/AobaIwaki123/Proxmox-Terraform"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Terraform for Proxmox</a
+              >
+              - インフラのコード化
+            </li>
+            <li>
+              <a
+                href="https://github.com/AobaIwaki123/ansible"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Ansible</a
+              >
+              - 構成管理の自動化
+            </li>
+          </ul>
+
+          <!-- Repository Structure -->
+          <h2 style="margin-top: var(--space-16)">📁 リポジトリ構造</h2>
+
+          <pre><code class="language-plaintext">
+├── manifests/         # Kubernetes マニフェストと設定
+├── docs/              # このドキュメント
+├── k0s/               # k0s クラスター設定
+└── README.md          # プロジェクト概要
+</code></pre>
+        </div>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+          <div class="footer-container">
+            <p class="footer-text">
+              &copy; 2025 k8s Cluster on Proxmox. Built with
+              <i class="fas fa-heart footer-heart"></i> and Kubernetes.
+            </p>
+            <div class="footer-links">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="footer-link"
+              >
+                <i class="fab fa-github"></i> GitHub
+              </a>
+            </div>
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" aria-label="Scroll to top">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="assets/js/navigation.js"></script>
+    <script src="assets/js/code-highlight.js"></script>
+    <script src="assets/js/scroll-progress.js"></script>
+    <script src="assets/js/keyboard-shortcuts.js"></script>
+    <script src="assets/js/page-transitions.js"></script>
+    <script src="assets/js/main.js"></script>
+  </body>
+</html>

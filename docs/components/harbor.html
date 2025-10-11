@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Harbor - k8s Cluster on Proxmox</title>
+    <meta
+      name="description"
+      content="Harborコンテナレジストリのインストールと設定"
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- Syntax Highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/main.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="header-container">
+        <a href="../" class="logo">
+          <i class="fas fa-cubes logo-icon"></i>
+          <span class="logo-text">k8s Cluster</span>
+        </a>
+
+        <div class="header-actions">
+          <button class="theme-toggle" aria-label="Toggle theme">
+            <i class="fas fa-moon theme-icon"></i>
+          </button>
+
+          <button class="mobile-menu-toggle" aria-label="Toggle menu">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay"></div>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <!-- Navigation will be rendered by JavaScript -->
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="content-container">
+          <!-- Breadcrumb -->
+          <nav class="breadcrumb">
+            <div class="breadcrumb-item">
+              <a href="../" class="breadcrumb-link">
+                <i class="fas fa-home"></i> Home
+              </a>
+            </div>
+            <span class="breadcrumb-separator">/</span>
+            <div class="breadcrumb-item">
+              <span class="breadcrumb-current">Harbor</span>
+            </div>
+          </nav>
+
+          <!-- Article Content -->
+          <article class="article-content">
+            <h1>Harbor</h1>
+
+            <p>
+              Harborは、エンタープライズグレードのコンテナレジストリです。脆弱性スキャン、イメージ署名、アクセス制御などの機能を提供します。
+            </p>
+
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <p>
+                Harborを使用すると、プライベートなコンテナイメージレジストリを構築し、セキュアに管理できます。
+              </p>
+            </div>
+
+            <h2>概要</h2>
+
+            <p>Harborの主な特徴：</p>
+            <ul>
+              <li>OCI準拠のコンテナレジストリ</li>
+              <li>脆弱性スキャン（Trivy統合）</li>
+              <li>イメージのレプリケーション</li>
+              <li>RBAC（Role-Based Access Control）</li>
+              <li>LDAPとOIDC統合</li>
+              <li>Webhookサポート</li>
+              <li>Helmチャートのホスティング</li>
+            </ul>
+
+            <h2>前提条件</h2>
+
+            <ul>
+              <li>Kubernetes 1.22以上</li>
+              <li>Helm 3.2以上</li>
+              <li>PersistentVolume（Rook Cephなど）</li>
+              <li>Ingress Controller（CloudflareまたはNginx）</li>
+              <li>cert-manager（TLS証明書用）</li>
+            </ul>
+
+            <h2>インストール</h2>
+
+            <h3>1. Helm リポジトリの追加</h3>
+
+            <pre><code class="language-bash">helm repo add harbor https://helm.goharbor.io
+helm repo update</code></pre>
+
+            <h3>2. values.yamlの作成</h3>
+
+            <pre><code class="language-yaml">expose:
+  type: ingress
+  tls:
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: harbor-tls
+  ingress:
+    hosts:
+      core: harbor.example.com
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+externalURL: https://harbor.example.com
+
+persistence:
+  enabled: true
+  resourcePolicy: "keep"
+  persistentVolumeClaim:
+    registry:
+      storageClass: rook-ceph-block
+      size: 100Gi
+    chartmuseum:
+      storageClass: rook-ceph-block
+      size: 10Gi
+    jobservice:
+      storageClass: rook-ceph-block
+      size: 10Gi
+    database:
+      storageClass: rook-ceph-block
+      size: 10Gi
+    redis:
+      storageClass: rook-ceph-block
+      size: 10Gi
+    trivy:
+      storageClass: rook-ceph-block
+      size: 10Gi
+
+harborAdminPassword: "YourSecurePassword"
+
+trivy:
+  enabled: true</code></pre>
+
+            <h3>3. Harborのインストール</h3>
+
+            <pre><code class="language-bash">kubectl create namespace harbor
+
+helm install harbor harbor/harbor \
+  --namespace harbor \
+  --values values.yaml</code></pre>
+
+            <h3>4. インストールの確認</h3>
+
+            <pre><code class="language-bash"># Podの確認
+kubectl get pods -n harbor
+
+# Ingressの確認
+kubectl get ingress -n harbor</code></pre>
+
+            <h2>初期設定</h2>
+
+            <h3>管理画面へのアクセス</h3>
+
+            <p>
+              ブラウザで <code>https://harbor.example.com</code> を開きます。
+            </p>
+
+            <ul>
+              <li>ユーザー名: <code>admin</code></li>
+              <li>パスワード: values.yamlで設定したパスワード</li>
+            </ul>
+
+            <h3>プロジェクトの作成</h3>
+
+            <ol>
+              <li>ログイン後、「Projects」をクリック</li>
+              <li>「NEW PROJECT」ボタンをクリック</li>
+              <li>プロジェクト名を入力（例：<code>my-project</code>）</li>
+              <li>アクセスレベルを選択（Public or Private）</li>
+              <li>「OK」をクリック</li>
+            </ol>
+
+            <h2>Docker Clientの設定</h2>
+
+            <h3>ログイン</h3>
+
+            <pre><code class="language-bash">docker login harbor.example.com
+# ユーザー名: admin
+# パスワード: 設定したパスワード</code></pre>
+
+            <h3>イメージのプッシュ</h3>
+
+            <pre><code class="language-bash"># イメージのタグ付け
+docker tag nginx:latest harbor.example.com/my-project/nginx:latest
+
+# プッシュ
+docker push harbor.example.com/my-project/nginx:latest</code></pre>
+
+            <h3>イメージのプル</h3>
+
+            <pre><code class="language-bash">docker pull harbor.example.com/my-project/nginx:latest</code></pre>
+
+            <h2>Kubernetesからの使用</h2>
+
+            <h3>Image Pull Secretの作成</h3>
+
+            <pre><code class="language-bash">kubectl create secret docker-registry harbor-secret \
+  --docker-server=harbor.example.com \
+  --docker-username=admin \
+  --docker-password=YourPassword \
+  --docker-email=your-email@example.com \
+  -n default</code></pre>
+
+            <h3>Podでの使用</h3>
+
+            <pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: my-container
+    image: harbor.example.com/my-project/nginx:latest
+  imagePullSecrets:
+  - name: harbor-secret</code></pre>
+
+            <h2>脆弱性スキャン</h2>
+
+            <h3>自動スキャンの設定</h3>
+
+            <ol>
+              <li>プロジェクト設定を開く</li>
+              <li>「Configuration」タブを選択</li>
+              <li>「Automatically scan images on push」を有効化</li>
+              <li>「Save」をクリック</li>
+            </ol>
+
+            <h3>手動スキャン</h3>
+
+            <p>
+              リポジトリページからイメージを選択し、「SCAN」ボタンをクリックします。
+            </p>
+
+            <h2>レプリケーション</h2>
+
+            <h3>レプリケーションルールの作成</h3>
+
+            <ol>
+              <li>「Administration」→「Replications」を開く</li>
+              <li>「NEW REPLICATION RULE」をクリック</li>
+              <li>ソースとターゲットのレジストリを設定</li>
+              <li>フィルタールールを設定</li>
+              <li>トリガー条件を設定（Manual, Scheduled, Event Based）</li>
+            </ol>
+
+            <h2>RBAC（アクセス制御）</h2>
+
+            <h3>ユーザーの作成</h3>
+
+            <ol>
+              <li>「Administration」→「Users」を開く</li>
+              <li>「NEW USER」をクリック</li>
+              <li>ユーザー情報を入力</li>
+            </ol>
+
+            <h3>プロジェクトへのメンバー追加</h3>
+
+            <ol>
+              <li>プロジェクトを開く</li>
+              <li>「Members」タブを選択</li>
+              <li>「+ USER」をクリック</li>
+              <li>ユーザーとロールを選択</li>
+            </ol>
+
+            <h3>ロールの種類</h3>
+
+            <ul>
+              <li><strong>Project Admin</strong>: プロジェクトの全権限</li>
+              <li>
+                <strong>Master</strong>:
+                イメージのプッシュ・プル、スキャン、レプリケーション
+              </li>
+              <li><strong>Developer</strong>: イメージのプッシュ・プル</li>
+              <li><strong>Guest</strong>: イメージのプルのみ</li>
+              <li>
+                <strong>Limited Guest</strong>: イメージのプル（特定の制限付き）
+              </li>
+            </ul>
+
+            <h2>バックアップとリストア</h2>
+
+            <h3>データベースのバックアップ</h3>
+
+            <pre><code class="language-bash"># PostgreSQLのバックアップ
+kubectl exec -n harbor harbor-database-0 -- \
+  pg_dump -U postgres registry > harbor-backup.sql</code></pre>
+
+            <h3>イメージデータのバックアップ</h3>
+
+            <p>
+              PersistentVolumeのスナップショット機能を使用するか、レプリケーション機能で別のレジストリにバックアップします。
+            </p>
+
+            <h2>トラブルシューティング</h2>
+
+            <h3>ログの確認</h3>
+
+            <pre><code class="language-bash"># Core サービスのログ
+kubectl logs -n harbor deploy/harbor-core
+
+# Registry サービスのログ
+kubectl logs -n harbor deploy/harbor-registry
+
+# JobService のログ
+kubectl logs -n harbor deploy/harbor-jobservice</code></pre>
+
+            <h3>一般的な問題</h3>
+
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <p>
+                <strong>イメージのプッシュが失敗する場合：</strong
+                >ストレージの容量が十分か確認してください。
+              </p>
+            </div>
+
+            <ul>
+              <li>
+                <strong>ログインできない</strong>:
+                パスワードとIngressの設定を確認
+              </li>
+              <li>
+                <strong>TLS証明書エラー</strong>:
+                cert-managerの設定とCertificateリソースを確認
+              </li>
+              <li><strong>スキャンが動作しない</strong>: Trivyのログを確認</li>
+            </ul>
+
+            <h2>参考リンク</h2>
+
+            <ul>
+              <li>
+                <a
+                  href="https://goharbor.io/docs/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Harbor公式ドキュメント</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/goharbor/harbor"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Harbor GitHub</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/goharbor/harbor-helm"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Harbor Helm Chart</a
+                >
+              </li>
+            </ul>
+          </article>
+        </div>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+          <div class="footer-container">
+            <p class="footer-text">
+              &copy; 2025 k8s Cluster on Proxmox. Built with
+              <i class="fas fa-heart footer-heart"></i> and Kubernetes.
+            </p>
+            <div class="footer-links">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="footer-link"
+              >
+                <i class="fab fa-github"></i> GitHub
+              </a>
+            </div>
+          </div>
+        </footer>
+      </main>
+
+      <!-- Table of Contents -->
+      <aside class="toc-container">
+        <!-- TOC will be generated by JavaScript -->
+      </aside>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" aria-label="Scroll to top">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/theme.js"></script>
+    <script src="../assets/js/navigation.js"></script>
+    <script src="../assets/js/toc.js"></script>
+    <script src="../assets/js/code-highlight.js"></script>
+    <script src="../assets/js/page-navigation.js"></script>
+    <script src="../assets/js/scroll-progress.js"></script>
+    <script src="../assets/js/keyboard-shortcuts.js"></script>
+    <script src="../assets/js/page-transitions.js"></script>
+    <script src="../assets/js/main.js"></script>
+  </body>
+</html>
