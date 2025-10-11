@@ -41,20 +41,20 @@ spec:
     version: null # Use the latest stable version
     config:
       # API server configuration
-      apiServer:
-        extraArgs:
-          # Enable audit logging
-          audit-log-maxage: 30
-          audit-log-maxbackup: 3
-          audit-log-maxsize: 100
+      # apiServer:
+      #   extraArgs:
+      #     # Enable audit logging
+      #     audit-log-maxage: 30
+      #     audit-log-maxbackup: 3
+      #     audit-log-maxsize: 100
 
       # Network configuration
-      network:
-        provider: calico # CNI plugin
-        calico:
-          mode: vxlan # or ipip
-          vxlanPort: 4789
-          mtu: 1450
+      # network:
+      #   provider: calico # CNI plugin
+      #   calico:
+      #     mode: vxlan # or ipip
+      #     vxlanPort: 4789
+      #     mtu: 1450
 
       # Storage configuration  
       storage:
