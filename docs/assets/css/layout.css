@@ -175,6 +175,32 @@ body {
   background: var(--text-tertiary);
 }
 
+/* Sidebar Close Button */
+.sidebar-close {
+  display: none;
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  z-index: 10;
+}
+
+.sidebar-close:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--primary);
+}
+
+.sidebar-close i {
+  font-size: var(--text-xl);
+}
+
 /* Mobile sidebar */
 @media (max-width: 1024px) {
   .sidebar {
@@ -188,6 +214,12 @@ body {
 
   .sidebar.active {
     transform: translateX(0);
+  }
+  
+  .sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 
