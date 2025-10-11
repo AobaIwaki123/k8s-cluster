@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Firebolt Core - k8s Cluster on Proxmox</title>
+  <meta name="description" content="Firebolt Core データベースのデプロイメント">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="../" class="logo">
+        <i class="fas fa-cubes logo-icon"></i>
+        <span class="logo-text">k8s Cluster</span>
+      </a>
+      
+      <div class="header-actions">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="検索... (Ctrl+K)" aria-label="Search">
+        </div>
+        
+        <button class="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon theme-icon"></i>
+        </button>
+        
+        <button class="mobile-menu-toggle" aria-label="Toggle menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay"></div>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- Navigation will be rendered by JavaScript -->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <div class="breadcrumb-item">
+            <a href="../" class="breadcrumb-link">
+              <i class="fas fa-home"></i> Home
+            </a>
+          </div>
+          <span class="breadcrumb-separator">/</span>
+          <div class="breadcrumb-item">
+            <span class="breadcrumb-current">Firebolt Core</span>
+          </div>
+        </nav>
+
+        <!-- Article Content -->
+        <article class="article-content">
+          <h1>Firebolt Core</h1>
+          
+          <p>Firebolt Coreは、クラウドデータウェアハウス向けに最適化された高速分析データベースです。</p>
+
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <p>このコンポーネントはオプションです。分析ワークロードが必要な場合にのみインストールしてください。</p>
+          </div>
+
+          <h2>概要</h2>
+          
+          <p>Firebolt Coreの主な特徴：</p>
+          <ul>
+            <li>高速なクエリパフォーマンス</li>
+            <li>列指向ストレージ</li>
+            <li>自動最適化</li>
+            <li>SQL互換</li>
+            <li>スケーラブルなアーキテクチャ</li>
+          </ul>
+
+          <h2>前提条件</h2>
+
+          <ul>
+            <li>Kubernetes 1.22以上</li>
+            <li>Helm 3.2以上</li>
+            <li>PersistentVolume（Rook Cephなど）</li>
+            <li>十分なリソース（CPU: 4コア以上、メモリ: 8GB以上推奨）</li>
+          </ul>
+
+          <h2>デプロイメント</h2>
+
+          <h3>Helm Chartの準備</h3>
+          
+          <p>カスタムHelmチャートを使用してデプロイします。</p>
+          
+          <pre><code class="language-bash"># リポジトリをクローン
+git clone https://github.com/your-org/firebolt-helm
+cd firebolt-helm</code></pre>
+
+          <h3>values.yamlの設定</h3>
+          
+          <pre><code class="language-yaml">replicaCount: 3
+
+image:
+  repository: firebolt/core
+  tag: latest
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    memory: "8Gi"
+    cpu: "4"
+  limits:
+    memory: "16Gi"
+    cpu: "8"
+
+persistence:
+  enabled: true
+  storageClass: rook-ceph-block
+  size: 100Gi
+
+service:
+  type: ClusterIP
+  port: 5432
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: firebolt.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: firebolt-tls
+      hosts:
+        - firebolt.example.com</code></pre>
+
+          <h3>インストール</h3>
+          
+          <pre><code class="language-bash">kubectl create namespace firebolt
+
+helm install firebolt-core ./firebolt-helm \
+  --namespace firebolt \
+  --values values.yaml</code></pre>
+
+          <h3>確認</h3>
+          
+          <pre><code class="language-bash"># Podの確認
+kubectl get pods -n firebolt
+
+# Serviceの確認
+kubectl get svc -n firebolt
+
+# StatefulSetの確認
+kubectl get statefulset -n firebolt</code></pre>
+
+          <h2>接続方法</h2>
+
+          <h3>クラスター内からの接続</h3>
+          
+          <pre><code class="language-bash"># psqlクライアントで接続
+kubectl run -it --rm psql-client \
+  --image=postgres:15 \
+  --restart=Never \
+  -- psql -h firebolt-core.firebolt.svc.cluster.local -U admin -d firebolt</code></pre>
+
+          <h3>外部からの接続</h3>
+          
+          <p>Ingressを経由して接続します。</p>
+          
+          <pre><code class="language-bash">psql -h firebolt.example.com -U admin -d firebolt</code></pre>
+
+          <h2>データベース操作</h2>
+
+          <h3>データベースの作成</h3>
+          
+          <pre><code class="language-sql">CREATE DATABASE analytics;</code></pre>
+
+          <h3>テーブルの作成</h3>
+          
+          <pre><code class="language-sql">CREATE TABLE events (
+  id BIGINT,
+  user_id INT,
+  event_type VARCHAR(50),
+  timestamp TIMESTAMP,
+  properties JSON
+) PRIMARY INDEX id
+PARTITION BY toYYYYMM(timestamp);</code></pre>
+
+          <h3>データの挿入</h3>
+          
+          <pre><code class="language-sql">INSERT INTO events (id, user_id, event_type, timestamp, properties)
+VALUES 
+  (1, 101, 'page_view', '2025-10-11 10:00:00', '{"page": "/home"}'),
+  (2, 102, 'click', '2025-10-11 10:05:00', '{"button": "signup"}');</code></pre>
+
+          <h3>クエリの実行</h3>
+          
+          <pre><code class="language-sql">SELECT 
+  event_type,
+  COUNT(*) as event_count
+FROM events
+WHERE timestamp >= '2025-10-01'
+GROUP BY event_type
+ORDER BY event_count DESC;</code></pre>
+
+          <h2>パフォーマンス最適化</h2>
+
+          <h3>インデックスの作成</h3>
+          
+          <pre><code class="language-sql">-- プライマリインデックスは作成時に指定
+-- セカンダリインデックスの追加
+CREATE AGGREGATING INDEX agg_by_user 
+ON events (user_id, COUNT(*));</code></pre>
+
+          <h3>パーティショニング戦略</h3>
+          
+          <p>時系列データは月次または日次でパーティション化することを推奨します。</p>
+          
+          <pre><code class="language-sql">-- 日次パーティション
+PARTITION BY toYYYYMMDD(timestamp)
+
+-- 月次パーティション
+PARTITION BY toYYYYMM(timestamp)</code></pre>
+
+          <h2>モニタリング</h2>
+
+          <h3>クエリパフォーマンスの確認</h3>
+          
+          <pre><code class="language-sql">-- 実行中のクエリ
+SELECT * FROM information_schema.running_queries;
+
+-- クエリ履歴
+SELECT * FROM information_schema.query_history
+ORDER BY start_time DESC
+LIMIT 10;</code></pre>
+
+          <h3>Prometheusメトリクス</h3>
+          
+          <p>PodMonitorリソースを使用してPrometheusでメトリクスを収集できます。</p>
+          
+          <pre><code class="language-yaml">apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: firebolt-core
+  namespace: firebolt
+spec:
+  selector:
+    matchLabels:
+      app: firebolt-core
+  podMetricsEndpoints:
+  - port: metrics
+    interval: 30s</code></pre>
+
+          <h2>バックアップとリストア</h2>
+
+          <h3>論理バックアップ</h3>
+          
+          <pre><code class="language-bash"># データベースのダンプ
+kubectl exec -n firebolt firebolt-core-0 -- \
+  pg_dump -U admin firebolt > backup.sql
+
+# リストア
+kubectl exec -i -n firebolt firebolt-core-0 -- \
+  psql -U admin firebolt < backup.sql</code></pre>
+
+          <h3>スナップショット</h3>
+          
+          <p>PersistentVolumeのスナップショット機能を使用してバックアップします。</p>
+          
+          <pre><code class="language-yaml">apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: firebolt-snapshot
+  namespace: firebolt
+spec:
+  volumeSnapshotClassName: csi-rbdplugin-snapclass
+  source:
+    persistentVolumeClaimName: data-firebolt-core-0</code></pre>
+
+          <h2>トラブルシューティング</h2>
+
+          <h3>ログの確認</h3>
+          
+          <pre><code class="language-bash"># Podのログ
+kubectl logs -n firebolt firebolt-core-0
+
+# 前回のログ（再起動した場合）
+kubectl logs -n firebolt firebolt-core-0 --previous</code></pre>
+
+          <h3>一般的な問題</h3>
+
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p><strong>パフォーマンス問題：</strong>十分なリソースが割り当てられているか確認してください。</p>
+          </div>
+
+          <ul>
+            <li><strong>接続できない</strong>: Serviceとネットワークポリシーを確認</li>
+            <li><strong>遅いクエリ</strong>: インデックスとパーティショニングを最適化</li>
+            <li><strong>ディスク不足</strong>: PVCのサイズを拡張</li>
+          </ul>
+
+          <h2>スケーリング</h2>
+
+          <h3>水平スケーリング</h3>
+          
+          <pre><code class="language-bash"># レプリカ数の変更
+kubectl scale statefulset firebolt-core --replicas=5 -n firebolt</code></pre>
+
+          <h3>垂直スケーリング</h3>
+          
+          <p>values.yamlのresourcesセクションを更新してHelm upgradeを実行します。</p>
+          
+          <pre><code class="language-bash">helm upgrade firebolt-core ./firebolt-helm \
+  --namespace firebolt \
+  --values values.yaml</code></pre>
+
+          <h2>参考リンク</h2>
+          
+          <ul>
+            <li><a href="https://docs.firebolt.io/" target="_blank" rel="noopener noreferrer">Firebolt公式ドキュメント</a></li>
+            <li><a href="https://www.firebolt.io/" target="_blank" rel="noopener noreferrer">Firebolt公式サイト</a></li>
+          </ul>
+        </article>
+      </div>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <div class="footer-container">
+          <p class="footer-text">
+            &copy; 2025 k8s Cluster on Proxmox. Built with <i class="fas fa-heart footer-heart"></i> and Kubernetes.
+          </p>
+          <div class="footer-links">
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="footer-link">
+              <i class="fab fa-github"></i> GitHub
+            </a>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- Table of Contents -->
+    <aside class="toc-container">
+      <!-- TOC will be generated by JavaScript -->
+    </aside>
+  </div>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/theme.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/search.js"></script>
+  <script src="../assets/js/toc.js"></script>
+  <script src="../assets/js/code-highlight.js"></script>
+  <script src="../assets/js/page-navigation.js"></script>
+  <script src="../assets/js/scroll-progress.js"></script>
+  <script src="../assets/js/keyboard-shortcuts.js"></script>
+  <script src="../assets/js/page-transitions.js"></script>
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
