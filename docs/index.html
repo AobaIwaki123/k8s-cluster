@@ -128,11 +128,11 @@
             <h2>🏁 クイックスタート</h2>
             <ol style="list-style: decimal; padding-left: var(--space-8)">
               <li style="margin-bottom: var(--space-3)">
-                <a href="k8s-cluster/setup/prerequisites.html">前準備</a> -
+                <a href="setup/prerequisites.html">前準備</a> -
                 必要なツールのインストール
               </li>
               <li style="margin-bottom: var(--space-3)">
-                <a href="k8s-cluster/setup/cluster-installation.html"
+                <a href="setup/cluster-installation.html"
                   >クラスター構築</a
                 >
                 - k0sクラスターのセットアップ
@@ -144,7 +144,7 @@
           <h2 style="margin-top: var(--space-16)">📦 コアコンポーネント</h2>
 
           <div class="component-grid">
-            <a href="k8s-cluster/components/argocd.html" class="component-link">
+            <a href="components/argocd.html" class="component-link">
               <div class="component-link-title">
                 <i class="fas fa-sync-alt"></i> ArgoCD
               </div>
@@ -152,7 +152,7 @@
             </a>
 
             <a
-              href="k8s-cluster/components/cloudflare-ingress.html"
+              href="components/cloudflare-ingress.html"
               class="component-link"
             >
               <div class="component-link-title">
@@ -162,7 +162,7 @@
             </a>
 
             <a
-              href="k8s-cluster/components/rook-ceph.html"
+              href="components/rook-ceph.html"
               class="component-link"
             >
               <div class="component-link-title">
@@ -172,7 +172,7 @@
             </a>
 
             <a
-              href="k8s-cluster/components/cert-manager.html"
+              href="components/cert-manager.html"
               class="component-link"
             >
               <div class="component-link-title">
@@ -181,7 +181,7 @@
               <div class="component-link-desc">証明書管理</div>
             </a>
 
-            <a href="k8s-cluster/components/harbor.html" class="component-link">
+            <a href="components/harbor.html" class="component-link">
               <div class="component-link-title">
                 <i class="fas fa-anchor"></i> Harbor
               </div>
@@ -260,7 +260,7 @@
           <!-- Repository Structure -->
           <h2 style="margin-top: var(--space-16)">📁 リポジトリ構造</h2>
 
-          <pre><code class="language-plaintext">k8s-cluster/
+          <pre><code class="language-plaintext">
 ├── manifests/         # Kubernetes マニフェストと設定
 ├── docs/              # このドキュメント
 ├── k0s/               # k0s クラスター設定
