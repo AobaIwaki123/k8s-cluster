@@ -57,12 +57,67 @@ k0s、ArgoCD、および各種クラウドネイティブツールを使用し�
 
 ## クイックスタート
 
-### 0. 前準備
+### 🚀 自動セットアップ（推奨）
+
+クラスタ構築からArgoCDの公開まで、一度のコマンドで自動セットアップできます。
+
+#### 1. 設定ファイルの準備
+
+```bash
+# サンプル設定ファイルをコピー
+cp config/cluster.yml.example config/cluster.yml
+
+# 設定ファイルを編集
+vim config/cluster.yml
+```
+
+設定項目：
+- `k0s.config_file`: 使用するk0sctl設定ファイル
+- `argocd.admin_password`: ArgoCD管理者パスワード
+- `argocd.domain`: ArgoCDの公開ドメイン
+- `cloudflare.api_token`: Cloudflare APIトークン
+- `cloudflare.account_id`: CloudflareアカウントID
+- `cloudflare.tunnel_name`: Cloudflare Tunnel名
+
+#### 2. 設定の検証
+
+```bash
+make bootstrap-check
+```
+
+#### 3. 自動セットアップ実行
+
+```bash
+make bootstrap
+```
+
+このコマンドは以下を自動実行します：
+1. k0sクラスタの構築
+2. ArgoCDのインストール
+3. Cloudflare Ingress Controllerのセットアップ
+4. ArgoCDのIngress公開
+
+セットアップ完了後、`https://your-domain.com` でArgoCDにアクセスできます。
+
+#### 前提条件
+
+以下のツールがインストール済みであることを確認してください：
+- `k0sctl` - k0sクラスタ管理
+- `kubectl` - Kubernetesコマンド
+- `argocd` - ArgoCD CLI
+- `yq` - YAML処理
+- `envsubst` - テンプレート処理
+
+### 📖 手動セットアップ
+
+個別にセットアップを行う場合は以下の手順を参照してください。
+
+#### 0. 前準備
 
 - [asdfのインストール](manifests/0-asdf/README.md)
 - [必要なツールのインストール](manifests/0-asdf/README.md)
 
-### k0sクラスターの構築
+#### k0sクラスターの構築
 
 ```bash
 cd k0s
