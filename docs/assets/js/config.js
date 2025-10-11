@@ -27,14 +27,17 @@ const CONFIG = {
       title: "コンポーネント",
       icon: "fa-puzzle-piece",
       items: [
-        { title: "ArgoCD", url: "components/argocd.html" },
+        { title: "ArgoCD", url: "k8s-cluster/components/argocd.html" },
         {
           title: "Cloudflare Ingress",
-          url: "components/cloudflare-ingress.html",
+          url: "k8s-cluster/components/cloudflare-ingress.html",
         },
-        { title: "Rook Ceph", url: "components/rook-ceph.html" },
-        { title: "Cert Manager", url: "components/cert-manager.html" },
-        { title: "Harbor", url: "components/harbor.html" },
+        { title: "Rook Ceph", url: "k8s-cluster/components/rook-ceph.html" },
+        {
+          title: "Cert Manager",
+          url: "k8s-cluster/components/cert-manager.html",
+        },
+        { title: "Harbor", url: "k8s-cluster/components/harbor.html" },
       ],
     },
   ],
