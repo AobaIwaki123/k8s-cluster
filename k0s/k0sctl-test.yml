@@ -38,7 +38,7 @@ spec:
   # k0s Configuration
   # ====================
   k0s:
-    version: null # Use the latest stable version
+    version: v1.33.4+k0s.0 # Use the latest stable version
     config:
       # API server configuration
       # apiServer:
