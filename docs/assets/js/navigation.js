@@ -7,6 +7,9 @@
   "use strict";
 
   const NavigationManager = {
+    // Flag to track if close button listener is set up
+    closeButtonListenerSet: false,
+
     /**
      * Initialize navigation
      */
@@ -51,7 +54,7 @@
         const closeOnOverlay = () => {
           this.closeSidebar();
         };
-        
+
         currentOverlay.addEventListener("click", closeOnOverlay);
         currentOverlay.addEventListener("touchend", closeOnOverlay);
       }
@@ -272,22 +275,33 @@
 
       // Re-highlight active link after rendering
       this.highlightActiveLink();
-      
+
       // Setup close button
       this.setupSidebarCloseButton();
     },
-    
+
     /**
      * Setup sidebar close button
      */
     setupSidebarCloseButton() {
-      const closeBtn = document.querySelector(".sidebar-close");
-      if (!closeBtn) return;
-      
-      closeBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this.closeSidebar();
+      // Only set up the listener once to prevent duplicates
+      if (this.closeButtonListenerSet) return;
+
+      const sidebar = document.querySelector(".sidebar");
+      if (!sidebar) return;
+
+      // Use event delegation on the sidebar to handle close button clicks
+      // This ensures the event listener works even after sidebar content is re-rendered
+      sidebar.addEventListener("click", (e) => {
+        const closeBtn = e.target.closest(".sidebar-close");
+        if (closeBtn) {
+          e.stopPropagation();
+          e.preventDefault();
+          this.closeSidebar();
+        }
       });
+
+      this.closeButtonListenerSet = true;
     },
 
     /**
