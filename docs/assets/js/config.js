@@ -7,34 +7,28 @@ const CONFIG = {
   // Site info
   siteTitle: 'k8s Cluster on Proxmox',
   
+  // Base path for GitHub Pages (set to '' for root domain)
+  basePath: '',
+  
   // Navigation structure
   navigation: [
     {
       title: 'はじめに',
       icon: 'fa-rocket',
       items: [
-        { title: '前準備', url: '/setup/prerequisites.html' },
-        { title: 'クラスター構築', url: '/setup/cluster-installation.html' }
+        { title: '前準備', url: 'setup/prerequisites.html' },
+        { title: 'クラスター構築', url: 'setup/cluster-installation.html' }
       ]
     },
     {
       title: 'コンポーネント',
       icon: 'fa-puzzle-piece',
       items: [
-        { title: 'ArgoCD', url: '/components/argocd.html' },
-        { title: 'Cloudflare Ingress', url: '/components/cloudflare-ingress.html' },
-        { title: 'Rook Ceph', url: '/components/rook-ceph.html' },
-        { title: 'Cert Manager', url: '/components/cert-manager.html' },
-        { title: 'Harbor', url: '/components/harbor.html' }
-      ]
-    },
-    {
-      title: 'オプション',
-      icon: 'fa-plus-circle',
-      items: [
-        { title: 'Firebolt Core', url: '/components/firebolt-core.html' },
-        { title: 'MinIO', url: '/components/minio.html' },
-        { title: 'Nginx Ingress', url: '/components/nginx-ingress.html' }
+        { title: 'ArgoCD', url: 'components/argocd.html' },
+        { title: 'Cloudflare Ingress', url: 'components/cloudflare-ingress.html' },
+        { title: 'Rook Ceph', url: 'components/rook-ceph.html' },
+        { title: 'Cert Manager', url: 'components/cert-manager.html' },
+        { title: 'Harbor', url: 'components/harbor.html' }
       ]
     }
   ],
