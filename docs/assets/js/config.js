@@ -5,63 +5,69 @@
 
 const CONFIG = {
   // Site info
-  siteTitle: 'k8s Cluster on Proxmox',
-  
+  siteTitle: "k8s Cluster on Proxmox",
+
   // Base path for GitHub Pages (set to '' for root domain)
-  basePath: '',
-  
+  basePath: "",
+
   // Navigation structure
   navigation: [
     {
-      title: 'はじめに',
-      icon: 'fa-rocket',
+      title: "はじめに",
+      icon: "fa-rocket",
       items: [
-        { title: '前準備', url: 'setup/prerequisites.html' },
-        { title: 'クラスター構築', url: 'setup/cluster-installation.html' }
-      ]
+        { title: "前準備", url: "k8s-cluster/setup/prerequisites.html" },
+        {
+          title: "クラスター構築",
+          url: "k8s-cluster/setup/cluster-installation.html",
+        },
+      ],
     },
     {
-      title: 'コンポーネント',
-      icon: 'fa-puzzle-piece',
+      title: "コンポーネント",
+      icon: "fa-puzzle-piece",
       items: [
-        { title: 'ArgoCD', url: 'components/argocd.html' },
-        { title: 'Cloudflare Ingress', url: 'components/cloudflare-ingress.html' },
-        { title: 'Rook Ceph', url: 'components/rook-ceph.html' },
-        { title: 'Cert Manager', url: 'components/cert-manager.html' },
-        { title: 'Harbor', url: 'components/harbor.html' }
-      ]
-    }
+        { title: "ArgoCD", url: "components/argocd.html" },
+        {
+          title: "Cloudflare Ingress",
+          url: "components/cloudflare-ingress.html",
+        },
+        { title: "Rook Ceph", url: "components/rook-ceph.html" },
+        { title: "Cert Manager", url: "components/cert-manager.html" },
+        { title: "Harbor", url: "components/harbor.html" },
+      ],
+    },
   ],
-  
+
   // Version info
   versions: [
-    { label: 'asdf', version: 'v0.16.6' },
-    { label: 'k0sctl', version: 'v0.23.0' },
-    { label: 'kubectl', version: '1.32.3' },
-    { label: 'helm', version: '3.17.2' },
-    { label: 'argocd', version: '2.14.7' }
+    { label: "asdf", version: "v0.16.6" },
+    { label: "k0sctl", version: "v0.23.0" },
+    { label: "kubectl", version: "1.32.3" },
+    { label: "helm", version: "3.17.2" },
+    { label: "argocd", version: "2.14.7" },
   ],
-  
+
   // Theme
-  defaultTheme: 'light', // 'light' or 'dark'
-  
+  defaultTheme: "light", // 'light' or 'dark'
+
   // Code highlight
-  highlightLanguages: ['bash', 'yaml', 'javascript', 'python', 'go'],
-  
+  highlightLanguages: ["bash", "yaml", "javascript", "python", "go"],
+
   // Search
   searchEnabled: true,
-  searchPlaceholder: '検索... (Ctrl+K)',
-  
+  searchPlaceholder: "検索... (Ctrl+K)",
+
   // TOC
   tocMinHeadings: 3, // Minimum number of headings to show TOC
-  tocSelector: 'h2, h3', // Headings to include in TOC
-  
+  tocSelector: "h2, h3", // Headings to include in TOC
+
   // Scroll
   scrollOffset: 80, // Offset for smooth scroll (header height + padding)
   scrollToTopThreshold: 300, // Show scroll-to-top button after this many pixels
 };
 
 // Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== "undefined" && module.exports) {
   module.exports = CONFIG;
 }
