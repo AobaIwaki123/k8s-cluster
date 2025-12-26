@@ -1,4 +1,4 @@
-# Observability デプロイ手順
+# Beyla x Opentelemty x Prometheus x Tempo x Grafanaを用いた監視基盤のデプロイ手順
 
 本ドキュメントは、observability 配下のコンポーネントを正しい順序でデプロイするための手順書です。
 
