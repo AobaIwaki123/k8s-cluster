@@ -1,0 +1,110 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability
+  source:
+    chart: loki
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 6.49.0
+    helm:
+      values: |
+        # Single Binaryモード（小規模環境向け）
+        deploymentMode: SingleBinary
+        
+        loki:
+          auth_enabled: false
+          commonConfig:
+            replication_factor: 1
+          schemaConfig:
+            configs:
+              - from: "2024-01-01"
+                store: tsdb
+                object_store: filesystem
+                schema: v13
+                index:
+                  prefix: loki_index_
+                  period: 24h
+          storage:
+            type: filesystem
+          limits_config:
+            retention_period: 168h  # 7日間保持
+            max_query_length: 721h
+            max_query_lookback: 721h
+            reject_old_samples: false  # 古いサンプルも受け入れる
+            reject_old_samples_max_age: 168h
+        
+        singleBinary:
+          replicas: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+          persistence:
+            enabled: true
+            size: 10Gi
+        
+        # 分散コンポーネントを無効化
+        backend:
+          replicas: 0
+        read:
+          replicas: 0
+        write:
+          replicas: 0
+        ingester:
+          replicas: 0
+        distributor:
+          replicas: 0
+        querier:
+          replicas: 0
+        queryFrontend:
+          replicas: 0
+        queryScheduler:
+          replicas: 0
+        compactor:
+          replicas: 0
+        indexGateway:
+          replicas: 0
+        bloomCompactor:
+          replicas: 0
+        bloomGateway:
+          replicas: 0
+        
+        # キャッシュを無効化
+        chunksCache:
+          enabled: false
+          replicas: 0
+        resultsCache:
+          enabled: false
+          replicas: 0
+        
+        # Gatewayは不要（SingleBinaryが直接処理）
+        gateway:
+          enabled: false
+        
+        # 監視設定
+        monitoring:
+          selfMonitoring:
+            enabled: false
+            grafanaAgent:
+              installOperator: false
+        
+        # テスト無効化
+        test:
+          enabled: false
+        
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
