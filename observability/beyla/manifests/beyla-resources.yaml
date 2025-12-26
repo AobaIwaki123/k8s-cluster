@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: beyla
+  namespace: observability
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: beyla
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "nodes", "endpoints", "namespaces"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["replicasets", "deployments", "statefulsets", "daemonsets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: beyla
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: beyla
+subjects:
+- kind: ServiceAccount
+  name: beyla
+  namespace: observability
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: beyla
+  namespace: observability
+  labels:
+    app: beyla
+spec:
+  selector:
+    matchLabels:
+      app: beyla
+  template:
+    metadata:
+      labels:
+        app: beyla
+    spec:
+      serviceAccountName: beyla
+      hostPID: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+      - name: beyla
+        image: grafana/beyla:latest
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+            - SYS_ADMIN
+            - SYS_RESOURCE
+            - SYS_PTRACE
+            - NET_ADMIN
+          runAsUser: 0
+        env:
+        - name: BEYLA_OPEN_PORT
+          value: "80,443,8080,3000,5432,6379,9090"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector-collector.observability.svc.cluster.local:4318"
+        - name: BEYLA_METRICS_INTERVAL
+          value: "30s"
+        - name: BEYLA_TRACES_SAMPLER
+          value: "always_on"
+        - name: BEYLA_KUBE_METADATA_ENABLE
+          value: "true"
+        - name: BEYLA_PROMETHEUS_FEATURES
+          value: "application,network"
+        - name: OTEL_EXPORTER_OTLP_PROTOCOL
+          value: "http/protobuf"
+        - name: BEYLA_LOG_LEVEL
+          value: "INFO"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        volumeMounts:
+        - name: sys
+          mountPath: /sys
+          readOnly: true
+        - name: proc
+          mountPath: /proc
+          readOnly: true
+      volumes:
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: proc
+        hostPath:
+          path: /proc
+      tolerations:
+      - operator: Exists
+        effect: NoSchedule
