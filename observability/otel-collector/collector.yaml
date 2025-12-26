@@ -1,0 +1,149 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: otel-collector
+  namespace: observability
+---
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-collector
+  namespace: observability
+spec:
+  image: otel/opentelemetry-collector-contrib:latest
+  mode: deployment
+  serviceAccount: otel-collector
+  replicas: 2
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+      prometheus:
+        config:
+          scrape_configs:
+          - job_name: 'kubernetes-pods'
+            kubernetes_sd_configs:
+            - role: pod
+            relabel_configs:
+            - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+              action: keep
+              regex: true
+            # Drop kube-router pods to prevent duplicate scraping
+            - source_labels: [__meta_kubernetes_pod_name]
+              action: drop
+              regex: kube-router-.*
+            - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+              action: replace
+              target_label: __metrics_path__
+              regex: (.+)
+            - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+              action: replace
+              regex: ([^:]+)(?::\d+)?;(\d+)
+              replacement: $1:$2
+              target_label: __address__
+    
+    processors:
+      batch:
+        timeout: 10s
+        send_batch_size: 1024
+      k8sattributes:
+        auth_type: "serviceAccount"
+        passthrough: false
+        extract:
+          metadata:
+          - k8s.namespace.name
+          - k8s.deployment.name
+          - k8s.pod.name
+          - k8s.pod.uid
+          - k8s.container.name
+        pod_association:
+        - sources:
+          - from: resource_attribute
+            name: k8s.pod.ip
+      memory_limiter:
+        check_interval: 1s
+        limit_mib: 512
+      resourcedetection:
+        detectors: [env, system]
+    
+    exporters:
+      prometheus:
+        endpoint: "0.0.0.0:8889"
+        namespace: otelcol
+        send_timestamps: true
+        metric_expiration: 5m
+        resource_to_telemetry_conversion:
+          enabled: true
+      otlp/tempo:
+        endpoint: tempo.observability.svc.cluster.local:4317
+        tls:
+          insecure: true
+      otlphttp/loki:
+        endpoint: http://loki.observability.svc.cluster.local:3100/otlp
+        tls:
+          insecure: true
+      debug:
+        verbosity: detailed
+        sampling_initial: 5
+        sampling_thereafter: 200
+    
+    service:
+      telemetry:
+        metrics:
+          level: detailed
+          # addressは削除（デフォルトの0.0.0.0:8888を使用）
+      pipelines:
+        metrics:
+          receivers: [otlp, prometheus]
+          processors: [memory_limiter, k8sattributes, batch]
+          exporters: [prometheus, debug]
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, k8sattributes, batch]
+          exporters: [otlp/tempo, debug]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, k8sattributes, batch]
+          exporters: [otlphttp/loki, debug]
+  ports:
+  - name: metrics
+    port: 8888
+    protocol: TCP
+  - name: prometheus
+    port: 8889
+    protocol: TCP
+  - name: otlp-grpc
+    port: 4317
+    protocol: TCP
+  - name: otlp-http
+    port: 4318
+    protocol: TCP
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otel-collector
+rules:
+- apiGroups: [""]
+  resources: ["pods", "namespaces", "nodes"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["replicasets", "deployments", "daemonsets", "statefulsets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-collector
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otel-collector
+subjects:
+- kind: ServiceAccount
+  name: otel-collector
+  namespace: observability
