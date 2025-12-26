@@ -14,12 +14,16 @@ graph LR
     APP -->|OTLP| OTEL
     PROMTAIL -->|Push| LOKI[Loki]
     
-    PROM[Prometheus] -->|Scrape| OTEL
+    OTEL -->|Expose :8889| PROM[Prometheus]
     OTEL -->|OTLP| TEMPO[Tempo]
     OTEL -->|OTLP| LOKI
     
-    NODE[Node Exporter] -->|Scrape| PROM
-    KUBE[Kube State] -->|Scrape| PROM
+    NODE[Node Exporter] -->|Metrics| PROM
+    KUBE[Kube State] -->|Metrics| PROM
+    
+    PROM -->|Query| GRAFANA[Grafana]
+    LOKI -->|Query| GRAFANA
+    TEMPO -->|Query| GRAFANA
     
     classDef current fill:#e3f2fd,stroke:#1565c0
     class OTEL,PROM current
