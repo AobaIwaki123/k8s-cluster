@@ -78,13 +78,19 @@ spec:
           value: "http/protobuf"
         - name: BEYLA_LOG_LEVEL
           value: "INFO"
+        # Discovery settings
+        - name: BEYLA_DISCOVERY_POLL_INTERVAL
+          value: "30s"
+        # Collect from all namespaces
+        - name: BEYLA_SERVICE_NAMESPACE
+          value: ""
         resources:
           requests:
             cpu: 100m
-            memory: 128Mi
+            memory: 256Mi
           limits:
             cpu: 500m
-            memory: 512Mi
+            memory: 1Gi
         volumeMounts:
         - name: sys
           mountPath: /sys
