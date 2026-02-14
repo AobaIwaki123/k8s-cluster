@@ -45,17 +45,21 @@ k0s、ArgoCD、および各種クラウドネイティブツールを使用し�
 
 ## 目次
 
-- [Versions](#versions)
-- [0. 前準備](#0-前準備)
-  - [1. asdfをインストール](#1-asdfをインストール)
-  - [2. asdf pluginの追加](#2-asdf-pluginの追加)
-- [k0sctlでk8sクラスターを構築](#k0sctlでk8sクラスターを構築)
-- [1. ArgoCDのセットアップ](#1-argocdのセットアップ)
-- [2. Cloudflare Ingress Controllerのセットアップ](#2-cloudflare-ingress-controllerのセットアップ)
-- [1'. ArgoCDの本セットアップ](#1-argocdの本セットアップ)
-- [3. Rook Cephを用いたPVCの構築](#3-rook-cephを用いたpvcの構築)
-- [4. Cert Managerのセットアップ](#4-cert-managerのセットアップ)
-- [5. Harborのセットアップ](#5-harborのセットアップ)
+- [k8s Cluster on Proxmox](#k8s-cluster-on-proxmox)
+  - [📚 ドキュメント](#-ドキュメント)
+    - [📱 モバイルでのドキュメント閲覧](#-モバイルでのドキュメント閲覧)
+  - [主な機能](#主な機能)
+    - [1. ArgoCDを用いたアプリケーションの管理](#1-argocdを用いたアプリケーションの管理)
+    - [2. Cloudflare Ingress Controllerを用いたサービスの公開](#2-cloudflare-ingress-controllerを用いたサービスの公開)
+    - [3. Rook Cephを用いた永続ストレージの構築](#3-rook-cephを用いた永続ストレージの構築)
+    - [4. Harborを用いたプライベートDocker Registryの構築](#4-harborを用いたプライベートdocker-registryの構築)
+  - [発展](#発展)
+  - [目次](#目次)
+  - [Versions](#versions)
+  - [クイックスタート](#クイックスタート)
+    - [0. 前準備](#0-前準備)
+    - [k0sクラスターの構築](#k0sクラスターの構築)
+  - [コンポーネントのセットアップ](#コンポーネントのセットアップ)
 
 ## Versions
 
