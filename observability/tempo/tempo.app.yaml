@@ -1,0 +1,73 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tempo
+  namespace: argocd
+spec:
+  # StatefulSetのvolumeClaimTemplatesでapiVersion/kindがKubernetesで正規化される問題を回避
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/volumeClaimTemplates/0/apiVersion
+        - /spec/volumeClaimTemplates/0/kind
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability
+  source:
+    chart: tempo
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 1.24.1
+    helm:
+      values: |
+        # Tempo設定
+        tempo:
+          # メモリ内で動作するシンプルな構成（開発/検証用）
+          # 本番環境ではオブジェクトストレージ（S3/GCS等）を推奨
+          searchEnabled: true
+          metricsGenerator:
+            enabled: true
+          storage:
+            trace:
+              backend: local
+          receivers:
+            jaeger:
+              protocols:
+                grpc:
+                  endpoint: 0.0.0.0:14250
+                thrift_http:
+                  endpoint: 0.0.0.0:14268
+            otlp:
+              protocols:
+                grpc:
+                  endpoint: 0.0.0.0:4317
+                http:
+                  endpoint: 0.0.0.0:4318
+        
+        # リソース設定
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        
+        # Persistent Volumeの設定（localストレージ用）
+        persistence:
+          enabled: true
+          size: 10Gi
+          storageClassName: ""  # デフォルトのStorageClassを使用
+        
+        # Grafanaからのクエリを有効化
+        serviceMonitor:
+          enabled: true
+        
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
