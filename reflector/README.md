@@ -11,31 +11,7 @@ GCRへのアクセスに必要なcredentialを取得し、`gcr-pull-secret.yaml`
 make generate-secret
 ```
 
-内部では`kubectl create secret`を使いYAMLを生成しています。
-```makefile
-GCR_KEY      ?= secret/key.json
-GCR_SERVER   ?= gcr.io
-GCR_EMAIL    ?= unused@example.com
-SECRET_NAME  = gcr-pull-secret
-SECRET_NS    = default
-SECRET_OUTPUT = gcr-pull-secret.yaml
-
-.PHONY: generate-secret
-generate-secret:
-	@if [ ! -f "$(GCR_KEY)" ]; then \
-		echo "Error: $(GCR_KEY) not found"; \
-		exit 1; \
-	fi
-	@kubectl create secret docker-registry $(SECRET_NAME) \
-		--docker-server=$(GCR_SERVER) \
-		--docker-username=_json_key \
-		--docker-password="$$(cat $(GCR_KEY))" \
-		--docker-email=$(GCR_EMAIL) \
-		--namespace=$(SECRET_NS) \
-		--dry-run=client -o yaml \
-		> $(SECRET_OUTPUT)
-	@echo "Generated $(SECRET_OUTPUT)"
-```
+内部では`kubectl create secret`でYAMLを生成し、Reflector用のアノテーションを付与しています。
 
 生成された`gcr-pull-secret.yaml`にはcredential情報が含まれるため、**Gitにコミットしないよう注意してください**。また、`secret/key.json`も同様にGit管理対象から除外してください。
 ```
@@ -53,28 +29,40 @@ helm upgrade --install reflector emberstack/reflector \
   --namespace kube-system
 ```
 
-## 1-2. Install with ArgoCD
+## 1-2. ArgoCDで管理する
 
-===あとで埋める===
+HelmでインストールしたReflectorをArgoCDのApplicationとして管理します。
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: reflector
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://emberstack.github.io/helm-charts
+    chart: reflector
+    targetRevision: "*"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+```
+```sh
+kubectl apply -f reflector-app.yaml
+```
 
 # 2. Secretにアノテーションを追加する
 
-- アノテーションとは: ===あとで埋める===
+- アノテーションとは: Kubernetesリソースに付与するメタデータです。ラベルと異なりリソースの選択には使われず、ツールや外部システムへの指示を記述するために使います。ここではReflectorに対して「このSecretを他のNamespaceに複製してよい」という指示を付与しています。
 
-`gcr-pull-secret.yaml`
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: gcr-pull-secret
-  namespace: default
-  annotations:
-    reflector.v1.k8s.emberstack.com/reflection-allowed: "true"
-    reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
-type: kubernetes.io/dockerconfigjson
-data:
-  .dockerconfigjson: __DOCKER_CONFIG_BASE64__
-```
+`gcr-pull-secret.yaml`を適用します。アノテーションは`make generate-secret`の時点で付与済みです。
 ```sh
 kubectl apply -f gcr-pull-secret.yaml
 ```

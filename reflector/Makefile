@@ -19,6 +19,9 @@ generate-secret:
 		--docker-email=$(GCR_EMAIL) \
 		--namespace=$(SECRET_NS) \
 		--dry-run=client -o yaml \
-		| sed 's/namespace: $(SECRET_NS)/namespace: default/' \
+	| kubectl annotate --local -f - \
+		reflector.v1.k8s.emberstack.com/reflection-allowed=true \
+		reflector.v1.k8s.emberstack.com/reflection-auto-enabled=true \
+		-o yaml \
 		> $(SECRET_OUTPUT)
 	@echo "Generated $(SECRET_OUTPUT)"
