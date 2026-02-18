@@ -1,13 +1,24 @@
-DOCKER_CONFIG ?= $(HOME)/.docker/config.json
+GCR_KEY      ?= secret/key.json
+GCR_SERVER   ?= gcr.io
+GCR_EMAIL    ?= unused@example.com
+SECRET_NAME  = gcr-pull-secret
+SECRET_NS    = default
 SECRET_TEMPLATE = gcr-pull-secret.template.yaml
 SECRET_OUTPUT   = gcr-pull-secret.yaml
 
 .PHONY: generate-secret
 generate-secret:
-	@if [ ! -f "$(DOCKER_CONFIG)" ]; then \
-		echo "Error: $(DOCKER_CONFIG) not found"; \
+	@if [ ! -f "$(GCR_KEY)" ]; then \
+		echo "Error: $(GCR_KEY) not found"; \
 		exit 1; \
 	fi
-	@ENCODED=$$(cat $(DOCKER_CONFIG) | base64 -w 0) && \
-		sed "s|__DOCKER_CONFIG_BASE64__|$$ENCODED|g" $(SECRET_TEMPLATE) > $(SECRET_OUTPUT)
+	@kubectl create secret docker-registry $(SECRET_NAME) \
+		--docker-server=$(GCR_SERVER) \
+		--docker-username=_json_key \
+		--docker-password="$$(cat $(GCR_KEY))" \
+		--docker-email=$(GCR_EMAIL) \
+		--namespace=$(SECRET_NS) \
+		--dry-run=client -o yaml \
+		| sed 's/namespace: $(SECRET_NS)/namespace: default/' \
+		> $(SECRET_OUTPUT)
 	@echo "Generated $(SECRET_OUTPUT)"
