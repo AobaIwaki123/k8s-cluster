@@ -35,6 +35,88 @@ spec:
             enableRemoteWriteReceiver: true
             additionalScrapeConfigs: []
 
+        # アラートルールの追加
+        additionalPrometheusRulesMap:
+          custom-rules:
+            groups:
+            - name: custom-node-alerts
+              rules:
+              - alert: NodeHighCPUUsage
+                expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+                for: 5m
+                labels:
+                  severity: warning
+                annotations:
+                  summary: "High CPU usage on {{ $labels.instance }}"
+                  description: "CPU usage is above 80% (current value: {{ $value }})"
+
+              - alert: NodeHighMemoryUsage
+                expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 80
+                for: 5m
+                labels:
+                  severity: warning
+                annotations:
+                  summary: "High Memory usage on {{ $labels.instance }}"
+                  description: "Memory usage is above 80% (current value: {{ $value }})"
+
+            - name: custom-pod-alerts
+              rules:
+              - alert: PodNotHealthy
+                # RunningまたはSucceeded以外の状態にあるPodを検出
+                expr: sum by (namespace, pod, phase) (kube_pod_status_phase{phase!~"Running|Succeeded"}) > 0
+                for: 5m
+                labels:
+                  severity: warning
+                annotations:
+                  summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is not healthy"
+                  description: "Pod is in state {{ $labels.phase }}"
+              
+              - alert: DeploymentLowAvailability
+                # デプロイメントの利用可能レプリカ数が希望数の80%未満になった場合
+                expr: (kube_deployment_status_replicas_available / kube_deployment_spec_replicas) * 100 < 80
+                for: 5m
+                labels:
+                  severity: warning
+                annotations:
+                  summary: "Deployment {{ $labels.namespace }}/{{ $labels.deployment }} has low availability"
+                  description: "Available replicas are below 80% (current value: {{ $value }}%)"
+
+              - alert: ClusterPodHealthLow
+                # クラスタ全体のPod健全性が90%未満になった場合
+                expr: (sum(kube_pod_status_phase{phase="Running"}) / sum(kube_pod_status_phase)) * 100 < 90
+                for: 10m
+                labels:
+                  severity: warning
+                annotations:
+                  summary: "Cluster Pod Health is Low"
+                  description: "Percentage of running pods is below 90% (current value: {{ $value }}%)"
+
+        alertmanager:
+          config:
+            global:
+              resolve_timeout: 5m
+            route:
+              group_by: ['alertname', 'job']
+              group_wait: 30s
+              group_interval: 5m
+              repeat_interval: 12h
+              receiver: 'discord' # デフォルトの通知先
+              routes:
+              - match:
+                  alertname: Watchdog
+                receiver: 'null'
+            receivers:
+            - name: 'null'
+            - name: 'discord'
+              slack_configs:
+              # Discord Webhook URLの末尾に '/slack' を付与してください
+              # 例: https://discord.com/api/webhooks/xxxx/xxxx/slack
+              - api_url: 'https://discord.com/api/webhooks/1473948525506330757/T2EvLXHLf2wgUidMlq8dIWSQDZkKlyQDlxbOntmHoNQNf1DzAN5GYamaDf-k-98L13og/slack'
+                channel: '#alerts'
+                send_resolved: true
+                title: '{{ template "slack.default.title" . }}'
+                text: '{{ template "slack.default.text" . }}'
+
         grafana:
           adminPassword: "new_password"
           persistence:
