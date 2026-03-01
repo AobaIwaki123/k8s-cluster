@@ -1,5 +1,8 @@
 tmp/
 
+# Cluster configuration with sensitive data
+config/cluster.yml
+
 # GitHub Pages / Jekyll
 docs/_site/
 docs/.sass-cache/

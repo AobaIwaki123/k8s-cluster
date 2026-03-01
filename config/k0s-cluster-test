@@ -1,0 +1,15 @@
+Host *.vm
+	User aoba
+	IdentityFile ${HOME}/.ssh/id_ecdsa
+
+Host k8s-ctl-test.vm
+	Hostname 192.168.11.240
+
+Host k8s-worker-test-1.vm
+	Hostname 192.168.11.241
+
+Host k8s-worker-test-2.vm
+	Hostname 192.168.11.242
+
+Host k8s-worker-test-3.vm
+	Hostname 192.168.11.243
