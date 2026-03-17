@@ -13,7 +13,7 @@ spec:
   source:
     repoURL: https://helm.strrl.dev
     chart: cloudflare-tunnel-ingress-controller
-    targetRevision: 0.0.12  # 使用する Helm チャートのバージョン
+    targetRevision: 0.0.22  # 使用する Helm チャートのバージョン
     
     helm:
       valuesObject:
