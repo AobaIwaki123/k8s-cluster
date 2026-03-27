@@ -218,6 +218,129 @@ KubernetesはデフォルトでPod起動時にServiceAccountのトークンを `
 
 ---
 
+## C-0030 / C-0054: NetworkPolicy（NS間通信の分離）
+
+### 対応方法
+
+インターネット公開アプリのNSにデフォルト拒否ポリシーを設定し、必要な通信のみ許可する。
+
+```yaml
+# Step1: デフォルト全拒否
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: journee  # 公開アプリのNSに適用
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+# Step2: 必要な通信を個別に許可
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-cloudflare-tunnel
+  namespace: journee
+spec:
+  podSelector:
+    matchLabels:
+      app: journee
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cloudflare-tunnel-ingress-controller
+---
+# Step3: 外部APIへのEgressを許可（必要な場合）
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-external-egress
+  namespace: journee
+spec:
+  podSelector:
+    matchLabels:
+      app: journee
+  policyTypes:
+    - Egress
+  egress:
+    - ports:
+        - port: 443  # HTTPS
+        - port: 53   # DNS (必須)
+          protocol: UDP
+```
+
+### 意味と影響度
+
+**影響度: 中〜高 / 対処コスト: 中**
+
+KubernetesのNSは**論理的な分離に過ぎず、ネットワークレベルの分離ではない**。NetworkPolicyを設定しない限り、全PodはNS横断で自由に通信できる。
+
+公開アプリのPodが侵害された場合、攻撃者はそのPodから**クラスター内の全サービスに到達できる**。
+
+```
+journee Pod に侵入（Cloudflare経由で公開）
+    ↓ NetworkPolicyがない場合
+observability NS の Prometheus へ到達 → 認証なし、メトリクス全取得可能
+smart-home NS の Grafana へ到達    → ログイン画面にブルートフォース可能
+rook-ceph NS の管理API へ到達      → ストレージ管理APIに到達可能
+```
+
+### C-0030とC-0054の違い
+
+| | C-0030 | C-0054 |
+|---|---|---|
+| 対象 | Pod単位のIngress/Egress制御 | NS間の通信分離 |
+| 実装 | 同じNetworkPolicyで両方対処できる |
+
+### 備考
+
+- **当初「インターネット非公開のためOK」と判断したが、Cloudflare経由で公開しているアプリがあるため再評価。公開アプリNSへの適用を推奨する**
+- 「ネットワークに到達できるだけでは脅威度は低い」は正しい認識だが、**認証なしで動いている内部サービス（Prometheus等）が存在する場合は実害がある**
+- NetworkPolicyはkube-routerなどCNIがサポートしている場合のみ有効（このクラスターはkube-routerを使用しており対応済み）
+- 設定コストは高い。全通信要件（外部API呼び出し先・DNS・DB接続先等）を洗い出す必要がある
+- DNSのEgress（UDP/53）を忘れると名前解決ができなくなるため必ず許可する
+
+---
+
+## C-0059: CVE-2021-25742 nginx-ingress snippet annotation vulnerability
+
+### 対応方法
+
+nginx-ingress controllerのHelmチャートでsnippetアノテーションを無効化する。
+
+```yaml
+# nginx-ingress の values.yaml
+controller:
+  allowSnippetAnnotations: false
+```
+
+### 意味と影響度
+
+**影響度: 低（個人クラスター） / 対処コスト: 低**
+
+nginx-ingressの `snippet` アノテーションを悪用してnginxの設定を自由に書き換えられる脆弱性。Ingressに以下のようなアノテーションを書くことで内部サービスへのプロキシを設置できる。
+
+```yaml
+# 攻撃例
+annotations:
+  nginx.ingress.kubernetes.io/server-snippet: |
+    location /steal {
+      proxy_pass http://internal-service.other-ns.svc;
+    }
+```
+
+### 備考
+
+- **マルチテナント環境（複数チームが同じクラスターを使う）で特に危険**。個人クラスターでは自分以外がIngressを作成しないため、脅威シナリオ自体が成立しない
+- **個人クラスターでは対処不要**
+
+---
+
 ## まとめ: 推奨設定テンプレート
 
 自前アプリに適用する最小セキュリティ設定のテンプレート。
@@ -249,6 +372,5 @@ spec:
 | C-0034 | SAトークン自動マウント | 対処不要（権限なし確認済み） | — |
 | C-0017 | Immutable FS | できればやる | 高 |
 | C-0012 | credentials in config | 誤検出 | — |
-| C-0030 | Ingress/Egress NetworkPolicy | インターネット非公開のためOK | — |
-| C-0054 | Cluster内部ネットワーク | インターネット非公開のためOK | — |
-| C-0059 | CVE-2021-25742 nginx-ingress | インターネット非公開のためOK | — |
+| C-0030 / C-0054 | NetworkPolicy（NS間通信分離） | **推奨**（公開アプリNSに適用） | 中 |
+| C-0059 | CVE-2021-25742 nginx-ingress | 対処不要（単一管理者のため） | — |
