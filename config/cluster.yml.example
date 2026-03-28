@@ -1,0 +1,18 @@
+# Cluster Bootstrap Configuration
+# このファイルをコピーして config/cluster.yml を作成し、実際の値を設定してください
+
+# k0s設定
+k0s:
+  config_file: k0s/k0sctl-test.yml  # 使用するk0sctl設定ファイル
+
+# ArgoCD設定
+argocd:
+  admin_password: "your-new-password"  # ArgoCD管理者パスワード（8文字以上推奨）
+  domain: "argocd.example.com"         # ArgoCD公開ドメイン名
+
+# Cloudflare設定
+cloudflare:
+  api_token: "your-cloudflare-api-token"           # Cloudflare APIトークン
+  account_id: "your-cloudflare-account-id"         # CloudflareアカウントID
+  tunnel_name: "cf-tunnel-ingress-controller"      # Cloudflare Tunnel名（事前作成必須）
+
