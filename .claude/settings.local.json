@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(kubectl get pods:*)",
+      "Bash(kubectl get ingress:*)",
+      "Bash(kubectl logs:*)",
+      "Bash(kubectl get:*)",
+      "Bash(dig argocd.aooba.net)",
+      "Bash(nslookup argocd.aooba.net)",
+      "Bash(kubectl exec:*)",
+      "Bash(dig @8.8.8.8 argocd.aooba.net)",
+      "Bash(dig @8.8.8.8 aooba.net NS)",
+      "Bash(kubectl run:*)",
+      "Bash(kubectl patch configmap:*)",
+      "Bash(kubectl rollout restart:*)",
+      "Bash(kubectl rollout status:*)",
+      "Bash(kubectl delete:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(python3 -m json.tool)",
+      "Bash(dig:*)",
+      "Bash(tailscale ip:*)",
+      "Bash(command -v tailscale)",
+      "Bash(tailscale status:*)",
+      "Bash(kubectl config view:*)",
+      "Bash(cp ~/.kube/config ~/.kube/config.bak)",
+      "Bash(kubectl config:*)",
+      "Read(//Users/aobaiwaki/.claude/**)",
+      "mcp__blender__get_scene_info",
+      "Skill(update-config)"
+    ]
+  }
+}

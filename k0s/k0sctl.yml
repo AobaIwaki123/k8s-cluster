@@ -54,28 +54,30 @@ spec:
   # k0s Configuration
   # ====================
   k0s:
-    version: null  # Use the latest stable version
+    version: v1.33.4+k0s.0
     config:
-      # API server configuration
-      apiServer:
-        extraArgs:
-          # Enable audit logging
-          audit-log-maxage: 30
-          audit-log-maxbackup: 3
-          audit-log-maxsize: 100
-      
-      # Network configuration
-      network:
-        provider: calico  # CNI plugin
-        calico:
-          mode: vxlan  # or ipip
-          vxlanPort: 4789
-          mtu: 1450
+      apiVersion: k0s.k0sproject.io/v1beta1
+      kind: ClusterConfig
+      spec:
+        # API server configuration
+        api:
+          extraArgs:
+            # Enable audit logging
+            audit-log-maxage: "30"
+            audit-log-maxbackup: "3"
+            audit-log-maxsize: "100"
+          sans:
+            # Add Tailscale IP so kubectl can connect via Tailscale
+            - 100.77.230.25
 
-      # Storage configuration  
-      storage:
-        type: etcd  # embedded etcd
-        
-      # Enable pod security standards
-      podSecurityPolicy:
-        defaultPolicy: restricted
+        # Network configuration
+        network:
+          provider: calico  # CNI plugin
+          calico:
+            mode: vxlan  # or ipip
+            vxlanPort: 4789
+            mtu: 1450
+
+        # Storage configuration
+        storage:
+          type: etcd  # embedded etcd
