@@ -45,10 +45,11 @@ const CONFIG = {
   // Version info
   versions: [
     { label: "asdf", version: "v0.16.6" },
-    { label: "k0sctl", version: "v0.23.0" },
-    { label: "kubectl", version: "1.32.3" },
-    { label: "helm", version: "3.17.2" },
-    { label: "argocd", version: "2.14.7" },
+    { label: "k0sctl", version: "v0.33.1" },
+    { label: "k0s", version: "v1.36.4+k0s.1" },
+    { label: "kubectl", version: "1.36.1" },
+    { label: "helm", version: "3.20.2" },
+    { label: "argocd", version: "v3.3.6" },
   ],
 
   // Theme
