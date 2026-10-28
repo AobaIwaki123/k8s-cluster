@@ -64,11 +64,12 @@ k0s、ArgoCD、および各種クラウドネイティブツールを使用し�
 ## Versions
 
 - asdf: v0.16.6
-- k0sctl: v0.23.0
-- k9s: v0.40.10
-- helm: 3.17.2
-- kubectl: 1.32.3
-- argocd: 2.14.7
+- k0sctl: v0.33.1
+- k0s: v1.36.4+k0s.1
+- k9s: v0.50.18
+- helm: 3.20.2
+- kubectl: 1.36.1
+- argocd: v3.3.6
 
 ## クイックスタート
 

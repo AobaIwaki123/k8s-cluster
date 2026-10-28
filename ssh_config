@@ -15,4 +15,4 @@ Host k8s-worker-3.vm
 	Hostname 192.168.11.231
 
 Host k8s-worker-4.vm
-	Hostname 192.168.11.224
+	Hostname 192.168.11.234
