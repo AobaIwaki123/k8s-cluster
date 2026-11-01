@@ -37,7 +37,18 @@ go run ./cmd/clusterctl doctor --cluster
 go run ./cmd/clusterctl plan --target all
 ~~~
 
-4. For a new or recovered cluster, inspect k0sctl inventory and kubeconfig setup,
+4. Run the base-only drift check before and after reconciliation.
+
+~~~bash
+go run ./cmd/clusterctl drift
+~~~
+
+The drift command checks only the infrastructure Applications and manifests listed
+by the CLI. Application services such as llm-gpu-service are intentionally excluded.
+It never reads Secret values and returns a non-zero status when a base resource is
+missing, unhealthy, out of sync, or different from the repository manifest.
+
+5. For a new or recovered cluster, inspect k0sctl inventory and kubeconfig setup,
 then execute only the reviewed phase.
 
 ~~~bash

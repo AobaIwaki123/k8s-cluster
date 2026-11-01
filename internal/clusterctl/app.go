@@ -48,6 +48,8 @@ func (a *App) Run(ctx context.Context, args []string) int {
 	switch args[0] {
 	case "doctor":
 		return a.runDoctor(ctx, args[1:])
+	case "drift":
+		return a.runDrift(ctx, args[1:])
 	case "plan":
 		return a.runPlan(args[1:])
 	case "bootstrap":
@@ -86,6 +88,36 @@ func (a *App) runDoctor(ctx context.Context, args []string) int {
 		return exitFailure
 	}
 	if HasRequiredFailures(checks) {
+		return exitFailure
+	}
+	return exitOK
+}
+
+func (a *App) runDrift(ctx context.Context, args []string) int {
+	fs := flag.NewFlagSet("drift", flag.ContinueOnError)
+	fs.SetOutput(a.Err)
+	rootFlag := fs.String("root", a.WorkingDir, "repository root or a directory below it")
+	if err := fs.Parse(args); err != nil {
+		return exitUsage
+	}
+	if fs.NArg() != 0 {
+		fmt.Fprintln(a.Err, "drift: positional arguments are not supported")
+		return exitUsage
+	}
+	root, err := DiscoverRoot(*rootFlag)
+	if err != nil {
+		fmt.Fprintf(a.Err, "drift: %v\n", err)
+		return exitFailure
+	}
+	report := (DriftChecker{
+		Root:   root,
+		Runner: a.Runner,
+	}).Check(ctx)
+	if err := RenderDriftReport(a.Out, report); err != nil {
+		fmt.Fprintf(a.Err, "drift: render report: %v\n", err)
+		return exitFailure
+	}
+	if !report.Clean() {
 		return exitFailure
 	}
 	return exitOK
@@ -191,6 +223,7 @@ func (a *App) printUsage() {
 	fmt.Fprintln(a.Out, "")
 	fmt.Fprintln(a.Out, "Usage:")
 	fmt.Fprintln(a.Out, "  clusterctl doctor [--cluster] [--root PATH]")
+	fmt.Fprintln(a.Out, "  clusterctl drift [--root PATH]")
 	fmt.Fprintln(a.Out, "  clusterctl plan [--target bootstrap|addons|all]")
 	fmt.Fprintln(a.Out, "  clusterctl bootstrap [--execute --yes] [--root PATH]")
 	fmt.Fprintln(a.Out, "  clusterctl addons [--execute --yes] [--root PATH]")
