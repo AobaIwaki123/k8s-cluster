@@ -30,10 +30,10 @@ $ kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
 
 ```sh
 $ argocd admin initial-password -n argocd
-gQz9mVAdH7UgkdyI
+# ここに出力された初期パスワードを一時的に使用する
 $ argocd login <ARGOCD_SERVER>
 $ argocd account update-password
-Current Password: gQz9mVAdH7UgkdyI
+Current Password: <INITIAL_PASSWORD_FROM_COMMAND>
 New Password: <NEW_PASSWORD>
 Repeat New Password: <NEW_PASSWORD>
 ```

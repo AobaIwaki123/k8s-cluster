@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/AobaIwaki123/k8s-cluster.git
     targetRevision: add-otel # PRマージする際にmainに変更する
-    path: observability/otel-collector
+    path: cluster/addons/observability/otel-collector
   destination:
     server: https://kubernetes.default.svc
     namespace: observability

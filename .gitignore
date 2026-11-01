@@ -1,5 +1,8 @@
 tmp/
 
+# Local worktrees
+.worktrees/
+
 # GitHub Pages / Jekyll
 docs/_site/
 docs/.sass-cache/

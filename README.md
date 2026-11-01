@@ -1,99 +1,43 @@
-# k8s Cluster on Proxmox
+# k8s-cluster
 
-k0s、ArgoCD、および各種クラウドネイティブツールを使用した Kubernetes クラスターセットアップ
+Proxmox 上の k0s Kubernetes クラスターと、Argo CD で管理する共通基盤の正本です。自宅環境を再現・運用するための Kubernetes 定義を置き、公開用のドキュメントサイトは管理しません。
 
-## 📚 ドキュメント
+## まず読む
 
-詳細なドキュメントは [GitHub Pages](https://aobaiwaki123.github.io/k8s-cluster/) で公開されています。
+- [`AGENTS.md`](AGENTS.md) — AI が変更するときの前提と安全境界
+- [`docs/architecture.md`](docs/architecture.md) — 現在の構成とディレクトリの責務
+- [`docs/operations.md`](docs/operations.md) — bootstrap、Argo CD、確認手順
+- [`docs/security.md`](docs/security.md) — Secret とプライバシーの基準
 
-または、`docs/` ディレクトリ内のマークダウンファイルを直接参照してください。
+## 現行コンポーネント
 
-### 📱 モバイルでのドキュメント閲覧
+| 区分 | パス | 状態 |
+| --- | --- | --- |
+| k0s クラスター | [`cluster/bootstrap/k0s/`](cluster/bootstrap/k0s/) | 現行構成 |
+| Argo CD | [`cluster/bootstrap/argocd/`](cluster/bootstrap/argocd/) | 現行構成 |
+| Cloudflare Tunnel | [`cluster/addons/networking/cloudflare-tunnel/`](cluster/addons/networking/cloudflare-tunnel/) | 現行構成 |
+| cert-manager | [`cluster/addons/security/cert-manager/`](cluster/addons/security/cert-manager/) | 稼働中。削除しない |
+| Rook Ceph | [`cluster/addons/storage/rook-ceph/`](cluster/addons/storage/rook-ceph/) | 現行構成 |
+| Observability | [`cluster/addons/observability/`](cluster/addons/observability/) | Grafana 中心 |
+| Reflector | [`cluster/addons/reflector/`](cluster/addons/reflector/) | 現行構成 |
 
-モバイルデバイスでドキュメントを閲覧する場合のサイドバー操作方法：
+Harbor は現行クラスターに存在しないため、このリポジトリから除去します。asdf は `.tool-versions` や実行時依存がないため、前提にしません。アプリケーションサービスは基盤repoの正本に含めません。
 
-- **サイドバーを開く**: 画面右上のメニューアイコン (☰) をタップ
-- **サイドバーを閉じる**: 以下のいずれかの方法で閉じることができます
-  - サイドバー内の右上の「×」ボタンをタップ
-  - サイドバーの外側（グレーのオーバーレイ部分）をタップ
-  - サイドバー内のリンクをタップしてページ移動
-  - キーボードの ESC キーを押す（対応デバイスのみ）
-
-## 主な機能
-
-### 1. ArgoCDを用いたアプリケーションの管理
-
-![ArgoCD](docs/assets/images/argocd.png)
-
-### 2. Cloudflare Ingress Controllerを用いたサービスの公開
-
-- argocd: https://argocd.example.com
-- harbor: https://harbor.example.com
-
-### 3. Rook Cephを用いた永続ストレージの構築
-
-### 4. Harborを用いたプライベートDocker Registryの構築
-
-![Harbor](docs/assets/images/harbor.png)
-
-## 発展
-
-以下のリポジトリとProxmoxを組み合わせることで、VMの作成・削除、構成の自動化が可能になり、自宅に簡易的なクラウド基盤を構築できます。
-
-- [Terraform for Proxmox](https://github.com/AobaIwaki123/Proxmox-Terraform)
-- [Ansible](https://github.com/AobaIwaki123/ansible)
-
-## 目次
-
-- [k8s Cluster on Proxmox](#k8s-cluster-on-proxmox)
-  - [📚 ドキュメント](#-ドキュメント)
-    - [📱 モバイルでのドキュメント閲覧](#-モバイルでのドキュメント閲覧)
-  - [主な機能](#主な機能)
-    - [1. ArgoCDを用いたアプリケーションの管理](#1-argocdを用いたアプリケーションの管理)
-    - [2. Cloudflare Ingress Controllerを用いたサービスの公開](#2-cloudflare-ingress-controllerを用いたサービスの公開)
-    - [3. Rook Cephを用いた永続ストレージの構築](#3-rook-cephを用いた永続ストレージの構築)
-    - [4. Harborを用いたプライベートDocker Registryの構築](#4-harborを用いたプライベートdocker-registryの構築)
-  - [発展](#発展)
-  - [目次](#目次)
-  - [Versions](#versions)
-  - [クイックスタート](#クイックスタート)
-    - [0. 前準備](#0-前準備)
-    - [k0sクラスターの構築](#k0sクラスターの構築)
-  - [コンポーネントのセットアップ](#コンポーネントのセットアップ)
-
-## Versions
-
-- asdf: v0.16.6
-- k0sctl: v0.33.1
-- k0s: v1.36.4+k0s.1
-- k9s: v0.50.18
-- helm: 3.20.2
-- kubectl: 1.36.1
-- argocd: v3.3.6
-
-## クイックスタート
-
-### 0. 前準備
-
-- [asdfのインストール](manifests/0-asdf/README.md)
-- [必要なツールのインストール](manifests/0-asdf/README.md)
-
-### k0sクラスターの構築
+## 最短手順
 
 ```bash
-cd k0s
-make apply
-make config
+# クラスター構築・kubeconfig取得（新規構築時のみ）
+make -C cluster/bootstrap/k0s help
+make -C cluster/bootstrap/k0s apply
+make -C cluster/bootstrap/k0s config
+
+# 状態確認
+kubectl get nodes
+kubectl get applications.argoproj.io -A
 ```
 
-詳細は [k0s/README.md](k0s/README.md) を参照
+詳細な適用順序と注意点は [`docs/operations.md`](docs/operations.md) を参照してください。クラスター全体へ影響する `apply` / `reset`、および Argo CD の prune を伴う変更は、対象と復旧手段を確認してから実行します。
 
-## コンポーネントのセットアップ
+## 将来の表示
 
-各コンポーネントの詳細なセットアップ手順は、以下のドキュメントを参照してください：
-
-1. **ArgoCD** - [手順](manifests/1-argocd/README.md) | [詳細ドキュメント](docs/components/argocd.md)
-2. **Cloudflare Ingress Controller** - [手順](manifests/2-cloudflare-ingress-controller/README.md) | [詳細ドキュメント](docs/components/cloudflare-ingress.md)
-3. **Rook Ceph** - [手順](manifests/3-rook-ceph-pvc/README.md) | [詳細ドキュメント](docs/components/rook-ceph.md)
-4. **Cert Manager** - [手順](manifests/4-cert-manager/README.md) | [詳細ドキュメント](docs/components/cert-manager.md)
-5. **Harbor** - [手順](manifests/5-harbor/README.md) | [詳細ドキュメント](docs/components/harbor.md)
+外部へ見せる場合は、内部情報を隠した単純な状態ダッシュボードを別途設計します。Prometheus や Grafana の画面をそのまま公開せず、allowlist 済みの集計値だけを出す方針です。境界は [`docs/architecture.md`](docs/architecture.md) に記載しています。

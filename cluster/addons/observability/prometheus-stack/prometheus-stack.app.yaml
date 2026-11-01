@@ -100,25 +100,19 @@ spec:
               group_wait: 30s
               group_interval: 5m
               repeat_interval: 12h
-              receiver: 'discord' # デフォルトの通知先
+              receiver: 'null' # 通知先はSecret管理を決めてから追加する
               routes:
               - match:
                   alertname: Watchdog
                 receiver: 'null'
             receivers:
             - name: 'null'
-            - name: 'discord'
-              slack_configs:
-              # Discord Webhook URLの末尾に '/slack' を付与してください
-              # 例: https://discord.com/api/webhooks/xxxx/xxxx/slack
-              - api_url: 'https://discord.com/api/webhooks/1473948525506330757/T2EvLXHLf2wgUidMlq8dIWSQDZkKlyQDlxbOntmHoNQNf1DzAN5GYamaDf-k-98L13og/slack'
-                channel: '#alerts'
-                send_resolved: true
-                title: '{{ template "slack.default.title" . }}'
-                text: '{{ template "slack.default.text" . }}'
 
         grafana:
-          adminPassword: "new_password"
+          admin:
+            existingSecret: kube-prometheus-stack-grafana
+            userKey: admin-user
+            passwordKey: admin-password
           persistence:
             enabled: true
             size: 10Gi
