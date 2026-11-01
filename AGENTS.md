@@ -29,6 +29,7 @@ cluster/
 - docs/ は AI と運用者が読むための短い Markdown のみを置く。公開サイトの生成物は置かない。
 - README.md は入口、docs/architecture.md は構成と判断、docs/operations.md は操作手順、docs/security.md は安全境界を扱う。
 - docs/storage.md は現行の Rook Ceph と、未導入の NFS を比較・導入するための手順を扱う。
+- .agents/skills/cluster-bootstrap/SKILL.md と cmd/clusterctl/ は、クラスター構築を自動化するための入口。Secret の作成やアプリサービスの操作は扱わない。
 - Argo CD Application の spec.source.path は、リポジトリ上の実パスと一致させる。
 
 ## 現時点の判断
@@ -47,6 +48,8 @@ cluster/
 
 ~~~bash
 git diff --check
+go test ./...
+go vet ./...
 kubectl get nodes
 kubectl get applications.argoproj.io -A
 kubectl get ingress -A

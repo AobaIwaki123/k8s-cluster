@@ -39,6 +39,7 @@ Rook、Tailscale、Cloudflare、Argo CD などホスト・API・ネットワー�
 - Tailscale は内部通信の経路として扱い、公開ダッシュボードの入口にはしない。
 - NetworkPolicy を追加する場合は、DNS と必要な外向き通信を allowlist に含め、Cloudflare と Tailscale の通信を壊さないことを確認する。
 - Ingress のアノテーションやホスト名は、公開情報として扱ってよいか確認する。
+- 現行の Grafana Ingress は既存構成として残るが、専用の公開 dashboard とはみなさない。認証と allowlist を別途確認する。
 
 ## NFS を導入する場合
 

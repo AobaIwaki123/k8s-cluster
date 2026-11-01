@@ -5,6 +5,22 @@
 必要な CLI は kubectl、k0sctl、helm、argocd、SSH クライアントです。asdf は必須にしません。
 Secret や Cloudflare token は Secret 管理の仕組みから注入し、YAML やコマンド履歴に直接残しません。
 
+## Go CLI による安全な実行
+
+クラスター構築の標準入口は、リポジトリルートの clusterctl です。
+doctor と plan は read-only で、実行系は execute と yes の両方を明示しない限り dry-run になります。
+
+~~~bash
+go run ./cmd/clusterctl doctor
+go run ./cmd/clusterctl doctor --cluster
+go run ./cmd/clusterctl plan --target all
+go run ./cmd/clusterctl bootstrap --execute --yes
+go run ./cmd/clusterctl addons --execute --yes
+~~~
+
+CLI は Secret を作成・表示せず、アプリケーションサービスやクラスター reset も扱いません。
+実行前に表示された plan、k0sctl の対象ノード、kubeconfig、外部 Secret の準備を確認します。
+
 ## クラスターの構築・接続
 
 ~~~bash

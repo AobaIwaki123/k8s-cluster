@@ -29,14 +29,13 @@ Rook Ceph の代替候補としての手順だけを記録します。アプリ�
 ## 最短手順
 
 ~~~bash
-# クラスター構築・kubeconfig取得（新規構築時のみ）
-make -C cluster/bootstrap/k0s help
-make -C cluster/bootstrap/k0s apply
-make -C cluster/bootstrap/k0s config
+# read-only checks and deterministic plan
+go run ./cmd/clusterctl doctor
+go run ./cmd/clusterctl plan --target all
 
-# 状態確認
-kubectl get nodes
-kubectl get applications.argoproj.io -A
+# review the plan, prerequisites, and current kubeconfig before execution
+go run ./cmd/clusterctl bootstrap --execute --yes
+go run ./cmd/clusterctl addons --execute --yes
 ~~~
 
 詳細な適用順序と注意点は [docs/operations.md](docs/operations.md) を参照してください。
