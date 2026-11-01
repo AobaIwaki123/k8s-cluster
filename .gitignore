@@ -3,12 +3,9 @@ tmp/
 # Local worktrees
 .worktrees/
 
-# GitHub Pages / Jekyll
-docs/_site/
-docs/.sass-cache/
-docs/.jekyll-cache/
-docs/.jekyll-metadata
-docs/Gemfile.lock
-docs/vendor/
-
 .DS_Store
+
+# Local secret material and generated kubeconfig
+*.kubeconfig
+*.kubeconfig.yaml
+secrets/

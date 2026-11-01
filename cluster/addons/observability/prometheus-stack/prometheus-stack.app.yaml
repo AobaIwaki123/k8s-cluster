@@ -128,11 +128,7 @@ spec:
           # 追加のデータソースを読み込む設定
           sidecar:
             datasources:
-              enabled: true
-              label: grafana_datasource
-              labelValue: "1"
-              searchNamespace: observability
-              reloadURL: http://localhost:3000/api/admin/provisioning/datasources/reload
+              enabled: false
             dashboards:
               enabled: true
               label: grafana_dashboard

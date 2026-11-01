@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tailscale-operator
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://pkgs.tailscale.com/helmcharts
+    chart: tailscale-operator
+    targetRevision: 1.94.2
+    helm:
+      valuesObject:
+        # oauth.clientId/clientSecret are intentionally unset.
+        # The chart uses the pre-created tailscale/operator-oauth Secret.
+        operatorConfig:
+          hostname: tailscale-operator
+          logging: info
+          defaultTags:
+            - tag:k8s
+        ingressClass:
+          name: tailscale
+          enabled: true
+        proxyConfig:
+          defaultTags: tag:k8s
+          firewallMode: auto
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tailscale
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
