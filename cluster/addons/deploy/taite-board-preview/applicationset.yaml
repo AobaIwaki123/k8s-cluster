@@ -33,7 +33,7 @@ spec:
               patch: |-
                 - op: replace
                   path: /spec/rules/0/host
-                  value: pr-{{number}}.taite.iorin.net
+                  value: pr-{{number}}-taite.iorin.net
       destination:
         server: https://kubernetes.default.svc
         namespace: 'taite-board-pr-{{number}}'
