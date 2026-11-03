@@ -9,6 +9,7 @@ spec:
         github:
           owner: AobaIwaki123
           repo: taite-board
+        requeueAfterSeconds: 60
   template:
     metadata:
       name: 'taite-board-pr-{{number}}'
