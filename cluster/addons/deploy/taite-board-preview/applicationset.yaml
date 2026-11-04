@@ -25,8 +25,8 @@ spec:
         kustomize:
           namespace: 'taite-board-pr-{{number}}'
           images:
-            - 'ghcr.io/aobaiwaki123/taite-board:pr-{{number}}'
-            - 'ghcr.io/aobaiwaki123/taite-board-monitor:pr-{{number}}'
+            - 'ghcr.io/aobaiwaki123/taite-board:sha-{{head_short_sha}}'
+            - 'ghcr.io/aobaiwaki123/taite-board-monitor:sha-{{head_short_sha}}'
           patches:
             - target:
                 kind: Ingress
