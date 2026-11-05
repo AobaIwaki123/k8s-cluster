@@ -13,10 +13,15 @@ doctor と plan は read-only で、実行系は execute と yes の両方を明
 ~~~bash
 go run ./cmd/clusterctl doctor
 go run ./cmd/clusterctl doctor --cluster
+go run ./cmd/clusterctl drift
 go run ./cmd/clusterctl plan --target all
 go run ./cmd/clusterctl bootstrap --execute --yes
 go run ./cmd/clusterctl addons --execute --yes
 ~~~
+
+drift は基盤 Application の SYNC / HEALTH と、repo内の基盤マニフェストに対する
+read-only kubectl diff を確認します。アプリケーションサービスは意図的に対象外です。
+差分がある場合は終了コード1になるため、CIや定期実行から呼び出せます。
 
 CLI は Secret を作成・表示せず、アプリケーションサービスやクラスター reset も扱いません。
 実行前に表示された plan、k0sctl の対象ノード、kubeconfig、外部 Secret の準備を確認します。

@@ -31,6 +31,7 @@ Rook Ceph の代替候補としての手順だけを記録します。アプリ�
 ~~~bash
 # read-only checks and deterministic plan
 go run ./cmd/clusterctl doctor
+go run ./cmd/clusterctl drift
 go run ./cmd/clusterctl plan --target all
 
 # review the plan, prerequisites, and current kubeconfig before execution
